@@ -85,7 +85,7 @@
       <tr>
         <form action="#" onsubmit="wt_showAddress(this.address.value); return false">
         <th style="text-align:left;">
-          <img src="icon27.gif" alt="Location" title="Location"/>
+          <img src="img/icon27.gif" alt="Location" title="Location"/>
           <input type="text" size="20" name="address" value=""/>
           <input type="submit" value="Go!"/>
         </th>
@@ -93,7 +93,7 @@
         <th class="title" id="trktitle"></th>
         <form action="#">
         <th style="text-align:right">
-            Show: <img src="mm_20_red.png" alt="handles" title="handles"/>
+            Show: <img src="img/mm_20_red.png" alt="handles" title="handles"/>
             <input type="checkbox" id="showmarkers"
             <?php if ($showmarkers) echo "checked"; ?> 
             onclick="wt_showTrkMarkers(this.checked)" />
@@ -101,7 +101,7 @@
             <input type="checkbox" id="showlabels"
             <?php if ($showlabels) echo "checked"; ?> 
             onclick="wt_showLabels(this.checked)" />
-            &nbsp;/&nbsp; <img src="icon13noshade.gif" alt="waypoints" title="waypoints"/>
+            &nbsp;/&nbsp; <img src="img/icon13noshade.gif" alt="waypoints" title="waypoints"/>
             <input type="checkbox" id="showwaypoints" checked
             onclick="wt_showWaypoints(this.checked)" />
         </th>
@@ -114,11 +114,11 @@
       <tr>
         <th width="200">Distance</th>
         <td width="150">
-          <img src='oneway.gif' alt='One Way' title='One Way'>
+          <img src='img/oneway.gif' alt='One Way' title='One Way'>
           <span id="distow"></span>
         </td>
         <td width="150">
-          <img src='roundtrip.gif' alt='Round Trip' title='Round Trip'>
+          <img src='img/roundtrip.gif' alt='Round Trip' title='Round Trip'>
           <span id="distrt"></span>
         </td>
         <th width="150">Altitude Max</th>
@@ -127,7 +127,7 @@
         <th width="150">Climbing</th>
         <td width="60" id="climbing">
         </td><!-- name="submit" value="submit" -->
-        <td rowspan="2"><button type="submit" onclick="wt_doGraph(); return false">2D Profile<br><img src="2d.gif"></button></td>
+        <td rowspan="2"><button type="submit" onclick="wt_doGraph(); return false">2D Profile<br><img src="img/2d.gif"></button></td>
       <tr>
         <form action="#">
         <th>
@@ -138,11 +138,11 @@
         </th>
         </form>
         <td>
-          <img src='oneway.gif' alt='One Way' title='One Way'>
+          <img src='img/oneway.gif' alt='One Way' title='One Way'>
           <span id="timeow"></span>
         </td>
         <td>
-          <img src='roundtrip.gif' alt='Round Trip' title='Round Trip'>
+          <img src='img/roundtrip.gif' alt='Round Trip' title='Round Trip'>
           <span id="timert"></span>
         </td>
         <th>Altitude Min</th>
@@ -199,7 +199,7 @@
         <tr>
           <th style="text-align:left">Track profile</th>
           <th align="right"><a href="javascript:close_popup('graph-box')">
-              <img src="close.gif" alt="Close" title="Close" style="border: 0px"/></a></span></th>
+              <img src="img/close.gif" alt="Close" title="Close" style="border: 0px"/></a></span></th>
         </tr>
         <tr><td colspan="2">
         <div><canvas id="graph" height="350" width="650"></canvas></div>
@@ -211,7 +211,7 @@
       <table>
         <tr>
           <th style="text-align:left">Save Options</th>
-          <th><a href="javascript:close_popup('options-box')"><img src="close.gif" alt="Cancel and Close" title="Cancel and Close" style="border: 0px"/></a></span></th>
+          <th><a href="javascript:close_popup('options-box')"><img src="img/close.gif" alt="Cancel and Close" title="Cancel and Close" style="border: 0px"/></a></span></th>
         </tr>
         <tr>
           <td>Track Name</td>
@@ -271,8 +271,8 @@
   var info; // info line
   var debug; // debug area
 
-  var ROUNDTRIP_IMG = "<img src='roundtrip.png' alt='Round Trip' title='Round Trip'>";
-  var ONEWAY_IMG = "<img src='oneway.png' alt='One Way' title='One Way'>";
+  var ROUNDTRIP_IMG = "<img src='img/roundtrip.png' alt='Round Trip' title='Round Trip'>";
+  var ONEWAY_IMG = "<img src='img/oneway.png' alt='One Way' title='One Way'>";
   var WTRACKS = "WTracks - Online GPX track editor"
 
   //  wpt icon
