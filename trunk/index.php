@@ -36,7 +36,7 @@
       padding: 10px;
       position: absolute;
       left: 10px;
-      top: 400px;
+      top: 75px;
       /*width: 500px;*/
       /*height: 250px;*/
       visibility: hidden;
@@ -59,27 +59,56 @@
     </style>
     <script src="http://maps.google.com/maps?file=api&amp;v=2.x&amp;key=<?= file_get_contents('private/gmaps.key');?>"
             type="text/javascript"></script>
-    <script src="elabel.js" type="text/javascript"></script>
-
-<!-- plotkit includes (for graph disply) -->
-   <script src="MochiKit.js" type="text/javascript"></script>
-   <script src="excanvas.js" type="text/javascript"></script>
-   <script src="PlotKit_Packed.js" type="text/javascript"></script>
-<!-- end of plotkit includes -->
-   <script src="gpsies_clusterer2.js" type="text/javascript"></script>
-   <script src="http://www.ajaxbuch.de/lokris/lokris.js" type="text/javascript"></script>
 
   </head>
   <body onload="wt_load()" onunload="GUnload()">
 
 <?php 
   $host = $_SERVER["HTTP_HOST"];
+  $goto = "goto=".urlencode($_SERVER['REQUEST_URI']);
+  $rpxnow_token_url = "/login.php?".$goto;
   $testing = strpos($PHP_SELF, "testing");
   $file = $HTTP_POST_FILES['gpxfile']['tmp_name'];
   $file_name = $HTTP_POST_FILES['gpxfile']['name'];
   $showmarkers = !($_REQUEST["marks"] == "false");
   $showlabels = !($_REQUEST["labels"] == "false");
 ?>
+
+<!-- =================== Top bar =================== -->
+
+<table width="100%"><tr><td style="text-align:left">
+<strong>GPX track:</strong>
+<a href="javascript:wt_clear(); wt_clear_trackinfo(); info.set('');">New</a>
+| <a href="javascript:show_load_box()">Load</a>
+| <a href="javascript:show_save_box()">Save</a>
+
+</td><td style="text-align:right">
+
+<!-- OpenID login (rpxnow) -->
+<?php
+  $openID = $_COOKIE["LoginOpenID"];
+  if ($openID == "") {
+?>
+<a class="rpxnow" onclick="return false;"
+   href="https://wtracks-exofire.rpxnow.com/openid/v2/signin?token_url=<?=$rpxnow_token_url?>">
+  <img src="http://wiki.openid.net/f/openid-16x16.gif" alt="" border="0"> Sign In
+</a>
+<?php
+  } else {
+      $openID = json_decode(urldecode($openID));
+      $name = $openID->profile->displayName;
+      $oid = str_ireplace("http://", "", $openID->profile->identifier);
+      if ($name == "") {
+        $name = $oid;
+      }
+      echo "<a href='".$openID->profile->identifier."'>".$name;
+      echo "</a> | <a href='login.php?action=logout&".$goto."'>Logout</a><br>\n";
+  }
+?>
+<!-- OpenID login (rpxnow) -->
+
+</td></tr></table>
+<!-- =================== end of Top bar =================== -->
 
     <table width="100%">
       <tr>
@@ -108,7 +137,7 @@
         </form>
       </tr>
     </table>
-    <div id="map" style="width: 100%; height: 500px"></div>
+    <div id="map" style="width: 100%; height: 600px"></div>
     <span id="message"></span>
     <table>
       <tr>
@@ -162,37 +191,6 @@
         </td>
       </tr>
     </table>
-    <table>
-      <tr>
-        <form action="#" onsubmit="wt_clear(); wt_clear_trackinfo(); info.set(''); return false">
-          <td>
-            <input type="submit" value="Clear Track" />
-          </td>
-        </form>
-        <form action="#" onsubmit="wt_loadGPX(this.url.value); return false">
-          <td>
-            <input type="submit" value="Load GPX from URL:" /> 
-            <input type="text" size="60" name="url" value="tracks/everest.gpx" />
-          </td>
-        </form>
-      </tr>
-      <tr>
-        <td>
-          <button type='button' onclick='javascript:show_menu()' id='doSave'>
-            Save to GPX
-          </button>
-        </td>
-        <form id="upform" enctype="multipart/form-data" method="post">
-          <td>
-            <input name="gpxupload" type="submit" value="Load GPX from file:"
-                   onclick='return wt_check_fileupload(document.getElementById("upform"));' />
-            <input type="file" size="50" name="gpxfile" id="gpxfile" />
-            <input type="hidden" name="marks" value="" />
-            <input type="hidden" name="labels" value="" />
-          </td>
-        </form>
-      </tr>
-    </table>
 
     <div class="graph-box" id="graph-box" onkeypress='check_for_escape(event, "graph-box")'>
       <table>
@@ -207,11 +205,41 @@
       </table>
     </div>
 
-    <div class="options-box" id="options-box" onkeypress='check_for_escape(event, "options-box")'>
+    <div class="options-box" id="load-box" onkeypress='check_for_escape(event, "load-box")'>
+      <table>
+        <tr>
+          <th style="text-align:left">Load Options</th>
+          <th><a href="javascript:close_popup('load-box')"><img src="img/close.gif" alt="Cancel and Close" title="Cancel and Close" style="border: 0px"/></a></span></th>
+        </tr>
+        <tr>
+          <form onsubmit="wt_loadGPX(this.url.value); return false;">
+            <td>
+              <input type="submit" value="Load GPX from URL:" />
+            </td><td>
+              <input id="gpxurl" type="text" size="60" name="url" value="tracks/everest.gpx" />
+            </td>
+          </form>
+        </tr>
+        <tr>
+          <form id="upform" enctype="multipart/form-data" method="post">
+            <td>
+              <input name="gpxupload" type="submit" value="Load GPX from file:"
+                     onclick="return wt_check_fileupload(document.getElementById('upform'));" />
+            </td><td>
+              <input type="file" size="50" name="gpxfile" id="gpxfile" />
+              <input type="hidden" name="marks" value="" />
+              <input type="hidden" name="labels" value="" />
+            </td>
+          </form>
+        </tr>
+      </table>
+    </div>
+    
+    <div class="options-box" id="save-box" onkeypress='check_for_escape(event, "save-box")'>
       <table>
         <tr>
           <th style="text-align:left">Save Options</th>
-          <th><a href="javascript:close_popup('options-box')"><img src="img/close.gif" alt="Cancel and Close" title="Cancel and Close" style="border: 0px"/></a></span></th>
+          <th><a href="javascript:close_popup('save-box')"><img src="img/close.gif" alt="Cancel and Close" title="Cancel and Close" style="border: 0px"/></a></span></th>
         </tr>
         <tr>
           <td>Track Name</td>
@@ -226,10 +254,17 @@
           <td>Save computed timings?</td>
         </tr>
         <tr>
-          <form target="_blank" action="echogpx.php" method="post">
+          <form target="_blank" action="savegpx.php" method="post">
             <td colspan="2">
               <input type="submit" name="savegpx" 
                      onclick="wt_doSave()" value="Save" />
+<?php
+if ($iod != "") {
+            echo "<input type='submit' name='savegpx' onclick='gpx2form();' value='Save on this server' />";
+} else {
+           echo "(Sign in to be able to save on this server)";
+}
+?>
               <textarea name="gpxarea" class="hidden" 
                         id="gpxarea" readonly rows="20" cols="80"><?php
   if ($file<>'') {
@@ -277,8 +312,8 @@
 
   //  wpt icon
   var wp_icon = new GIcon(G_DEFAULT_ICON);
-  wp_icon.image            = "icon13.png"; // http://maps.google.com/mapfiles/kml/pal2/
-  wp_icon.shadow           = "icon13s.png";
+  wp_icon.image            = "img/icon13.png"; // http://maps.google.com/mapfiles/kml/pal2/
+  wp_icon.shadow           = "img/icon13s.png";
   wp_icon.iconSize         = new GSize(32,32);
   wp_icon.shadowSize       = new GSize(56,32);
   wp_icon.iconAnchor       = new GPoint(16, 32);
@@ -286,8 +321,8 @@
 
   //  wpt icon
   var trkpt_icon = new GIcon(G_DEFAULT_ICON);
-  trkpt_icon.image            = "mm_20_red.png";
-  trkpt_icon.shadow           = "mm_20_shadow.png";
+  trkpt_icon.image            = "img/mm_20_red.png";
+  trkpt_icon.shadow           = "img/mm_20_shadow.png";
   trkpt_icon.iconSize         = new GSize(12, 20);
   trkpt_icon.shadowSize       = new GSize(22, 20);
   trkpt_icon.iconAnchor       = new GPoint(6, 20);
@@ -1017,6 +1052,7 @@
   
 
   function wt_loadGPX(filename) {
+    close_popup('load-box');
     info.set("loading " + filename + "...<br>");
     GDownloadUrl("httpget_proxy.php?" + filename, function(data, responseCode) {
       wt_importGPX(data);
@@ -1250,7 +1286,7 @@
     } else {
 ?>
 
-      var gpxurl="<?php echo $_REQUEST["gpx"] ?>";
+      var gpxurl="<?= $_REQUEST["gpx"] ?>";
       if (gpxurl.length>1) {
 debug.add(gpxurl);
         //document.getElementById("showmarkers").checked = false;     
@@ -1271,6 +1307,7 @@ debug.add(gpxurl);
       form.gpxfile.focus ();
       return false;
     }
+    close_popup('load-box');
     form.marks.value = document.getElementById('showmarkers').checked;
     form.labels.value = document.getElementById('showlabels').checked;
     return true;
@@ -1335,21 +1372,27 @@ debug.add(gpxurl);
     }
   }
   
-  function show_menu(){
+  function show_save_box(){
     document.getElementById("trackname").value = trackname 
-    show_popup("options-box");
+    show_popup("save-box");
     var obj = document.getElementById("trackname");
     obj.focus();
   }
   
   function wt_doSave() {
-    close_popup('options-box')
+    close_popup('save-box')
     trackname = document.getElementById("trackname").value
     var savealt = document.getElementById("savealt").checked
     var savetime = document.getElementById("savetime").checked
     document.getElementById("gpxarea").value = wt_toGPX(savealt, savetime)
   }
 
+  function show_load_box(){
+    show_popup("load-box");
+    var obj = document.getElementById("gpxurl");
+    obj.focus();
+  }
+  
   function wt_doGraph() {
     if (trkpts.length == 0) {
       alert("No track defined yet. Click on the map!")
@@ -1393,4 +1436,27 @@ debug.add(gpxurl);
 
     //]]>
     </script>
+
+<!-- plotkit includes (for graph disply) -->
+   <script src="MochiKit.js" type="text/javascript"></script>
+   <script src="excanvas.js" type="text/javascript"></script>
+   <script src="PlotKit_Packed.js" type="text/javascript"></script>
+<!-- end of plotkit includes -->
+
+<!-- utility scripts -->
+   <script src="gpsies_clusterer2.js" type="text/javascript"></script>
+   <script src="http://www.ajaxbuch.de/lokris/lokris.js" type="text/javascript"></script>
+   <script src="elabel.js" type="text/javascript"></script>
+
+  <!-- RPXNOW -->
+<script src="https://rpxnow.com/openid/v2/widget"
+        type="text/javascript"></script>
+<script type="text/javascript">
+  RPXNOW.token_url = "http://<?php echo $host.$rpxnow_token_url?>";
+  RPXNOW.realm = "<?= file_get_contents('private/rpxnow.realm')?>";
+  RPXNOW.overlay = true;
+  RPXNOW.language_preference = 'en';
+</script>
+  <!-- END OF RPXNOW -->
+
 </html>
