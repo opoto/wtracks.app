@@ -240,11 +240,11 @@ if ($oid != "") {
         <tr>
           <form onsubmit="return false;">
             <td>
-              <input type="submit" value="Your saved tracks:" id="loadusertrack" onclick="wt_loadGPX(this.form.url.value);""/>
+              <input type="submit" value="Your saved track:" id="loadusertrack" onclick="wt_loadGPX(this.form.url.value);""/>
             </td><td>
               <select name="url" id="usertracks">
               </select>
-              <input type="submit" value="Delete this tracks" id="deleteusertrack" onclick="delete_track(this.form.url.value);"/>
+              <input type="submit" value="Delete this track" id="deleteusertrack" onclick="delete_track(this.form.url.value);"/>
             </td>
         </tr>
 <?php
@@ -1443,7 +1443,7 @@ debug.add(gpxurl);
 <?php
     if ($oid != "") {
 ?>
-      Lokris.AjaxCall("usertracks.php?oid=<?=$oid?>", show_user_tracks);
+      load_tracks("");
 <?php
    }
 ?>
