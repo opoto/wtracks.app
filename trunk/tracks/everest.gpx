@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no" ?>
+<gpx creator="Maps Measures" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" version="1.1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+<metadata>
+  <name>Everest, May 1953 (T. Norgay, E. Hillary)</name>
+  <desc></desc>
+  <author><name>WTracks - Online GPX track editor</name></author>
+  <link href="http://wtracks.exofire.net">
+    <text>WTracks</text>
+    <type>text/html</type>
+  </link>
+  <time>2009-04-01T23-44-20Z</time>
+<bounds minlat="27.953164890693838" minlon="86.7949104309082" maxlat="28.044106826715712" maxlon="87.03248977661133"/></metadata>
+  <wpt lat="28.01516530498759" lon="86.86314582824707"><name>CAMP01</name></wpt>
+  <wpt lat="28.007511926566433" lon="86.87396049499512"><name>CAMP02</name></wpt>
+  <wpt lat="27.9996336370706" lon="86.8776311899421"><name>CAMP03</name></wpt>
+  <wpt lat="27.988717165912927" lon="86.90099716186523"><name>CAMP04</name></wpt>
+  <wpt lat="27.99584137222645" lon="86.92777633666992"></wpt>
+  <wpt lat="27.992051959399543" lon="86.92880630493164"><name>CAMP09</name></wpt>
+  <wpt lat="27.98159248878787" lon="86.93498611450195"><name>CAMP08</name></wpt>
+  <wpt lat="27.972117454920706" lon="86.9234848022461"><name>CAMP07</name></wpt>
+  <wpt lat="27.97302709428688" lon="86.91739082336426"><name>CAMP06</name></wpt>
+  <wpt lat="27.984245349110434" lon="86.91018104553223"><name>CAMP05</name></wpt>
+<trk><name>the track</name><trkseg>
+  <trkpt lat="28.0153298404082" lon="86.8629527172877"><ele>5455</ele></trkpt>
+  <trkpt lat="28.0142569568021" lon="86.8637681088283"></trkpt>
+  <trkpt lat="28.0133986499173" lon="86.8650555691556"></trkpt>
+  <trkpt lat="28.0128407504421" lon="86.8685960850556"></trkpt>
+  <trkpt lat="28.0118751551967" lon="86.8690681538423"></trkpt>
+  <trkpt lat="28.0095148112634" lon="86.8730592808568"></trkpt>
+  <trkpt lat="28.0065536525107" lon="86.8743467411841"><ele>5913</ele></trkpt>
+  <trkpt lat="28.003785612807" lon="86.8751621327247"></trkpt>
+  <trkpt lat="28.002712729201" lon="86.8765783390847"></trkpt>
+  <trkpt lat="28.001661303267" lon="86.8763423046913"></trkpt>
+  <trkpt lat="28.0009102847428" lon="86.8765783390847"></trkpt>
+  <trkpt lat="28.0006098773331" lon="86.8759775242653"></trkpt>
+  <trkpt lat="27.9998588588089" lon="86.876814373478"></trkpt>
+  <trkpt lat="28.0001592662186" lon="86.877522476658"><ele>6156</ele></trkpt>
+  <trkpt lat="27.9999446894973" lon="86.8779945454447"></trkpt>
+  <trkpt lat="27.999000551924" lon="86.876814373478"></trkpt>
+  <trkpt lat="27.9983782794325" lon="86.8755054554786"></trkpt>
+  <trkpt lat="27.997219565138" lon="86.8756342015113"></trkpt>
+  <trkpt lat="27.997219565138" lon="86.8758702359047"></trkpt>
+  <trkpt lat="27.9946661021555" lon="86.8765568814125"></trkpt>
+  <trkpt lat="27.9925203349434" lon="86.8791532597392"></trkpt>
+  <trkpt lat="27.9917693164192" lon="86.8794965824931"></trkpt>
+  <trkpt lat="27.9901599910101" lon="86.8829083523604"></trkpt>
+  <trkpt lat="27.9899454142889" lon="86.8843245587204"></trkpt>
+  <trkpt lat="27.9908680941901" lon="86.8885517201282"></trkpt>
+  <trkpt lat="27.9912543322883" lon="86.891512878881"></trkpt>
+  <trkpt lat="27.9912543322883" lon="86.8931436619622"></trkpt>
+  <trkpt lat="27.989475082581983" lon="86.90116882324219"><ele>6462</ele></trkpt>
+  <trkpt lat="27.9885077502568" lon="86.90374375199"></trkpt>
+  <trkpt lat="27.9876709010441" lon="86.904795177924"></trkpt>
+  <trkpt lat="27.9853963877992" lon="86.9091510853645"></trkpt>
+  <trkpt lat="27.9845380809144" lon="86.9103312573312"><ele>6705</ele></trkpt>
+  <trkpt lat="27.9813408877683" lon="86.9124341091991"></trkpt>
+  <trkpt lat="27.9801821734738" lon="86.9129061779857"></trkpt>
+  <trkpt lat="27.9795384433101" lon="86.9136142811657"></trkpt>
+  <trkpt lat="27.9776287104914" lon="86.9133782467724"></trkpt>
+  <trkpt lat="27.9765772845574" lon="86.913485535133"></trkpt>
+  <trkpt lat="27.9740023639029" lon="86.9173693737869"><ele>7010</ele></trkpt>
+  <trkpt lat="27.9735732104605" lon="86.9185495457536"></trkpt>
+  <trkpt lat="27.9733371760671" lon="86.9215965351948"></trkpt>
+  <trkpt lat="27.9725861575429" lon="86.9230127415548"><ele>7315</ele></trkpt>
+  <trkpt lat="27.9723501231496" lon="86.9239568791281"></trkpt>
+  <trkpt lat="27.9714059855762" lon="86.9244289479148"></trkpt>
+  <trkpt lat="27.9721140887562" lon="86.9274973950281"></trkpt>
+  <trkpt lat="27.9730582263296" lon="86.9299650273221"></trkpt>
+  <trkpt lat="27.9750537898368" lon="86.932432659616"></trkpt>
+  <trkpt lat="27.9771566417047" lon="86.9333767971893"></trkpt>
+  <trkpt lat="27.978100779278" lon="86.933505543222"></trkpt>
+  <trkpt lat="27.9800105120968" lon="86.9332695088287"></trkpt>
+  <trkpt lat="27.9822421099974" lon="86.9339776120087"><ele>7924</ele></trkpt>
+  <trkpt lat="27.9834008242919" lon="86.9337415776154"></trkpt>
+  <trkpt lat="27.9857611682253" lon="86.9323253712554"></trkpt>
+  <trkpt lat="27.987134459241" lon="86.9322180828948"></trkpt>
+  <trkpt lat="27.9893660571416" lon="86.9309306225675"></trkpt>
+  <trkpt lat="27.990310194715" lon="86.9314026913542"></trkpt>
+  <trkpt lat="27.990846636518" lon="86.9312954029936"></trkpt>
+  <trkpt lat="27.9909539248786" lon="86.9302225193875"></trkpt>
+  <trkpt lat="27.9930996920907" lon="86.9279909214869"><ele>8503</ele></trkpt>
+  <trkpt lat="27.996168139204" lon="86.927647598733"><name>SUMMIT</name><ele>8847</ele></trkpt>
+</trkseg></trk></gpx>

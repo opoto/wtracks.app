@@ -21,7 +21,7 @@
 
     $response = get_json_openid($token, $apiKey);
     if ($response && ($response != "")) {
-      setcookie("LoginOpenID", urlencode($response), time()+3600);
+      setcookie("LoginOpenID", urlencode($response), time()+7200);
       header("Location: $redirect");
     } else  {
       echo "Error: failed get auth info for token $token<br>";
