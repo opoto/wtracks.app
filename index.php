@@ -57,7 +57,7 @@
     }
 
     </style>
-    <script src="http://maps.google.com/maps?file=api&amp;v=2.x&amp;key=<?= file_get_contents('private/gmaps.key');?>"
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=<?= file_get_contents('private/gmaps.key');?>"
             type="text/javascript"></script>
 
   </head>
@@ -76,13 +76,15 @@
 
 <!-- =================== Top bar =================== -->
 
-<table width="100%"><tr><td style="text-align:left">
+<table width="100%"><tr><td style="text-align:left" width="33%">
 <strong>GPX track:</strong>
-<a href="javascript:wt_clear(); wt_clear_trackinfo(); info.set('');">New</a>
+<a href="javascript:clear_track();">New</a>
 | <a href="javascript:show_load_box()">Load</a>
 | <a href="javascript:show_save_box()">Save</a>
 
-</td><td style="text-align:right">
+</td><td style="text-align:center" width="33%">
+<span id="message"><img src='img/processing.gif'></span>
+</td><td style="text-align:right" width="33%">
 
 <!-- OpenID login (rpxnow) -->
 <?php
@@ -97,9 +99,9 @@
   } else {
       $openID = json_decode(urldecode($openID));
       $name = $openID->profile->displayName;
-      $oid = str_ireplace("http://", "", $openID->profile->identifier);
+      $oid = $openID->profile->identifier;
       if ($name == "") {
-        $name = $oid;
+        $name = str_ireplace("http://", "", $oid);
       }
       echo "<a href='".$openID->profile->identifier."'>".$name;
       echo "</a> | <a href='login.php?action=logout&".$goto."'>Logout</a><br>\n";
@@ -114,7 +116,7 @@
       <tr>
         <form action="#" onsubmit="wt_showAddress(this.address.value); return false">
         <th style="text-align:left;">
-          <img src="img/icon27.gif" alt="Location" title="Location"/>
+          <strong>Go to:</strong>
           <input type="text" size="20" name="address" value=""/>
           <input type="submit" value="Go!"/>
         </th>
@@ -138,7 +140,7 @@
       </tr>
     </table>
     <div id="map" style="width: 100%; height: 600px"></div>
-    <span id="message"></span>
+    
     <table>
       <tr>
         <th width="200">Distance</th>
@@ -232,6 +234,22 @@
             </td>
           </form>
         </tr>
+<?php
+if ($oid != "") {
+?>
+        <tr>
+          <form onsubmit="return false;">
+            <td>
+              <input type="submit" value="Your saved tracks:" id="loadusertrack" onclick="wt_loadGPX(this.form.url.value);""/>
+            </td><td>
+              <select name="url" id="usertracks">
+              </select>
+              <input type="submit" value="Delete this tracks" id="deleteusertrack" onclick="delete_track(this.form.url.value);"/>
+            </td>
+        </tr>
+<?php
+}
+?>
       </table>
     </div>
     
@@ -239,7 +257,8 @@
       <table>
         <tr>
           <th style="text-align:left">Save Options</th>
-          <th><a href="javascript:close_popup('save-box')"><img src="img/close.gif" alt="Cancel and Close" title="Cancel and Close" style="border: 0px"/></a></span></th>
+          <th><a href="javascript:close_popup('save-box')"><img src="img/close.gif" 
+               alt="Cancel and Close" title="Cancel and Close" style="border: 0px"/></a></span></th>
         </tr>
         <tr>
           <td>Track Name</td>
@@ -254,13 +273,14 @@
           <td>Save computed timings?</td>
         </tr>
         <tr>
-          <form target="_blank" action="savegpx.php" method="post">
+          <form target="_blank" action="savegpx.php" method="post" onSubmit="wt_doSave();">
             <td colspan="2">
-              <input type="submit" name="savegpx" 
-                     onclick="wt_doSave()" value="Save" />
+              <input type='hidden' id='savedname' name='savedname' value='' />
+              <input type="submit" name="action" value="Save" />
 <?php
-if ($iod != "") {
-            echo "<input type='submit' name='savegpx' onclick='gpx2form();' value='Save on this server' />";
+if ($oid != "") {
+            echo "<input type='hidden' name='oid' value='".$oid."' />";
+            echo "<input type='submit' name='action' value='Save on this server' />";
 } else {
            echo "(Sign in to be able to save on this server)";
 }
@@ -1053,7 +1073,8 @@ if ($iod != "") {
 
   function wt_loadGPX(filename) {
     close_popup('load-box');
-    info.set("loading " + filename + "...<br>");
+    //info.set("loading " + filename + "...<br>");
+    info.set("<img src='img/processing.gif'> Loading...");
     GDownloadUrl("httpget_proxy.php?" + filename, function(data, responseCode) {
       wt_importGPX(data);
     });
@@ -1113,21 +1134,31 @@ if ($iod != "") {
         pts = gpx.getElementsByTagName("wpt");
         if (pts) wt_importPoints(pts, false);
         var center = new GLatLng(0,0)
-        var zoom = 15
+        var zoom = 10
+        var mapbounds = new GLatLngBounds();
         if (bounds && bounds.length > 0) {
           //debug.add(bounds.length)
           var sw = new GLatLng(parseFloat(bounds[0].getAttribute("minlat")),
                                parseFloat(bounds[0].getAttribute("minlon")))
           var ne = new GLatLng(parseFloat(bounds[0].getAttribute("maxlat")),
                                parseFloat(bounds[0].getAttribute("maxlon")))
-          var mapbounds = new GLatLngBounds(sw, ne)
-          center = new GLatLng((sw.lat()+ne.lat())/2,(sw.lng()+ne.lng())/2)       
-          zoom = Math.max(map.getBoundsZoomLevel(mapbounds),15)      
-        } else if (trkpts && trkpts.length > 0) {
-          center = trkpts[trkpts.length - 1].getPoint()
-        } else if (wpts && wpts.length > 0) {
-          center = wpts[wpts.length - 1].getPoint()
+          mapbounds = new GLatLngBounds(sw, ne)
+        } else {
+          // compute bounds to include all trackpoints and waypoints
+          if (trkpts) {
+            for(var i = 0; i < trkpts.length; i++) { 
+              mapbounds.extend(trkpts[i].getPoint());
+            } 
+          }
+          if (wpts) {
+            for(var i = 0; i < wpts.length; i++) { 
+              mapbounds.extend(wpts[i].getPoint());
+            } 
+          }
         }
+        center = mapbounds.getCenter()
+        //zoom = Math.max(map.getBoundsZoomLevel(mapbounds),15)      
+        zoom = map.getBoundsZoomLevel(mapbounds)   
         map.setCenter(center, zoom);
         if (trkpts && trkpts.length > 0) {
           var pt = trkpts[trkpts.length - 1];
@@ -1279,7 +1310,7 @@ if ($iod != "") {
       
 <?php
   if ($file<>'') {
-      echo "info.set('uploaded ".$file_name."<br>')\n";
+      echo "info.set('Uploaded ".$file_name."<br>')\n";
 ?>
       wt_importGPX(document.getElementById('gpxarea').value);
 <?php
@@ -1292,7 +1323,7 @@ debug.add(gpxurl);
         //document.getElementById("showmarkers").checked = false;     
       } else {
 
-        gpxurl = "tracks/santa_muret.gpx";
+        gpxurl = "tracks/everest.gpx";
       }
       wt_loadGPX(gpxurl);
 <?php
@@ -1382,17 +1413,51 @@ debug.add(gpxurl);
   function wt_doSave() {
     close_popup('save-box')
     trackname = document.getElementById("trackname").value
+    document.getElementById("savedname").value = trackname;
     var savealt = document.getElementById("savealt").checked
     var savetime = document.getElementById("savetime").checked
     document.getElementById("gpxarea").value = wt_toGPX(savealt, savetime)
   }
 
+  function show_user_tracks(res) {
+    document.getElementById("usertracks").innerHTML= res;
+    document.getElementById("deleteusertrack").disabled = false;
+    document.getElementById("loadusertrack").disabled = false;
+    document.getElementById("usertracks").disabled = false;
+  }
+
+  function load_tracks(params) {
+    document.getElementById("deleteusertrack").disabled = true;
+    document.getElementById("loadusertrack").disabled = true;
+    document.getElementById("usertracks").disabled = true;
+    Lokris.AjaxCall("usertracks.php?oid=<?=$oid?>" + params, show_user_tracks);
+  }
+
+  function delete_track(url) {
+    if (confirm("Delete this track?")) {
+      load_tracks('&delete=' + url);
+    }
+  }
+
   function show_load_box(){
+<?php
+    if ($oid != "") {
+?>
+      Lokris.AjaxCall("usertracks.php?oid=<?=$oid?>", show_user_tracks);
+<?php
+   }
+?>
     show_popup("load-box");
     var obj = document.getElementById("gpxurl");
     obj.focus();
   }
   
+  function clear_track() {
+    wt_clear(); 
+    wt_clear_trackinfo();
+    info.set('');
+  }
+
   function wt_doGraph() {
     if (trkpts.length == 0) {
       alert("No track defined yet. Click on the map!")
