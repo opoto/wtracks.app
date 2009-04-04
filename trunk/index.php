@@ -43,6 +43,14 @@
       overflow:auto;
     }
 
+    .mapsize-box{
+      background: #eee;
+      border: 1px solid black;
+      position: absolute;
+      left: 35px;
+      overflow:auto;
+    }
+
     .graph-box{
       background: #eee;
       border: 1px solid black;
@@ -83,7 +91,7 @@
 | <a href="javascript:show_save_box()">Save</a>
 
 </td><td style="text-align:center" width="33%">
-<span id="message"><img src='img/processing.gif'></span>
+<span id="message"><img src='img/processing.gif'> Initializing...</span>
 </td><td style="text-align:right" width="33%">
 
 <!-- OpenID login (rpxnow) -->
@@ -242,8 +250,7 @@ if ($oid != "") {
             <td>
               <input type="submit" value="Your saved track:" id="loadusertrack" onclick="wt_loadGPX(this.form.url.value);""/>
             </td><td>
-              <select name="url" id="usertracks">
-              </select>
+              <span id="usertracks-span"><select name='url' id='usertracks'></select></span>
               <input type="submit" value="Delete this track" id="deleteusertrack" onclick="delete_track(this.form.url.value);"/>
             </td>
         </tr>
@@ -252,7 +259,14 @@ if ($oid != "") {
 ?>
       </table>
     </div>
-    
+
+    <div class="mapsize-box" style="top: 355px">
+      <a href="javascript:addMapHeight(20)" title="Increase map size"><img src="img/bigger.png" alt="bigger" border=0></a></td>
+    </div>
+    <div class="mapsize-box" style="top: 380px">
+      <a href="javascript:addMapHeight(-20)" title="Decrease map size"><img src="img/smaller.png" alt="smaller" border=0></a></td>
+    </div>
+
     <div class="options-box" id="save-box" onkeypress='check_for_escape(event, "save-box")'>
       <table>
         <tr>
@@ -812,8 +826,8 @@ if ($oid != "") {
        ptinfo += "Distance from start: <span id='pdistt'>" + showDistance(this.wt_tdist) 
               + "</span> (<span id='pdistr'>" + showDistance(this.wt_rdist) + "</span> from last)<br/>";
        if (this.wt_i > 0) {
-         ptinfo += "<a href='javascript:trkpts[0].Trkpt_showInfo(true)'>|&lt;</a>&nbsp;";
-         ptinfo += "<a href='javascript:trkpts[" + (this.wt_i-1) + "].Trkpt_showInfo(true)'>&lt;&lt;</a>&nbsp;";
+         ptinfo += "<a href='javascript:trkpts[0].Trkpt_showInfo(true)'>|<</a>&nbsp;";
+         ptinfo += "<a href='javascript:trkpts[" + (this.wt_i-1) + "].Trkpt_showInfo(true)'><<</a>&nbsp;";
        }
        ptinfo += "<a href='javascript:trkpts[" + this.wt_i + "].Trkpt_delete()'>Delete</a> - ";
        ptinfo += "<a href='javascript:trkpts[" + this.wt_i + "].Trkpt_duplicate()'>Duplicate</a> - ";
@@ -1364,6 +1378,15 @@ debug.add(gpxurl);
 
   /* ------------ option pop up taken from http://www.marengo-ltd.com/map/ */
   
+  function addMapHeight(v) {
+    mapdiv = document.getElementById("map")
+    maph = mapdiv.style.height
+    maphv = maph.substr(0,maph.indexOf("px"))
+    maphv = parseInt(maphv)
+    maphv += v
+    mapdiv.style.height = maphv + "px"
+  }
+
   function check_for_escape(e, sPopupID){
     //debug.add(String.fromCharCode(e.keyCode))
     if (e.keyCode==27) {
@@ -1405,6 +1428,7 @@ debug.add(gpxurl);
   
   function show_save_box(){
     document.getElementById("trackname").value = trackname 
+    close_popup("load-box");
     show_popup("save-box");
     var obj = document.getElementById("trackname");
     obj.focus();
@@ -1420,7 +1444,9 @@ debug.add(gpxurl);
   }
 
   function show_user_tracks(res) {
-    document.getElementById("usertracks").innerHTML= res;
+    // set the whole div to bypass IE bug on dynamic selects
+    document.getElementById("usertracks-span").innerHTML = 
+          "<select name='url' id='usertracks'>" + res + "</select>\n";
     document.getElementById("deleteusertrack").disabled = false;
     document.getElementById("loadusertrack").disabled = false;
     document.getElementById("usertracks").disabled = false;
@@ -1430,7 +1456,8 @@ debug.add(gpxurl);
     document.getElementById("deleteusertrack").disabled = true;
     document.getElementById("loadusertrack").disabled = true;
     document.getElementById("usertracks").disabled = true;
-    Lokris.AjaxCall("usertracks.php?oid=<?=$oid?>" + params, show_user_tracks);
+    Lokris.AjaxCall("usertracks.php" + params, show_user_tracks,
+              { method: "POST", postBody: "oid=<?=$oid?>" });
   }
 
   function delete_track(url) {
@@ -1447,6 +1474,7 @@ debug.add(gpxurl);
 <?php
    }
 ?>
+    close_popup("save-box");
     show_popup("load-box");
     var obj = document.getElementById("gpxurl");
     obj.focus();
@@ -1525,3 +1553,4 @@ debug.add(gpxurl);
   <!-- END OF RPXNOW -->
 
 </html>
+
