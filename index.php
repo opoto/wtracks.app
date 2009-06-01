@@ -248,10 +248,10 @@ if ($oid != "") {
         <tr>
           <form onsubmit="return false;">
             <td>
-              <input type="submit" value="Your saved track:" id="loadusertrack" onclick="wt_loadGPX(this.form.url.value);""/>
+              <input type="submit" value="Your saved track:" id="loadusertrack" onclick="wt_loadGPX(document.getElementById('usertracks').value);""/>
             </td><td>
               <span id="usertracks-span"><select name='url' id='usertracks'></select></span>
-              <input type="submit" value="Delete this track" id="deleteusertrack" onclick="delete_track(this.form.url.value);"/>
+              <input type="submit" value="Delete this track" id="deleteusertrack" onclick="delete_track(document.getElementById('usertracks').value);"/>
             </td>
         </tr>
 <?php
