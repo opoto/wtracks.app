@@ -7,8 +7,8 @@ $trackname = $_REQUEST['savedname'];
 $host = $_SERVER['HTTP_HOST'];
 
 if ($action == "Save") {
-  header('Content-type: application/octet-stream');
-  header('Content-disposition: attachment; filename=your-track.gpx');
+  header("Content-type: application/octet-stream");
+  header("Content-disposition: attachment; filename=\"$trackname.gpx\"");
   echo $gpxdata;
 } else {
   $userdir = "tracks/".base64_encode($oid);
