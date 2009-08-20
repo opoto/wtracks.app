@@ -332,6 +332,7 @@ if ($oid != "") {
   var descent = 0
   var climbing = 0
   var trackname = ""
+  var isroundtrip = true;
     
   var map;
   var geocoder;
@@ -419,6 +420,11 @@ if ($oid != "") {
     speedProfile = speed_profiles[res];
     for (i = 0 ; i < trkpts.length; i++) {
       trkpts[i].Trkpt_updateTime()
+    }
+    if (isroundtrip) {
+       for (i = trkpts.length - 1 ; i >= 0 ; i--) {
+        trkpts[i].Trkpt_updateTime_rt()
+      } 
     }
   }
 
@@ -630,17 +636,10 @@ if ($oid != "") {
     altv.innerHTML = this.wt_altview();
   }
 
-  GMarker.prototype.wt_setTime = function(auto, man) {
-    this.wt_mantime = man;
-    this.wt_autotime = auto;
-  }
-
   GMarker.prototype.wt_showMarker = function(isnew) {
     if (this.wt_areMarkersShown()) {
       // show marker
-//if (this.dummy) alert("avt")
       clusterer.AddMarker(this, this.Wt_getName())
-//if (this.dummy) alert("apres")
     } else if (!isnew) {
       clusterer.RemoveMarker(this)
     }
@@ -809,7 +808,21 @@ if ($oid != "") {
       }
     }
   }
-  
+
+  GMarker.prototype.Trkpt_updateTime_rt = function() {
+    if (this.wt_autotime) {
+      if (this.wt_i < trkpts.length - 1) {
+        var dist = distance3D(trkpts[this.wt_i+1], trkpts[this.wt_i]);
+        var diffalt = this.wt_alt() - trkpts[this.wt_i+1].wt_alt();
+        var slopev = slope(dist, diffalt);
+        this.wt_mantime_rt = trkpts[this.wt_i+1].wt_time_rt()
+                             + speedProfile.getDuration(dist, slopev);
+      } else {
+        this.wt_mantime_rt = this.wt_mantime;
+      }
+    }
+  }
+
   GMarker.prototype.Trkpt_showInfo = function(openinfo) {
      current_trkpt = this
      if (openinfo) {
@@ -822,12 +835,18 @@ if ($oid != "") {
             + "<span id='altv'>" + this.wt_altview() + "</span>"
        ptinfo += " <a href='javascript:trkpts[" + this.wt_i + "].Wpt_setAltDB()'>alt DB</a><br/>"
        ptinfo += "Time: <span id='ptime'>" + showTime(this.wt_time()) + "</span>"
+       if (isroundtrip && (this.wt_time_rt() != this.wt_time())) {
+         ptinfo += " and <span id='ptime_rt'>" + showTime(this.wt_time_rt()) + "</span>"
+       }
        ptinfo += "</form>"; 
-       ptinfo += "Distance from start: <span id='pdistt'>" + showDistance(this.wt_tdist) 
-              + "</span> (<span id='pdistr'>" + showDistance(this.wt_rdist) + "</span> from last)<br/>";
+       ptinfo += "Distance from start: <span id='pdistt'>" + showDistance(this.wt_tdist) + "</span>";
        if (this.wt_i > 0) {
-         ptinfo += "<a href='javascript:trkpts[0].Trkpt_showInfo(true)'>|<</a>&nbsp;";
-         ptinfo += "<a href='javascript:trkpts[" + (this.wt_i-1) + "].Trkpt_showInfo(true)'><<</a>&nbsp;";
+         ptinfo += "(<span id='pdistr'>" + showDistance(this.wt_rdist) + "</span> from last)";
+       }
+       ptinfo += "<br/>";
+       if (this.wt_i > 0) {
+         ptinfo += "<a href='javascript:trkpts[0].Trkpt_showInfo(true)'>|&lt</a>&nbsp;";
+         ptinfo += "<a href='javascript:trkpts[" + (this.wt_i-1) + "].Trkpt_showInfo(true)'>&lt&lt</a>&nbsp;";
        }
        ptinfo += "<a href='javascript:trkpts[" + this.wt_i + "].Trkpt_delete()'>Delete</a> - ";
        ptinfo += "<a href='javascript:trkpts[" + this.wt_i + "].Trkpt_duplicate()'>Duplicate</a> - ";
@@ -842,6 +861,9 @@ if ($oid != "") {
       document.getElementById("pdistt").innerHTML = showDistance(this.wt_tdist)
       document.getElementById("pdistr").innerHTML = showDistance(this.wt_rdist)
       document.getElementById("ptime").innerHTML = showTime(this.wt_time())
+      if (isroundtrip && (this.wt_time_rt() != this.wt_time())) {
+        document.getElementById("ptime_rt").innerHTML = showTime(this.wt_time_rt())
+      }
     }
   }
 
@@ -909,7 +931,11 @@ if ($oid != "") {
   GMarker.prototype.wt_time = function() {
     return this.wt_mantime;
   }
-  
+
+  GMarker.prototype.wt_time_rt = function() {
+    return this.wt_mantime_rt;
+  }
+
   GMarker.prototype.toTrkpt = function(i) {
     this.wt_arrayname = "trkpts"
     this.wt_gpxelt = "trkpt"
@@ -923,6 +949,7 @@ if ($oid != "") {
     this.wt_autoalt = true;
     this.wt_autotime = true; // not used yet...
     this.wt_mantime = 0
+    this.wt_mantime_rt = 0
     // computed data cache
     this.wt_rdist = 0
     this.wt_tdist = 0
@@ -978,15 +1005,22 @@ if ($oid != "") {
       pt.Trkpt_updateTime()
       wt_updateAltBounds(trkpts[i++])
     } while (i < trkpts.length)
+    if (isroundtrip) {
+       for (i = trkpts.length - 1 ; i >= 0 ; i--) {
+        trkpts[i].Trkpt_updateTime_rt()
+      }
+    }
   }
   
   function wt_showInfo(marker, openinfo) {
     info.set("");
     
     var duration = 0
+    var duration_rt = 0
     // Last point's time
     if (trkpts.length > 1) {
       duration = trkpts[trkpts.length-1].wt_time() - trkpts[0].wt_time()
+      duration_rt = trkpts[0].wt_time_rt() - trkpts[0].wt_time()
     }
     var tdist = 0
     if (trkpts.length > 0) {
@@ -996,7 +1030,7 @@ if ($oid != "") {
     setElement("distow", showDistance(tdist));
     setElement("distrt", showDistance(2*tdist));
     setElement("timeow", showTime(duration));
-    setElement("timert", showTime(2*duration));
+    setElement("timert", showTime(duration_rt));
     setElement("altmin", Math.round(minalt));
     setElement("altmax", Math.round(maxalt));
     setElement("climbing", Math.round(climbing));
@@ -1009,7 +1043,7 @@ if ($oid != "") {
     
   function wt_toGPX(savealt, savetime) {
     var gpx = '<\?xml version="1.0" encoding="ISO-8859-1" standalone="no" \?>\n';
-    gpx += '<gpx creator="Maps Measures" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" version="1.1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">\n';
+    gpx += '<gpx creator="WTracks" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" version="1.1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">\n';
     gpx += "<metadata>\n"
     gpx += "  <name>" + trackname + "</name>\n"
     gpx += "  <desc></desc>\n"
