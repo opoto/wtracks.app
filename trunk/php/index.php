@@ -1565,15 +1565,15 @@ debug.add(gpxurl);
     </script>
 
 <!-- plotkit includes (for graph disply) -->
-   <script src="MochiKit.js" type="text/javascript"></script>
-   <script src="excanvas.js" type="text/javascript"></script>
-   <script src="PlotKit_Packed.js" type="text/javascript"></script>
+   <script src="js/MochiKit.js" type="text/javascript"></script>
+   <script src="js/excanvas.js" type="text/javascript"></script>
+   <script src="js/PlotKit_Packed.js" type="text/javascript"></script>
 <!-- end of plotkit includes -->
 
 <!-- utility scripts -->
-   <script src="gpsies_clusterer2.js" type="text/javascript"></script>
+   <script src="js/gpsies_clusterer2.js" type="text/javascript"></script>
    <script src="http://www.ajaxbuch.de/lokris/lokris.js" type="text/javascript"></script>
-   <script src="elabel.js" type="text/javascript"></script>
+   <script src="js/elabel.js" type="text/javascript"></script>
 
   <!-- RPXNOW -->
 <script src="https://rpxnow.com/openid/v2/widget"
