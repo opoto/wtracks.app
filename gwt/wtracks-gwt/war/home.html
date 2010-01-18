@@ -1,0 +1,304 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- The HTML 4.01 Transitional DOCTYPE declaration-->
+<!-- above set at the top of the file will set     -->
+<!-- the browser's rendering engine into           -->
+<!-- "Quirks Mode". Replacing this declaration     -->
+<!-- with a "Standards Mode" doctype is supported, -->
+<!-- but may lead to some differences in layout.   -->
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+    <META name="keywords"  
+          content="GoogleMaps, Map, GPX, track, editor, online, GPS, upload, save, DHTML">
+
+    <title>WTracks - Online GPX track editor</title>
+    <style type="text/css">
+    v\:* {
+      behavior:url(#default#VML);
+    }
+    .ptlabel {background-color:#ffffff}
+
+    th {
+      vertical-align: middle;
+      text-align: right;
+      background-color: #ddd;
+      padding-right:5px;
+      padding-left:5px;
+      font-family:sans-serif;
+      font-size:10pt;
+    }
+
+    .title {
+      text-align: center; 
+      font-size:12pt;
+      border: 1px solid black;
+    }
+    
+    .hidden {display: none}
+
+    .options-box{
+      background: #eee;
+      border: 1px solid black;
+      padding: 10px;
+      position: absolute;
+      left: 10px;
+      top: 75px;
+      /*width: 500px;*/
+      /*height: 250px;*/
+      visibility: hidden;
+      overflow:auto;
+    }
+
+    .mapsize-box{
+      background: #eee;
+      border: 1px solid black;
+      position: absolute;
+      left: 35px;
+      overflow:auto;
+    }
+
+    .graph-box{
+      background: #eee;
+      border: 1px solid black;
+      padding: 10px;
+      position: absolute;
+      left: 10px;
+      top: 150px;
+      /*width: 500px;*/
+      /*height: 250px;*/
+      visibility: hidden;
+      overflow:auto;
+    }
+
+    </style>
+    
+    <!--                                           -->
+    <!-- This script loads your compiled module.   -->
+    <!-- If you add any GWT meta tags, they must   -->
+    <!-- be added before this line.                -->
+    <!--                                           -->
+    <script type="text/javascript" language="javascript" src="wtracks_gwt/wtracks_gwt.nocache.js"></script>
+  </head>
+
+  <body>
+
+    <!-- OPTIONAL: include this if you want history support -->
+    <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' style="position:absolute;width:0;height:0;border:0"></iframe>
+    
+    <!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
+    <noscript>
+      <div style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif">
+        Your web browser must have JavaScript enabled
+        in order for this application to display correctly.
+      </div>
+    </noscript>
+
+    <!-- =================== Top bar =================== -->
+    
+    <table width="100%"><tr><td style="text-align:left" width="33%">
+    <strong>GPX track:</strong>
+    <a href="javascript:clear_track();">New</a>
+    | <a href="javascript:show_load_box()">Load</a>
+    | <a href="javascript:show_save_box()">Save</a>
+    
+    </td><td style="text-align:center" width="33%">
+    <span id="message"><img src='img/processing.gif'> Initializing...</span>
+    </td><td style="text-align:right" width="33%">
+    
+    // OpenId
+    <a class="rpxnow" onclick="return false;"
+       href="https://wtracks-exofire.rpxnow.com/openid/v2/signin?token_url=<?=$rpxnow_token_url?>">
+      <img src="http://wiki.openid.net/f/openid-16x16.gif" alt="" border="0"> Sign In
+    </a>
+    
+    </td></tr></table>
+    <!-- =================== end of Top bar =================== -->
+
+    <table width="100%">
+      <tr>
+        <th style="text-align:left;">
+          <strong>Go to:</strong>
+          <input id="addr" type="text" size="20" value=""/>
+          <button id="addrgo">Go!</button>
+        </th>
+        <th class="title" id="trktitle"></th>
+        <th style="text-align:right">
+            Show: <img src="img/mm_20_red.png" alt="handles" title="handles"/>
+            <input type="checkbox" id="showmarkers" />
+            &nbsp;/&nbsp; Labels
+            <input type="checkbox" id="showlabels" />
+            &nbsp;/&nbsp; <img src="img/icon13noshade.gif" alt="waypoints" title="waypoints"/>
+            <input type="checkbox" id="showwaypoints" checked />
+        </th>
+      </tr>
+    </table>
+    <div id="map"></div>
+    
+    <table>
+      <tr>
+        <th width="200">Distance</th>
+        <td width="150">
+          <img src='img/oneway.gif' alt='One Way' title='One Way'>
+          <span id="distow"></span>
+        </td>
+        <td width="150">
+          <img src='img/roundtrip.gif' alt='Round Trip' title='Round Trip'>
+          <span id="distrt"></span>
+        </td>
+        <th width="150">Altitude Max</th>
+        <td width="60" id="altmax">
+        </td>
+        <th width="150">Climbing</th>
+        <td width="60" id="climbing">
+        </td><!-- name="submit" value="submit" -->
+        <td rowspan="2"><button id="profile2D" type="submit">2D Profile<br><img src="img/2d.gif"></button></td>
+      <tr>
+        <form action="#">
+        <th>
+          Duration
+          <select name="speedprofile" id="speedprofile" size="1" 
+                  onchange="wt_updateSpeedProfile(); wt_update_infos()" >
+          </select>
+        </th>
+        </form>
+        <td>
+          <img src='img/oneway.gif' alt='One Way' title='One Way'>
+          <span id="timeow"></span>
+        </td>
+        <td>
+          <img src='img/roundtrip.gif' alt='Round Trip' title='Round Trip'>
+          <span id="timert"></span>
+        </td>
+        <th>Altitude Min</th>
+        <td id="altmin">
+        </td>
+        <th>Descent</th>
+        <td id="descent">
+        </td>
+      </tr>
+      <tr <?php if (! $testing) echo "style='display: none'" ?> >
+        <form action="#" onsubmit="debug.set(''); return false">
+        <td>
+          <input type="submit" value="Clear debug" />
+        </td>
+        </form>
+        <td colspan="6" id="debug">
+        </td>
+      </tr>
+    </table>
+
+    <div class="graph-box" id="graph-box" onkeypress='check_for_escape(event, "graph-box")'>
+      <table>
+        <tr>
+          <th style="text-align:left">Track profile</th>
+          <th align="right"><a href="javascript:close_popup('graph-box')">
+              <img src="img/close.gif" alt="Close" title="Close" style="border: 0px"/></a></span></th>
+        </tr>
+        <tr><td colspan="2">
+        <div><canvas id="graph" height="350" width="650"></canvas></div>
+        </td></tr>
+      </table>
+    </div>
+
+    <div class="options-box" id="load-box" onkeypress='check_for_escape(event, "load-box")'>
+      <table>
+        <tr>
+          <th style="text-align:left">Load Options</th>
+          <th><a href="javascript:close_popup('load-box')"><img src="img/close.gif" alt="Cancel and Close" title="Cancel and Close" style="border: 0px"/></a></span></th>
+        </tr>
+        <tr>
+          <form onsubmit="wt_loadGPX(this.url.value); return false;">
+            <td>
+              <input type="submit" value="Load GPX from URL:" />
+            </td><td>
+              <input id="gpxurl" type="text" size="60" name="url" value="tracks/everest.gpx" />
+            </td>
+          </form>
+        </tr>
+        <tr>
+          <form id="upform" enctype="multipart/form-data" method="post">
+            <td>
+              <input name="gpxupload" type="submit" value="Load GPX from file:"
+                     onclick="return wt_check_fileupload(document.getElementById('upform'));" />
+            </td><td>
+              <input type="file" size="50" name="gpxfile" id="gpxfile" />
+              <input type="hidden" name="marks" value="" />
+              <input type="hidden" name="labels" value="" />
+            </td>
+          </form>
+        </tr>
+<?php
+if ($oid != "") {
+?>
+        <tr>
+          <form onsubmit="return false;">
+            <td>
+              <input type="submit" value="Your saved track:" id="loadusertrack" onclick="wt_loadGPX(document.getElementById('usertracks').value);""/>
+            </td><td>
+              <span id="usertracks-span"><select name='url' id='usertracks'></select></span>
+              <input type="submit" value="Delete this track" id="deleteusertrack" onclick="delete_track(document.getElementById('usertracks').value);"/>
+            </td>
+        </tr>
+<?php
+}
+?>
+      </table>
+    </div>
+
+    <div class="mapsize-box" style="top: 355px">
+      <a href="javascript:addMapHeight(20)" title="Increase map size"><img src="img/bigger.png" alt="bigger" border=0></a></td>
+    </div>
+    <div class="mapsize-box" style="top: 380px">
+      <a href="javascript:addMapHeight(-20)" title="Decrease map size"><img src="img/smaller.png" alt="smaller" border=0></a></td>
+    </div>
+
+    <div class="options-box" id="save-box" onkeypress='check_for_escape(event, "save-box")'>
+      <table>
+        <tr>
+          <th style="text-align:left">Save Options</th>
+          <th><a href="javascript:close_popup('save-box')"><img src="img/close.gif" 
+               alt="Cancel and Close" title="Cancel and Close" style="border: 0px"/></a></span></th>
+        </tr>
+        <tr>
+          <td>Track Name</td>
+          <form><td><input type="text" size="40" id="trackname"/></td></form>
+        </tr>
+        <tr>
+          <form><td align="right"><input type="checkbox" id="savealt"/></td></form>
+          <td>Save intermediate computed altitudes?</td>
+        </tr>
+        <tr>
+          <form><td align="right"><input type="checkbox" id="savetime"/></td></form>
+          <td>Save computed timings?</td>
+        </tr>
+        <tr>
+          <form target="_blank" action="savegpx.php" method="post" onSubmit="wt_doSave();">
+            <td colspan="2">
+              <input type='hidden' id='savedname' name='savedname' value='' />
+              <input type="submit" name="action" value="Save" />
+<?php
+if ($oid != "") {
+            echo "<input type='hidden' name='oid' value='".$oid."' />";
+            echo "<input type='submit' name='action' value='Save on this server' />";
+} else {
+           echo "(Sign in to be able to save on this server)";
+}
+?>
+              <textarea name="gpxarea" class="hidden" 
+                        id="gpxarea" readonly rows="20" cols="80"><?php
+  if ($file<>'') {
+    @readfile($file); // 
+  }
+?></textarea>
+            </td>
+          </form>
+        </tr>
+      </table>
+    </div>
+
+    <div id="maps"></div>
+
+  </body>
+</html>

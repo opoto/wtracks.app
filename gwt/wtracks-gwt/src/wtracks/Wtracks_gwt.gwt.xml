@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='wtracks_gwt'>
+  <!-- Inherit the core Web Toolkit stuff.                        -->
+  <inherits name='com.google.gwt.user.User'/>
+
+  <!-- Inherit the default GWT style sheet.  You can change       -->
+  <!-- the theme of your GWT application by uncommenting          -->
+  <!-- any one of the following lines.                            -->
+  <inherits name='com.google.gwt.user.theme.standard.Standard'/>
+  <!-- <inherits name='com.google.gwt.user.theme.chrome.Chrome'/> -->
+  <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
+
+  <!-- Load the Google Maps GWT bindings from the gwt-google-apis project -->
+  <!-- Added by projectCreator if you use the -addModule argument -->
+  <inherits name="com.google.gwt.maps.GoogleMaps" />
+
+  <!-- Other module inherits                                      -->
+
+  <!-- Specify the app entry point class.                         -->
+  <entry-point class='wtracks.client.Home'/>
+
+  <!-- Specify the paths for translatable code                    -->
+  <source path='client'/>
+
+ <!--
+    If you want to deploy this application outside of localhost,
+    you must obtain a Google Maps API key at:
+    http://www.google.com/apis/maps/signup.html
+    Replace the src attribute below with a URL that contains your key.
+  -->
+ <!-- script src="http://maps.google.com/maps?gwt=1&amp;file=api&amp;v=2&amp;key=???" /-->
+
+ <!-- You can usually run under localhost without a key                           -->
+ <!-- Set the 'sensor' parameter to true if your app makes use of an onboard
+      positioning sensor, such as a GPS reciever.
+   -->
+ <script src="http://maps.google.com/maps?gwt=1&amp;file=api&amp;v=2&amp;sensor=false" />
+</module>
