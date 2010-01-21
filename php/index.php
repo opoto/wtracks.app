@@ -1,3 +1,14 @@
+<?php
+  $host = $_SERVER["HTTP_HOST"];
+  $goto = "goto=".urlencode($_SERVER['REQUEST_URI']);
+  $rpxnow_token_url = "/login.php?".$goto;
+  $testing = strpos($PHP_SELF, "testing");
+  $file = $HTTP_POST_FILES['gpxfile']['tmp_name'];
+  $file_name = $HTTP_POST_FILES['gpxfile']['name'];
+  $showmarkers = !($_REQUEST["marks"] == "false");
+  $showlabels = !($_REQUEST["labels"] == "false");
+  include("config-$host.php"); // should define gmaps_key, ganalytics_key, and rpxnow_realm
+?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
@@ -65,22 +76,11 @@
     }
 
     </style>
-    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=<?= file_get_contents('private/gmaps.key');?>"
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=<?=$gmaps_key?>"
             type="text/javascript"></script>
 
   </head>
   <body onload="wt_load()" onunload="GUnload()">
-
-<?php 
-  $host = $_SERVER["HTTP_HOST"];
-  $goto = "goto=".urlencode($_SERVER['REQUEST_URI']);
-  $rpxnow_token_url = "/login.php?".$goto;
-  $testing = strpos($PHP_SELF, "testing");
-  $file = $HTTP_POST_FILES['gpxfile']['tmp_name'];
-  $file_name = $HTTP_POST_FILES['gpxfile']['name'];
-  $showmarkers = !($_REQUEST["marks"] == "false");
-  $showlabels = !($_REQUEST["labels"] == "false");
-?>
 
 <!-- =================== Top bar =================== -->
 
@@ -100,7 +100,7 @@
   if ($openID == "") {
 ?>
 <a class="rpxnow" onclick="return false;"
-   href="https://wtracks-exofire.rpxnow.com/openid/v2/signin?token_url=<?=$rpxnow_token_url?>">
+   href="https://<?=$rpxnow_realm?>.rpxnow.com/openid/v2/signin?token_url=<?=$rpxnow_token_url?>">
   <img src="http://wiki.openid.net/f/openid-16x16.gif" alt="" border="0"> Sign In
 </a>
 <?php
@@ -310,9 +310,42 @@ if ($oid != "") {
         </tr>
       </table>
     </div>
-<?php
-  include ('private/local.php');
-?>
+
+  <!-- PAGE FOOTER -->
+  <hr />
+
+  <script type="text/javascript">
+  function doEmail2(d, i, tail) {
+    location.href = "mailto:" + i + "@" + d + tail;
+  }
+  </script>
+
+  <table width="100%">
+    <tr style="font-size:small; font-family:sans-serif;" >
+      <td>
+        <a href="http://creativecommons.org/licenses/by/2.0/fr/deed.en_US"><img src="http://i.creativecommons.org/l/by/2.0/fr/80x15.png" border=0></a>
+        <a href="javascript:doEmail2('gmail.com','Olivier.Potonniee','?subject=WTracks')">Olivier Potonni&eacute;e</a>
+        - <a href="privacy.html">Privacy Policy</a>
+        - <a href="http://code.google.com/p/wtracks/">Contribute</a>
+      </td>
+      <td align="right">
+      <i>URL syntax:</i> <?php echo "http".($_SERVER["SERVER_PORT"]==80?"":"s")."://".$_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"]?>[?gpx=&lt;gpx file url&gt;[&amp;marks=(true|false)][&amp;labels=(true|false)]
+      </td>
+    </tr>
+  </table>
+
+  <!-- GOOGLE ANALYTICS -->
+  <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+  </script>
+  <script type="text/javascript">
+  try {
+    var pageTracker = _gat._getTracker("<?=$ganalytics_key?>");
+    pageTracker._trackPageview();
+  } catch(err) {}
+  </script>
+  <!-- END OF GOOGLE ANALYTICS -->
 
 </body>
 
@@ -1564,6 +1597,8 @@ debug.add(gpxurl);
     //]]>
     </script>
 
+   <script src="js/showmail.js" type="text/javascript"></script>
+
 <!-- plotkit includes (for graph disply) -->
    <script src="js/MochiKit.js" type="text/javascript"></script>
    <script src="js/excanvas.js" type="text/javascript"></script>
@@ -1579,8 +1614,8 @@ debug.add(gpxurl);
 <script src="https://rpxnow.com/openid/v2/widget"
         type="text/javascript"></script>
 <script type="text/javascript">
-  RPXNOW.token_url = "http://<?php echo $host.$rpxnow_token_url?>";
-  RPXNOW.realm = "<?= file_get_contents('private/rpxnow.realm')?>";
+  RPXNOW.token_url = "http://<?=$host.$rpxnow_token_url?>";
+  RPXNOW.realm = "<?= $rpxnow_realm?>";
   RPXNOW.overlay = true;
   RPXNOW.language_preference = 'en';
 </script>
