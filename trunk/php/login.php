@@ -1,4 +1,6 @@
 <?php
+  $host = $_SERVER["HTTP_HOST"];
+  include("config-$host.php"); // should define gmaps_key, ganalytics_key, rpxnow_key, and rpxnow_realm
 
   $error_msg = "";
   $redirect = urldecode($_REQUEST['goto']);
@@ -17,9 +19,7 @@
    
     // just logged in
     // POST token and apiKey to: https://rpxnow.com/api/v2/auth_info
-    $apiKey=file_get_contents("private/rpxnow.key");
-
-    $response = get_json_openid($token, $apiKey);
+    $response = get_json_openid($token, $rpxnow_key);
     if ($response && ($response != "")) {
       setcookie("LoginOpenID", urlencode($response), time()+7200);
       header("Location: $redirect");
