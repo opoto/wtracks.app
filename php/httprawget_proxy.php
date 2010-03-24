@@ -1,4 +1,4 @@
 <?php
 header('Content-type: text/plain');
-@readfile($_SERVER["QUERY_STRING"])
+@readfile(urldecode($_SERVER["QUERY_STRING"]))
 ?>
