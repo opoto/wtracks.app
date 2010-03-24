@@ -401,15 +401,20 @@ if ($oid != "") {
 
   function getAltitude(lat, lng) {
     // http://ws.geonames.org/srtm3?lat=<lat>&lng=<lng>
-    var url = "http://ws.geonames.org/srtm3?lat="+lat+"&lng="+lng
+    //"http://ws.geonames.org/srtm3?lat="+lat+"&lng="+lng
+    var url = "http://maps.google.com/maps/api/elevation/json?sensor=false&locations="+lat+","+lng
 
-    var request = Lokris.AjaxCall("httprawget_proxy.php?"+url, null, {async: false});
+    var request = Lokris.AjaxCall("httprawget_proxy.php?"+escape(url), null, {async: false});
     debug.add("#")
-    //debug.add(" status:" + request.status)
-    //debug.add(" text: " + request.responseText)
+    debug.add(" status:" + request.status)
     var res = 0
-    if ((request.status == 200) && (request.responseText))
-      res = parseFloat(request.responseText)
+    if ((request.status == 200) && (request.responseText)) {
+      debug.add(" text: " + request.responseText)
+      var resp = eval("(" + request.responseText + ")")
+      if (resp.status == "OK") {
+        res = resp.results[0].elevation
+      }
+    }
     return res;
   }
 
