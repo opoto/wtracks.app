@@ -14,7 +14,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-    <META name="keywords"  
+    <META name="keywords"
           content="GoogleMaps, Map, GPX, track, editor, online, GPS, upload, save, DHTML">
     <title>WTracks - Online GPX track editor</title>
     <style type="text/css">
@@ -34,11 +34,11 @@
     }
 
     .title {
-      text-align: center; 
+      text-align: center;
       font-size:12pt;
       border: 1px solid black;
     }
-    
+
     .hidden {display: none}
 
     .options-box{
@@ -134,11 +134,11 @@
         <th style="text-align:right">
             Show: <img src="img/mm_20_red.png" alt="handles" title="handles"/>
             <input type="checkbox" id="showmarkers"
-            <?php if ($showmarkers) echo "checked"; ?> 
+            <?php if ($showmarkers) echo "checked"; ?>
             onclick="wt_showTrkMarkers(this.checked)" />
             &nbsp;/&nbsp; Labels
             <input type="checkbox" id="showlabels"
-            <?php if ($showlabels) echo "checked"; ?> 
+            <?php if ($showlabels) echo "checked"; ?>
             onclick="wt_showLabels(this.checked)" />
             &nbsp;/&nbsp; <img src="img/icon13noshade.gif" alt="waypoints" title="waypoints"/>
             <input type="checkbox" id="showwaypoints" checked
@@ -148,7 +148,7 @@
       </tr>
     </table>
     <div id="map" style="width: 100%; height: 600px"></div>
-    
+
     <table>
       <tr>
         <th width="200">Distance</th>
@@ -171,7 +171,7 @@
         <form action="#">
         <th>
           Duration
-          <select name="speedprofile" id="speedprofile" size="1" 
+          <select name="speedprofile" id="speedprofile" size="1"
                   onchange="wt_updateSpeedProfile(); wt_update_infos()" >
           </select>
         </th>
@@ -271,7 +271,7 @@ if ($oid != "") {
       <table>
         <tr>
           <th style="text-align:left">Save Options</th>
-          <th><a href="javascript:close_popup('save-box')"><img src="img/close.gif" 
+          <th><a href="javascript:close_popup('save-box')"><img src="img/close.gif"
                alt="Cancel and Close" title="Cancel and Close" style="border: 0px"/></a></span></th>
         </tr>
         <tr>
@@ -299,10 +299,10 @@ if ($oid != "") {
            echo "(Sign in to be able to save on this server)";
 }
 ?>
-              <textarea name="gpxarea" class="hidden" 
+              <textarea name="gpxarea" class="hidden"
                         id="gpxarea" readonly rows="20" cols="80"><?php
   if ($file<>'') {
-    @readfile($file); // 
+    @readfile($file); //
   }
 ?></textarea>
             </td>
@@ -366,11 +366,11 @@ if ($oid != "") {
   var climbing = 0
   var trackname = ""
   var isroundtrip = true;
-    
+
   var map;
   var geocoder;
   var clusterer;
-  
+
   var info; // info line
   var debug; // debug area
 
@@ -417,7 +417,7 @@ if ($oid != "") {
     document.title = WTRACKS + (name ? (" - " + trackname) : "")
     setElement("trktitle", trackname)
   }
-  
+
   function getText(element) {
     return element.textContent ? element.textContent : element.text
   }
@@ -426,7 +426,7 @@ if ($oid != "") {
     element.textContent = text;
     element.innerText = text
   }
-  
+
   function setElement(elid, v) {
     document.getElementById(elid).innerHTML = v;
   }
@@ -457,7 +457,7 @@ if ($oid != "") {
     if (isroundtrip) {
        for (i = trkpts.length - 1 ; i >= 0 ; i--) {
         trkpts[i].Trkpt_updateTime_rt()
-      } 
+      }
     }
   }
 
@@ -469,35 +469,35 @@ if ($oid != "") {
       return dist + " m";
     }
   }
-    
+
   function showTime(time) {
     var strTime = "";
     if (time >= 3600) strTime += Math.floor(time/3600) + "h";
-    time %= 3600; 
+    time %= 3600;
     if (time >= 60) strTime += Math.floor(time/60) + "m";
-    time %= 60; 
+    time %= 60;
     strTime += Math.round(time) + "s";
     return strTime
   }
-    
+
   function showDateTime(time) {
     var strTime = "P";
     if (time >= 3600) strTime += Math.floor(time/3600) + "H";
-    time %= 3600; 
+    time %= 3600;
     if (time >= 60) strTime += Math.floor(time/60) + "M";
-    time %= 60; 
+    time %= 60;
     strTime += Math.round(time) + "S";
     return strTime
   }
-    
+
   function areMarkersShown() {
     return document.getElementById("showmarkers").checked;
   }
-  
+
   function areWptsShown() {
     return document.getElementById("showwaypoints").checked;
   }
-  
+
   function areLabelsShown() {
     return document.getElementById("showlabels").checked;
   }
@@ -513,7 +513,7 @@ if ($oid != "") {
     return Math.sqrt((a*a) + (b*b));
   }
 
-  // Add '0' before values below 10  
+  // Add '0' before values below 10
   function lead0( v ) {
     if (v < 10) return "0" + v;
     return v;
@@ -525,20 +525,20 @@ if ($oid != "") {
     this.name = name;
     this.sspairs = sspairs;
   }
-  
+
   SpeedProfile.prototype.getDuration = function(dist, slope) {
-    
+
     // regle de trois : m_pers_s / dist = 1 / res
     function distSpeed(dist, m_per_s) {
       return dist / m_per_s;
     }
-    
+
     if (this.sspairs.length == 0) return 0
     if ((this.sspairs.length == 1)
       || (slope <= this.sspairs[0][0]))
-       return distSpeed(dist, this.sspairs[0][1]); 
+       return distSpeed(dist, this.sspairs[0][1]);
     if (slope >= this.sspairs[this.sspairs.length - 1][0])
-       return distSpeed(dist, this.sspairs[this.sspairs.length - 1][1]); 
+       return distSpeed(dist, this.sspairs[this.sspairs.length - 1][1]);
     var i = 1;
     while (i < this.sspairs.length) {
       if ((slope >= this.sspairs[i-1][0]) && (slope < this.sspairs[i][0])) {
@@ -550,10 +550,10 @@ if ($oid != "") {
       i++;
     }
     return 0;
-  }  
+  }
 
   /*------------ Wpt --------------*/
-  
+
   function toPt(marker, i) {
     marker.wt_manalt = undefined
     marker.wt_name = undefined
@@ -575,11 +575,11 @@ if ($oid != "") {
     // show marker
     marker.wt_showMarker(true);
   }
-  
+
   GMarker.prototype.Wt_getName = function() {
     return (this.wt_name ? this.wt_name : "");
   }
-  
+
   GMarker.prototype.Wpt_relocate = function(openinfo) {
     map.closeInfoWindow();
     if (this.wt_label) this.wt_label.setPoint(this.getPoint());
@@ -587,16 +587,16 @@ if ($oid != "") {
       this.wt_showInfo(true);
     }
   }
-  
+
 
   GMarker.prototype.wt_infoHead = function() {
-    var ptinfo = "Name: <input type='text' size='10' value='" + this.Wt_getName() 
+    var ptinfo = "Name: <input type='text' size='10' value='" + this.Wt_getName()
         + "' onchange='"+ this.wt_arrayname + "[" + this.wt_i + "].wt_setName(this.value)' onkeyup='"
         + this.wt_arrayname + "[" + this.wt_i + "].wt_setName(this.value)'/><br/>";
     ptinfo += "Position: <span id='ppos'>" + this.getPoint().toUrlValue() + "</span><br/>";
     return ptinfo
   }
-  
+
   GMarker.prototype.Wpt_showInfo = function(openinfo) {
      current_trkpt = undefined
      info.set("");
@@ -609,14 +609,14 @@ if ($oid != "") {
        ptinfo += "</form>";
        ptinfo += "<a href='javascript:wpts[" + this.wt_i + "].Wpt_delete()'>Delete</a> - ";
        ptinfo += "<a href='javascript:wpts[" + this.wt_i + "].Wpt_duplicate()'>Duplicate</a>";
-       
+
        map.openInfoWindowHtml(this.getPoint(), ptinfo);
     }
   }
-  
+
   GMarker.prototype.Wpt_altview = function() {
-    var scripttxt = this.wt_arrayname + "[" + this.wt_i + "].wt_setAlt(false, this.value); wt_showInfo(" 
-                    + this.wt_arrayname + "[" + this.wt_i + "],false)" 
+    var scripttxt = this.wt_arrayname + "[" + this.wt_i + "].wt_setAlt(false, this.value); wt_showInfo("
+                    + this.wt_arrayname + "[" + this.wt_i + "],false)"
     var alt = this.wt_alt()
     if (alt == undefined) alt = ""
     return "<input type='text' size='4' name='alt' value='" + alt + "' onchange='" + scripttxt + "' onkeyup='" + scripttxt + "'/>";
@@ -677,11 +677,11 @@ if ($oid != "") {
       clusterer.RemoveMarker(this)
     }
   }
-  
+
   GMarker.prototype.Wpt_alt = function() {
     return this.wt_manalt
   }
-  
+
   GMarker.prototype.Wpt_duplicate = function() {
     var pos = new GLatLng(this.getPoint().lat()+0.0001, this.getPoint().lng()+0.0001)
     var pt = new_Wpt(pos)
@@ -690,14 +690,14 @@ if ($oid != "") {
     wt_showInfo(this, true)
     map.openInfoWindowHtml(pos, "Duplicated point");
   }
-  
+
   GMarker.prototype.Wpt_delete = function() {
     map.closeInfoWindow();
     var newwpts = [];
 
     for (i=0; i < wpts.length; i++) {
      if (i != this.wt_i){
-       wpts[i].wt_i = newwpts.length 
+       wpts[i].wt_i = newwpts.length
        newwpts.push(wpts[i])
      }
     }
@@ -721,14 +721,14 @@ if ($oid != "") {
     toPt(this, i)
     this.wt_updateTitle();
   }
-    
+
   GMarker.prototype.wt_toGPX = function(savealt, savetime) {
     var gpx = "<" + this.wt_gpxelt + " ";
     gpx += "lat=\"" + this.getPoint().lat() + "\" lon=\"" + this.getPoint().lng() + "\">";
     if (this.wt_name) {
       gpx += "<name>" + this.wt_name + "</name>";
     }
-    if ((savealt && (this.wt_manalt != undefined)) || 
+    if ((savealt && (this.wt_manalt != undefined)) ||
     ((this.wt_manalt != undefined) && (this.wt_autoalt == undefined || !this.wt_autoalt))
     ) {
       gpx += "<ele>" + this.wt_manalt + "</ele>";
@@ -739,7 +739,7 @@ if ($oid != "") {
     gpx += "</" + this.wt_gpxelt + ">\n";
     return gpx;
   }
-    
+
 
   function new_Wpt(point, alt, name) {
     var pt = new GMarker(point, {draggable: true, icon: wp_icon}) //  (icon setting doesn't work)
@@ -749,22 +749,22 @@ if ($oid != "") {
     if (name) pt.wt_setName(name)
     return pt
   }
-  
+
 
  /*------------- Trkpt ------------*/
- 
+
   GMarker.prototype.Trkpt_altview = function() {
     if (this.wt_autoalt) {
       return this.wt_alt();
     } else {
       return this.Wpt_altview();
-    }      
+    }
   }
 
   GMarker.prototype.Trkpt_setAlt = function(auto, man) {
     this.Wpt_setAlt(auto, man)
     // update infos from last known alt point
-    var i = this.wt_i > 0 ? this.wt_i-1 : 0 
+    var i = this.wt_i > 0 ? this.wt_i-1 : 0
     while ((i > 0) && (trkpts[i].wt_autoalt)) {
       i--
     }
@@ -783,7 +783,7 @@ if ($oid != "") {
       wt_showInfo(undefined, false);
     }
   }
-  
+
   GMarker.prototype.Trkpt_updateAlt = function() {
     // --- altitude
     if (this.wt_autoalt) {
@@ -793,26 +793,26 @@ if ($oid != "") {
         while ((previ > 0) && trkpts[previ].wt_autoalt) {
           previ--;
           prevdist += trkpts[previ].getPoint().distanceFrom(
-                        trkpts[previ+1].getPoint()); 
+                        trkpts[previ+1].getPoint());
         }
         var nexti = this.wt_i+1;
         var nextdist = trkpts[nexti].getPoint().distanceFrom(this.getPoint());
         while ((nexti < (trkpts.length - 1)) && trkpts[nexti].wt_autoalt) {
           nexti++;
           nextdist += trkpts[nexti].getPoint().distanceFrom(
-                       trkpts[nexti-1].getPoint()); 
+                       trkpts[nexti-1].getPoint());
         }
-        this.wt_manalt = 
+        this.wt_manalt =
           trkpts[previ].wt_alt() + Math.round(
              (   trkpts[nexti].wt_alt()
-               - trkpts[previ].wt_alt() ) 
+               - trkpts[previ].wt_alt() )
               * (prevdist / (prevdist + nextdist)));
       } else {
         this.wt_manalt = 0
       }
     }
   }
-  
+
   // --- distance
   GMarker.prototype.Trkpt_updateDistance = function() {
     if (this.wt_i > 0) {
@@ -826,7 +826,7 @@ if ($oid != "") {
       this.wt_tdist = 0
     }
   }
-    
+
   // -- time
   GMarker.prototype.Trkpt_updateTime = function() {
     if (this.wt_autotime) {
@@ -862,8 +862,8 @@ if ($oid != "") {
 
        var ptinfo = "<form style='font-size:smaller'>";
        ptinfo += this.wt_infoHead()
-       ptinfo += "Altitude: Auto? <input type='checkbox' id='autoalt'" 
-            +  (this.wt_autoalt ? " checked" : "") 
+       ptinfo += "Altitude: Auto? <input type='checkbox' id='autoalt'"
+            +  (this.wt_autoalt ? " checked" : "")
             + " onclick='trkpts[" + this.wt_i + "].wt_updateAutoalt(autoalt.checked)'/>"
             + "<span id='altv'>" + this.wt_altview() + "</span>"
        ptinfo += " <a href='javascript:trkpts[" + this.wt_i + "].Wpt_setAltDB()'>alt DB</a><br/>"
@@ -871,7 +871,7 @@ if ($oid != "") {
        if (isroundtrip && (this.wt_time_rt() != this.wt_time())) {
          ptinfo += " and <span id='ptime_rt'>" + showTime(this.wt_time_rt()) + "</span>"
        }
-       ptinfo += "</form>"; 
+       ptinfo += "</form>";
        ptinfo += "Distance from start: <span id='pdistt'>" + showDistance(this.wt_tdist) + "</span>";
        if (this.wt_i > 0) {
          ptinfo += "(<span id='pdistr'>" + showDistance(this.wt_rdist) + "</span> from last)";
@@ -888,7 +888,7 @@ if ($oid != "") {
          ptinfo += "&nbsp;<a href='javascript:trkpts[" + (this.wt_i+1) + "].Trkpt_showInfo(true)'>&gt;&gt;</a>";
          ptinfo += "&nbsp;<a href='javascript:trkpts[" + (trkpts.length-1) + "].Trkpt_showInfo(true)'>&gt;|</a>";
        }
-       
+
        map.openInfoWindowHtml(this.getPoint(), ptinfo);
     } else {
       document.getElementById("pdistt").innerHTML = showDistance(this.wt_tdist)
@@ -900,14 +900,14 @@ if ($oid != "") {
     }
   }
 
-    
+
   GMarker.prototype.Trkpt_detach = function() {
     var pt = new_Wpt(this.getPoint(), this.wt_manalt, this.wt_name)
     this.Trkpt_delete()
     wt_showInfo(undefined, false)
     pt.wt_showInfo(true)
   }
-  
+
   GMarker.prototype.Trkpt_duplicate = function() {
     map.closeInfoWindow();
     var newpoints = [];
@@ -933,7 +933,7 @@ if ($oid != "") {
     wt_updateInfoFrom(pt)
     wt_drawPolyline();
   }
-  
+
   GMarker.prototype.Trkpt_delete = function() {
     map.closeInfoWindow();
     var newpoints = [];
@@ -956,11 +956,11 @@ if ($oid != "") {
     wt_showInfo(undefined, false)
   }
 
-  
+
   GMarker.prototype.Trkpt_alt = function() {
     return this.wt_manalt ? this.wt_manalt : 0
   }
-   
+
   GMarker.prototype.wt_time = function() {
     return this.wt_mantime;
   }
@@ -986,7 +986,7 @@ if ($oid != "") {
     // computed data cache
     this.wt_rdist = 0
     this.wt_tdist = 0
-    
+
     toPt(this, i)
   }
 
@@ -1000,7 +1000,7 @@ if ($oid != "") {
       pt.wt_setAlt(false, alt)
     } else {
       wt_updateInfoFrom(pt)
-    } 
+    }
     return pt
   }
 
@@ -1017,7 +1017,7 @@ if ($oid != "") {
       } else {
         descent += prevalt - alt;
       }
-    } else {    
+    } else {
       minalt = alt;
       maxalt = alt;
       climbing = 0
@@ -1025,7 +1025,7 @@ if ($oid != "") {
     }
   }
 
-  function wt_updateInfoFrom(pt) 
+  function wt_updateInfoFrom(pt)
   {
     i = 0;
     while (i < pt.wt_i) {
@@ -1044,10 +1044,10 @@ if ($oid != "") {
       }
     }
   }
-  
+
   function wt_showInfo(marker, openinfo) {
     info.set("");
-    
+
     var duration = 0
     var duration_rt = 0
     // Last point's time
@@ -1059,7 +1059,7 @@ if ($oid != "") {
     if (trkpts.length > 0) {
       tdist = trkpts[trkpts.length-1].wt_tdist
     }
-    
+
     setElement("distow", showDistance(tdist));
     setElement("distrt", showDistance(2*tdist));
     setElement("timeow", showTime(duration));
@@ -1070,10 +1070,10 @@ if ($oid != "") {
     setElement("descent", Math.round(descent));
 
     if (marker) marker.wt_showInfo(openinfo)
-    
+
   }
 
-    
+
   function wt_toGPX(savealt, savetime) {
     var gpx = '<\?xml version="1.0" encoding="ISO-8859-1" standalone="no" \?>\n';
     gpx += '<gpx creator="WTracks" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" version="1.1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">\n';
@@ -1088,14 +1088,14 @@ if ($oid != "") {
     var t = new Date();
     t = new Date(Date.UTC(1900 + t.getYear(), t.getMonth(), t.getDate(),
                           t.getHours(), t.getMinutes(), t.getSeconds()));
-    var strtime = (1900 + t.getYear()) + "-" + lead0(1+t.getMonth()) + "-" + lead0(t.getDate()) + "T" 
+    var strtime = (1900 + t.getYear()) + "-" + lead0(1+t.getMonth()) + "-" + lead0(t.getDate()) + "T"
                   + lead0(t.getHours()) + "-" + lead0(t.getMinutes()) + "-" + lead0(t.getSeconds()) + "Z";
     gpx += "  <time>" + strtime + "</time>\n"
     var sw = map.getBounds().getSouthWest();
     var ne = map.getBounds().getNorthEast();
     gpx += '<bounds minlat="' + Math.min( sw.lat(), ne.lat()) + '" minlon="' + Math.min( sw.lng(), ne.lng()) + '" maxlat="' + Math.max( sw.lat(), ne.lat()) + '" maxlon="'+ Math.max( sw.lng(), ne.lng()) + '"/>';
     gpx += "</metadata>\n"
- 
+
     var i = 0;
     while (i < wpts.length) {
       gpx += "  " + wpts[i].wt_toGPX(savealt, savetime);
@@ -1110,7 +1110,7 @@ if ($oid != "") {
     gpx += "</trkseg></trk></gpx>\n";
     return gpx;
   }
-      
+
 
   function wt_drawPolyline() {
     if (polyline) {
@@ -1150,7 +1150,7 @@ if ($oid != "") {
     climbing = 0
     setTrackName("New Track")
   }
-  
+
 
   function wt_loadGPX(filename) {
     close_popup('load-box');
@@ -1180,11 +1180,11 @@ if ($oid != "") {
         pt = new_Trkpt(point, ele, name)
       } else {
         pt = new_Wpt(point, ele, name)
-      } 
+      }
     }
 
   }
-    
+
   function wt_importGPX(gpxinput) {
       wt_clear();
       if (!gpxinput || gpxinput == "") {
@@ -1193,7 +1193,7 @@ if ($oid != "") {
       }
       info.add("Importing... <br>");
       var xml = GXml.parse(gpxinput);
-      var gpx = xml ? xml.getElementsByTagName("gpx") : undefined 
+      var gpx = xml ? xml.getElementsByTagName("gpx") : undefined
       //debug.set("gpxinput:<textarea width='40' height='20'>" + gpxinput + "</textarea>")
       debug.add("xml:" + xml)
       if (!xml.documentElement || !gpx || (gpx.length == 0)) {
@@ -1227,19 +1227,19 @@ if ($oid != "") {
         } else {
           // compute bounds to include all trackpoints and waypoints
           if (trkpts) {
-            for(var i = 0; i < trkpts.length; i++) { 
+            for(var i = 0; i < trkpts.length; i++) {
               mapbounds.extend(trkpts[i].getPoint());
-            } 
+            }
           }
           if (wpts) {
-            for(var i = 0; i < wpts.length; i++) { 
+            for(var i = 0; i < wpts.length; i++) {
               mapbounds.extend(wpts[i].getPoint());
-            } 
+            }
           }
         }
         center = mapbounds.getCenter()
-        //zoom = Math.max(map.getBoundsZoomLevel(mapbounds),15)      
-        zoom = map.getBoundsZoomLevel(mapbounds)   
+        //zoom = Math.max(map.getBoundsZoomLevel(mapbounds),15)
+        zoom = map.getBoundsZoomLevel(mapbounds)
         map.setCenter(center, zoom);
         if (trkpts && trkpts.length > 0) {
           var pt = trkpts[trkpts.length - 1];
@@ -1251,7 +1251,7 @@ if ($oid != "") {
         info.set("Can't read GPX input file");
       }
   }
-  
+
   function wt_showTrkMarkers(show) {
     //map.closeInfoWindow();
     var i = 0;
@@ -1264,7 +1264,7 @@ if ($oid != "") {
       i++;
     }
   }
-  
+
   function wt_showLabels(show) {
    //map.closeInfoWindow();
     var i = 0;
@@ -1279,7 +1279,7 @@ if ($oid != "") {
       i++;
     }
   }
-  
+
   function wt_showWaypoints(show) {
     //map.closeInfoWindow();
     var i = 0;
@@ -1299,7 +1299,7 @@ if ($oid != "") {
       i++;
     }
   }
-  
+
   function wt_showAddress(address) {
     geocoder.getLatLng(
       address,
@@ -1322,7 +1322,7 @@ if ($oid != "") {
     if (e.preventBubble) { e.preventBubble(); }
     e.returnValue = false;
   }
-  
+
   function wt_load() {
     if (GBrowserIsCompatible()) {
       info = new DocElement("message");
@@ -1335,33 +1335,33 @@ if ($oid != "") {
       map.addControl(new GOverviewMapControl());
       map.setCenter(new GLatLng(0,0), 3, G_HYBRID_MAP);
       map.enableScrollWheelZoom();
-      
+
       //----- Stop page scrolling if wheel over map ----
       GEvent.addDomListener(mapDiv, "DOMMouseScroll", wheelevent);
       mapDiv.onmousewheel = wheelevent;
-      
+
       // to allow many points without perf issue
       // see http://www.acme.com/javascript/#Clusterer
       clusterer = new Clusterer(map);
 
       geocoder = new GClientGeocoder();
-      
+
       // speed profiles = pairs of <slope, meters per second>
 
       speed_profiles.push(new SpeedProfile("Walking",
       [ [-35, 0.4722], [-25, 0.555], [-20, 0.6944], [-14, 0.8333], [-12, 0.9722],
-        [-10, 1.1111], [-8, 1.1944], [-6, 1.25], [-5, 1.2638], [-3, 1.25], 
+        [-10, 1.1111], [-8, 1.1944], [-6, 1.25], [-5, 1.2638], [-3, 1.25],
         [2, 1.1111], [6, 0.9722], [10, 0.8333], [15, 0.6944], [19, 0.5555],
         [26, 0.4166], [38, 0.2777] ] ))
-      
+
       speed_profiles.push(new SpeedProfile("Running",
       [ [-16, (12.4/3.6)], [-14,(12.8/3.6)], [-11,(13.4/3.6)], [-8,(12.8/3.6)],
         [-5,(12.4/3.6)], [0,(11.8/3.6)], [9,(9/3.6)], [15,(7.8/3.6)] ] ))
-      
+
       speed_profiles.push(new SpeedProfile("Cycling",
       [ [-6, 13.8888], [-4, 11.1111], [-2, 8.8888], [0, 7.5], [2, 6.1111],
         [4, (16/3.6)], [6, (11/3.6)] ] ))
-      
+
       speed_profiles.push(new SpeedProfile("VTT (cross country cycling)", [ [0, 3.33] ]));
 
       speed_profiles.push(new SpeedProfile("Swimming", [ [0, 0.77] ]));
@@ -1388,7 +1388,7 @@ if ($oid != "") {
           wt_showInfo(undefined, false);
         }
       });
-      
+
 <?php
   if ($file<>'') {
       echo "info.set('Uploaded ".$file_name."<br>')\n";
@@ -1401,7 +1401,7 @@ if ($oid != "") {
       var gpxurl="<?= $_REQUEST["gpx"] ?>";
       if (gpxurl.length>1) {
 debug.add(gpxurl);
-        //document.getElementById("showmarkers").checked = false;     
+        //document.getElementById("showmarkers").checked = false;
       } else {
 
         gpxurl = "tracks/everest.gpx";
@@ -1431,7 +1431,7 @@ debug.add(gpxurl);
     }
     wt_showInfo(current_trkpt, current_trkpt != undefined);
   }
-  
+
   function wt_clear_trackinfo() {
     setElement("distow", "");
     setElement("distrt", "");
@@ -1444,7 +1444,7 @@ debug.add(gpxurl);
   }
 
   /* ------------ option pop up taken from http://www.marengo-ltd.com/map/ */
-  
+
   function addMapHeight(v) {
     mapdiv = document.getElementById("map")
     maph = mapdiv.style.height
@@ -1492,15 +1492,15 @@ debug.add(gpxurl);
         document.all[sID].style.visibility = "visible";
     }
   }
-  
+
   function show_save_box(){
-    document.getElementById("trackname").value = trackname 
+    document.getElementById("trackname").value = trackname
     close_popup("load-box");
     show_popup("save-box");
     var obj = document.getElementById("trackname");
     obj.focus();
   }
-  
+
   function wt_doSave() {
     close_popup('save-box')
     trackname = document.getElementById("trackname").value
@@ -1512,7 +1512,7 @@ debug.add(gpxurl);
 
   function show_user_tracks(res) {
     // set the whole div to bypass IE bug on dynamic selects
-    document.getElementById("usertracks-span").innerHTML = 
+    document.getElementById("usertracks-span").innerHTML =
           "<select name='url' id='usertracks'>" + res + "</select>\n";
     document.getElementById("deleteusertrack").disabled = false;
     document.getElementById("loadusertrack").disabled = false;
@@ -1546,9 +1546,9 @@ debug.add(gpxurl);
     var obj = document.getElementById("gpxurl");
     obj.focus();
   }
-  
+
   function clear_track() {
-    wt_clear(); 
+    wt_clear();
     wt_clear_trackinfo();
     info.set('');
   }
@@ -1570,7 +1570,7 @@ debug.add(gpxurl);
     while (i < trkpts.length) {
       var dspt = []
       var dist = Math.round(trkpts[i].wt_tdist)
-      if (km) { 
+      if (km) {
         dist /= 1000
       }
       dspt.push(dist)
@@ -1587,7 +1587,7 @@ debug.add(gpxurl);
     var layout = new PlotKit.Layout("line", {xOriginIsZero: false, yOriginIsZero: false, yAxis: altLimits});
     layout.addDataset("profile", ds);
     layout.evaluate();
-       
+
     //var chart = new SweetCanvasRenderer(document.getElementById("graph"), layout);
     var chart = new PlotKit.SweetCanvasRenderer($("graph"), layout);
     chart.render();
