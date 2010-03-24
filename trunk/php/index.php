@@ -17,6 +17,7 @@
     <META name="keywords"
           content="GoogleMaps, Map, GPX, track, editor, online, GPS, upload, save, DHTML">
     <title>WTracks - Online GPX track editor</title>
+    <link rel="shortcut icon" href="img/favicon.ico" />
     <style type="text/css">
     v\:* {
       behavior:url(#default#VML);
@@ -325,7 +326,7 @@ if ($oid != "") {
       <td>
         <a href="http://creativecommons.org/licenses/by/2.0/fr/deed.en_US"><img src="http://i.creativecommons.org/l/by/2.0/fr/80x15.png" border=0></a>
         <a href="javascript:doEmail2('gmail.com','Olivier.Potonniee','?subject=WTracks')">Olivier Potonni&eacute;e</a>
-        - <a href="privacy.html">Privacy Policy</a>
+        - <a href="html/privacy.html">Privacy Policy</a>
         - <a href="http://code.google.com/p/wtracks/">Contribute</a>
       </td>
       <td align="right">
