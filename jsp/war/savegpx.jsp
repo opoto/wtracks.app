@@ -1,9 +1,5 @@
-<%@ page import="org.apache.commons.codec.binary.Base64, java.util.*, java.io.*, java.lang.Exception" %>
-<%!
-  String toBase64(String v) {
-    return new Base64().encodeToString(v.getBytes());
-  }
-%>
+<%@ page import="java.util.*, java.io.*, java.lang.Exception, wtracks.GPX, wtracks.PMF, javax.jdo.PersistenceManager" %>
+<%@ include file="userid.jsp" %>
 <%
 
 String action = request.getParameter("action");
@@ -20,22 +16,29 @@ if ("Save".equals(action)) {
   response.setContentType("application/octet-stream");
   response.setHeader("Content-disposition", "attachment; filename=\"" + trackname + ".gpx\"");
   out.print(gpxdata);
-} else if (oid.length() > 0) {
-  File userdir = new File("tracks/" + toBase64(oid));
-  if (! userdir.exists()) {
-    userdir.mkdirs();
+} else if ((oid != null) && (oid.length() > 0)) {
+
+  // check oid matches logged user
+  if (!isUser(session,oid)) {
+    // not authorized
+    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not authorized to save in this user storage place");
+    return;
   }
-  String fname = toBase64(trackname);
-  String fpath = userdir + "/" + fname + ".gpx";
-  if (true/*!file_put_contents($fpath, $gpxdata)*/) {
-    out.println("error: failed to save file... NOT IMPLEMENTED");
-  } else {
-    out.println("<html><body>\n File saved: <a href='http://" + host + "/" + fpath + "'>" + trackname + "</a>");
+
+  GPX gpx = new GPX(trackname, oid, gpxdata, false, new Date());
+
+  PersistenceManager pm = PMF.get().getPersistenceManager();
+
+  try {
+    pm.makePersistent(gpx);
+  } finally {
+    pm.close();
+  }
+  out.println("<html><body>\n File saved :)");
 %>
     <script type='text/javascript'>self.close()</script>
     </body></html>
 <%
-  }
 } else {
     out.println("<html><body>Invalid request</body></html>");
 } 

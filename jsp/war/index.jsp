@@ -17,6 +17,7 @@
   // following config file should define gmaps_key, ganalytics_key, and rpxnow_realm
 %>
 <%@ include file="config.jsp" %>
+<%@ include file="userid.jsp" %>
 
 <%
   // File Upload detection
@@ -141,15 +142,8 @@
 
 <!-- OpenID login (rpxnow) -->
 <%
-  Cookie cookies [] = request.getCookies ();
-  if (cookies != null) {
-    for (int i = 0; i < cookies.length; i++) {
-      if (cookies [i].getName().equals ("LoginOpenID")) {
-	openID = cookies[i].getValue();
-	break;
-      }
-    }
-  }
+  openID = getUserID(session);
+
   if ((openID == null) || (openID.length() == 0)) {
 %>
 <a class="rpxnow" onclick="return false;"
@@ -163,15 +157,15 @@
   } else {
 %>
 <script type='text/javascript'>
-  var openID = <%= java.net.URLDecoder.decode(openID) %>;
+  var openID = <%= openID %>;
   var name = openID.profile.displayName;
   var oid = openID.profile.identifier;
   if (name == '') {
     name = oid.replace('http://', '');
   }
-  document.write("<a href='" + oid + "'>" + name);
+  document.write("<a href='" + oid + "'>" + name + "</a>");
 </script>
-</a> | <a href='login.jsp?action=logout&<%=rpxgoto%>'>Logout</a><br>
+ | <a href='login.jsp?action=logout&<%=rpxgoto%>'>Logout</a><br>
 <%
   }
 %>
@@ -311,7 +305,7 @@
 </script>
           <form onsubmit="return false;">
             <td>
-              <input type="submit" value="Your saved track:" id="loadusertrack" onclick="wt_loadGPX(document.getElementById('usertracks').value);""/>
+              <input type="submit" value="Your saved track:" id="loadusertrack" onclick="wt_loadUserGPX(document.getElementById('usertracks').value);"/>
             </td><td>
               <span id="usertracks-span"><select name='url' id='usertracks'></select></span>
               <input type="submit" value="Delete this track" id="deleteusertrack" onclick="delete_track(document.getElementById('usertracks').value);"/>
@@ -1223,6 +1217,15 @@
     //info.set("loading " + filename + "...<br>");
     info.set("<img src='img/processing.gif'> Loading...");
     GDownloadUrl("httpget_proxy.jsp?" + filename, function(data, responseCode) {
+      wt_importGPX(data);
+    });
+  }
+
+  function wt_loadUserGPX(filename) {
+    close_popup('load-box');
+    //info.set("loading " + filename + "...<br>");
+    info.set("<img src='img/processing.gif'> Loading...");
+    GDownloadUrl("usertracks.jsp?oid=" + oid + "&name=" + filename, function(data, responseCode) {
       wt_importGPX(data);
     });
   }
