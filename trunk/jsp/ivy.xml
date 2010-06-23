@@ -1,0 +1,7 @@
+<ivy-module version="2.0">
+    <info organisation="wtracks" module="wtracks"/>
+    <dependencies>
+        <dependency org="commons-io" name="commons-io" rev="1.4" conf="*->*,!sources,!javadoc" />
+        <dependency org="commons-fileupload" name="commons-fileupload" rev="1.2.1" conf="*->*,!sources,!javadoc" />
+    </dependencies>
+</ivy-module>

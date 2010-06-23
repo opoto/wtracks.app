@@ -1,5 +1,6 @@
-<project>
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="wtracks" default="compile" >
   <property file="ant.properties" />
+  <property name="ivy.lib.dir" value="war/WEB-INF/lib" />
 
   <import file="${sdk.dir}/config/user/ant-macros.xml" />
 
@@ -13,8 +14,16 @@
     </fileset>
   </path>
 
-  <target name="copyjars"
-      description="Copies the App Engine JARs to the WAR.">
+  <available property="links.exists" file="war/img" />
+  <target name="createlinks" unless="links.exists">
+    <symlink link="war/" resource="../../common/js" failonerror="false" overwrite="true" />
+    <symlink link="war/" resource="../../common/tracks" failonerror="false" />
+    <symlink link="war/" resource="../../common/html" failonerror="false" />
+    <symlink link="war/" resource="../../common/img" failonerror="false" />
+  </target>
+  
+  <target name="copyjars" depends="createlinks"
+      description="Copies requires JARS (App Engine JARs and others) to the WAR.">
     <copy
         todir="war/WEB-INF/lib"
         flatten="true">
@@ -22,6 +31,7 @@
         <include name="**/*.jar" />
       </fileset>
     </copy>
+    <ivy:retrieve />
   </target>
 
   <target name="compile" depends="copyjars"
