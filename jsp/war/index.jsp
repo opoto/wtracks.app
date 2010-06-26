@@ -29,25 +29,25 @@
     FileItemStream fileItem = null;
 
     try {
-	while (it.hasNext()){
-	    fileItem = (FileItemStream)it.next();
-	    if (!fileItem.isFormField()) {
-		file_name = fileItem.getName();
-		System.out.println("reading file: " + file_name);
-		InputStream in = fileItem.openStream();
-		int len;
-		byte[] buffer = new byte[8192];
-		while ((len = in.read(buffer, 0, buffer.length)) != -1) {
-		System.out.println("got " + len + " bytes");
-		String tmp = new String(buffer, 0, len);
-		file += tmp;
-		}
-		//file = fileItem.getString();
-		break;
-	    }
-	}
+      while (it.hasNext()){
+          fileItem = (FileItemStream)it.next();
+          if (!fileItem.isFormField()) {
+            file_name = fileItem.getName();
+            System.out.println("reading file: " + file_name);
+            InputStream in = fileItem.openStream();
+            int len;
+            byte[] buffer = new byte[8192];
+            while ((len = in.read(buffer, 0, buffer.length)) != -1) {
+              System.out.println("got " + len + " bytes");
+              String tmp = new String(buffer, 0, len);
+              file += tmp;
+            }
+          //file = fileItem.getString();
+          break;
+          }
+      }
     } catch (Exception ex) {
-	System.err.println("Error while reading uploaded file: " + ex);
+      System.err.println("Error while reading uploaded file: " + ex);
     }
   }
 %>
@@ -145,6 +145,7 @@
   openID = getUserID(session);
 
   if ((openID == null) || (openID.length() == 0)) {
+    openID = null;
 %>
 <a class="rpxnow" onclick="return false;"
    href="https://<%=rpxnow_realm%>.rpxnow.com/openid/v2/signin?token_url=<%=rpxnow_token_url%>">
@@ -269,7 +270,8 @@
       </table>
     </div>
 
-    <div class="options-box" id="load-box" onkeypress='check_for_escape(event, "load-box")'>
+
+    <div class="options-box" id="load-box" onkeypress='check_for_escape(event, "load-box")' style="z-index:10;">
       <table>
         <tr>
           <th style="text-align:left">Load Options</th>
@@ -280,7 +282,7 @@
             <td>
               <input type="submit" value="Load GPX from URL:" />
             </td><td>
-              <input id="gpxurl" type="text" size="60" name="url" value="tracks/everest.gpx" />
+              <input id="gpxurl" type="text" size="60" name="url" value="http://" />
             </td>
           </form>
         </tr>
@@ -296,21 +298,17 @@
             </td>
           </form>
         </tr>
-<script type='text/javascript'>
-  if (oid != '') {
-    document.write("        <tr>");
-  } else {
-    document.write("        <tr style='display:none;'>");
-  }
-</script>
-          <form onsubmit="return false;">
-            <td>
-              <input type="submit" value="Your saved track:" id="loadusertrack" onclick="wt_loadUserGPX(document.getElementById('usertracks').value);"/>
-            </td><td>
-              <span id="usertracks-span"><select name='url' id='usertracks'></select></span>
-              <input type="submit" value="Delete this track" id="deleteusertrack" onclick="delete_track(document.getElementById('usertracks').value);"/>
-            </td>
+<%
+  if (openID != null) {
+%>
+        <tr>
+          <td>
+            Your saved track:
+          </td><td>
+            <span style="width:500px; max-height:300px; overflow:auto; display:inline-block;" id="usertracks-span"><img src='img/processing.gif'></span>
+          </td>
         </tr>
+<% } %>
       </table>
     </div>
 
@@ -345,14 +343,17 @@
             <td colspan="2">
               <input type='hidden' id='savedname' name='savedname' value='' />
               <input type="submit" name="action" value="Save" />
-<script type='text/javascript'>
-  if (oid != '') {
-    document.write("<input type='hidden' name='oid' value='" + oid + "' />");
-    document.write("<input type='submit' name='action' value='Save on this server' />");
-  } else {
-    document.write("(Sign in to be able to save on this server)");
-  }
+<%
+  if (openID != null) {
+%>
+<script type="text/javascript">
+              document.write("<input type='hidden' name='oid' value='" + oid + "' />");
 </script>
+              <input type='submit' name='action' value='Save on this server' />
+              <input type='checkbox' name='public' value='yes' /> Public
+<% } else { %>
+              (Sign in to be able to save on this server)
+<% } %>
               <textarea name="gpxarea" class="hidden"
                         id="gpxarea" readonly rows="20" cols="80"><%
 
@@ -1221,11 +1222,11 @@
     });
   }
 
-  function wt_loadUserGPX(filename) {
+  function wt_loadUserGPX(filename, useroid) {
     close_popup('load-box');
     //info.set("loading " + filename + "...<br>");
     info.set("<img src='img/processing.gif'> Loading...");
-    GDownloadUrl("usertracks.jsp?oid=" + oid + "&name=" + filename, function(data, responseCode) {
+    GDownloadUrl("usertracks.jsp?oid=" + useroid + "&name=" + filename, function(data, responseCode) {
       wt_importGPX(data);
     });
   }
@@ -1467,15 +1468,20 @@
     } else {
 %>
 
-      var gpxurl="<%= ((request.getParameter("gpx") == null) ? "" : request.getParameter("gpx")) %>";
-      if (gpxurl.length>1) {
-debug.add(gpxurl);
-        //document.getElementById("showmarkers").checked = false;
+      var useroid="<%= ((request.getParameter("oid") == null) ? "" : request.getParameter("oid")) %>";
+      var usertrack="<%= ((request.getParameter("name") == null) ? "" : request.getParameter("name")) %>";
+      if ((useroid.length>1) && (usertrack.length>1)) {
+        wt_loadUserGPX(escape(usertrack), escape(useroid));
       } else {
-
-        gpxurl = "tracks/everest.gpx";
+        var gpxurl="<%= ((request.getParameter("gpx") == null) ? "" : request.getParameter("gpx")) %>";
+        if (gpxurl.length>1) {
+  debug.add(gpxurl);
+          //document.getElementById("showmarkers").checked = false;
+        } else {
+          gpxurl = "tracks/everest.gpx";
+        }
+        wt_loadGPX(gpxurl);
       }
-      wt_loadGPX(gpxurl);
 <%
     }
 %>
@@ -1572,33 +1578,26 @@ debug.add(gpxurl);
 
   function wt_doSave() {
     close_popup('save-box')
-    trackname = document.getElementById("trackname").value
-    document.getElementById("savedname").value = trackname;
+    trackname = htmlEncode(document.getElementById("trackname").value, false, 0)
+    document.getElementById("savedname").value = trackname
     var savealt = document.getElementById("savealt").checked
     var savetime = document.getElementById("savetime").checked
     document.getElementById("gpxarea").value = wt_toGPX(savealt, savetime)
   }
 
   function show_user_tracks(res) {
-    // set the whole div to bypass IE bug on dynamic selects
-    document.getElementById("usertracks-span").innerHTML =
-          "<select name='url' id='usertracks'>" + res + "</select>\n";
-    document.getElementById("deleteusertrack").disabled = false;
-    document.getElementById("loadusertrack").disabled = false;
-    document.getElementById("usertracks").disabled = false;
+    document.getElementById("usertracks-span").innerHTML = res;
   }
 
   function load_tracks(params) {
-    document.getElementById("deleteusertrack").disabled = true;
-    document.getElementById("loadusertrack").disabled = true;
-    document.getElementById("usertracks").disabled = true;
+    document.getElementById("usertracks-span").innerHTML = "<img src='img/processing.gif'>";
     Lokris.AjaxCall("usertracks.jsp" + params, show_user_tracks,
               { method: "POST", postBody: "oid="+oid });
   }
 
   function delete_track(url) {
-    if (confirm("Delete this track?")) {
-      load_tracks('&delete=' + url);
+    if (confirm("Delete track '" + url + "'?")) {
+      load_tracks('?delete=' + url);
     }
   }
 
@@ -1662,6 +1661,7 @@ debug.add(gpxurl);
     //]]>
     </script>
 
+   <script src="js/htmlEncode.js" type="text/javascript"></script>
    <script src="js/showmail.js" type="text/javascript"></script>
 
 <!-- plotkit includes (for graph disply) -->
