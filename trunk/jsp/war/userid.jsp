@@ -9,6 +9,10 @@
     session.removeAttribute("LoginOpenID");
   }
   boolean isUser(HttpSession session, String identifier) {
-    return getUserID(session).replaceAll("\\\\", "").indexOf(identifier) >= 0;
+    String currentUser = getUserID(session);
+    if (currentUser == null) {
+      return false;
+    }
+    return currentUser.replaceAll("\\\\", "").indexOf(identifier) >= 0;
   }
 %>

@@ -6,7 +6,7 @@
       response.setContentType(contentType);
       o = response.getOutputStream();
       InputStream is;
-      if (url.startsWith("[a-z]+://")) {
+      if (url.matches("^[a-z]+://.*")) {
         is = new URL(url).openStream();
       } else {
         is = new FileInputStream(url);
