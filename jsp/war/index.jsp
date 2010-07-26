@@ -98,14 +98,6 @@
       overflow:auto;
     }
 
-    .mapsize-box{
-      background: #eee;
-      border: 1px solid black;
-      position: absolute;
-      left: 35px;
-      overflow:auto;
-    }
-
     .graph-box{
       background: #eee;
       border: 1px solid black;
@@ -122,11 +114,10 @@
     </style>
 
    <!-- Google API license key -->
-    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=<%=gmaps_key%>"
-            type="text/javascript"></script>
+    <script src="http://maps.google.com/maps/api/js?sensor=true" type="text/javascript"></script>
 
   </head>
-  <body onload="wt_load()" onunload="GUnload()">
+  <body onload="wt_load()">
 
 <!-- =================== Top bar =================== -->
 
@@ -185,7 +176,7 @@
         </th>
         </form>
         <th class="title" id="trktitle"></th>
-        <form action="#">
+        <form onsubmit="return false">
         <th style="text-align:right">
             Show: <img src="img/mm_20_red.png" alt="handles" title="handles"/>
             <input type="checkbox" id="showmarkers"
@@ -202,60 +193,7 @@
         </form>
       </tr>
     </table>
-    <div id="map" style="width: 100%; height: 600px"></div>
-
-    <table>
-      <tr>
-        <th width="200">Distance</th>
-        <td width="150">
-          <img src='img/oneway.gif' alt='One Way' title='One Way'>
-          <span id="distow"></span>
-        </td>
-        <td width="150">
-          <img src='img/roundtrip.gif' alt='Round Trip' title='Round Trip'>
-          <span id="distrt"></span>
-        </td>
-        <th width="150">Altitude Max</th>
-        <td width="60" id="altmax">
-        </td>
-        <th width="150">Climbing</th>
-        <td width="60" id="climbing">
-        </td><!-- name="submit" value="submit" -->
-        <td rowspan="2"><button type="submit" onclick="wt_doGraph(); return false">2D Profile<br><img src="img/2d.gif"></button></td>
-      <tr>
-        <form action="#">
-        <th>
-          Duration
-          <select name="speedprofile" id="speedprofile" size="1"
-                  onchange="wt_updateSpeedProfile(); wt_update_infos()" >
-          </select>
-        </th>
-        </form>
-        <td>
-          <img src='img/oneway.gif' alt='One Way' title='One Way'>
-          <span id="timeow"></span>
-        </td>
-        <td>
-          <img src='img/roundtrip.gif' alt='Round Trip' title='Round Trip'>
-          <span id="timert"></span>
-        </td>
-        <th>Altitude Min</th>
-        <td id="altmin">
-        </td>
-        <th>Descent</th>
-        <td id="descent">
-        </td>
-      </tr>
-      <tr <% if (! testing) out.print("style='display: none'"); %> >
-        <form action="#" onsubmit="debug.set(''); return false">
-        <td>
-          <input type="submit" value="Clear debug" />
-        </td>
-        </form>
-        <td colspan="6" id="debug">
-        </td>
-      </tr>
-    </table>
+    <div id="map" style="position: absolute; top: 70px; bottom: 125px; left: 10px; right: 10px;"></div>
 
     <div class="graph-box" id="graph-box" onkeypress='check_for_escape(event, "graph-box")'>
       <table>
@@ -312,12 +250,6 @@
       </table>
     </div>
 
-    <div class="mapsize-box" style="top: 355px">
-      <a href="javascript:addMapHeight(20)" title="Increase map size"><img src="img/bigger.png" alt="bigger" border=0></a>
-    </div>
-    <div class="mapsize-box" style="top: 380px">
-      <a href="javascript:addMapHeight(-20)" title="Decrease map size"><img src="img/smaller.png" alt="smaller" border=0></a>
-    </div>
 
     <div class="options-box" id="save-box" onkeypress='check_for_escape(event, "save-box")'>
       <table>
@@ -339,7 +271,7 @@
           <td>Save computed timings?</td>
         </tr>
         <tr>
-          <form target="_blank" action="savegpx.jsp" method="post" onSubmit="wt_doSave();">
+          <form target="_blank" action="savegpx.jsp" method="post" onSubmit="wt_doSave()">
             <td colspan="2">
               <input type='hidden' id='savedname' name='savedname' value='' />
               <input type="submit" name="action" value="Save" />
@@ -368,27 +300,83 @@
     </div>
 
   <!-- PAGE FOOTER -->
-  <hr />
+    <div style="position: absolute; bottom: 10px; right: 10px; left: 10px; top: auto;">
+    <table>
+      <tr>
+        <th width="200">Distance</th>
+        <td width="150">
+          <img src='img/oneway.gif' alt='One Way' title='One Way'>
+          <span id="distow"></span>
+        </td>
+        <td width="150">
+          <img src='img/roundtrip.gif' alt='Round Trip' title='Round Trip'>
+          <span id="distrt"></span>
+        </td>
+        <th width="150">Altitude Max</th>
+        <td width="60" id="altmax">
+        </td>
+        <th width="150">Climbing</th>
+        <td width="60" id="climbing">
+        </td><!-- name="submit" value="submit" -->
+        <td rowspan="2"><button type="submit" onclick="wt_doGraph(); return false">2D Profile<br><img src="img/2d.gif"></button></td>
+      <tr>
+        <form action="#">
+        <th>
+          Duration
+          <select name="speedprofile" id="speedprofile" size="1"
+                  onchange="wt_updateSpeedProfile(); wt_update_infos()" >
+          </select>
+        </th>
+        </form>
+        <td>
+          <img src='img/oneway.gif' alt='One Way' title='One Way'>
+          <span id="timeow"></span>
+        </td>
+        <td>
+          <img src='img/roundtrip.gif' alt='Round Trip' title='Round Trip'>
+          <span id="timert"></span>
+        </td>
+        <th>Altitude Min</th>
+        <td id="altmin">
+        </td>
+        <th>Descent</th>
+        <td id="descent">
+        </td>
+      </tr>
+      <tr <% if (! testing) out.print("style='display: none'"); %> >
+        <form action="#" onsubmit="debug.set(''); return false">
+        <td>
+          <input type="submit" value="Clear debug" />
+        </td>
+        </form>
+        <td colspan="6" id="debug">
+        </td>
+      </tr>
+    </table>
 
-  <script type="text/javascript">
-  function doEmail2(d, i, tail) {
-    location.href = "mailto:" + i + "@" + d + tail;
-  }
-  </script>
+    <hr />
+  
+    <script type="text/javascript">
+    function doEmail2(d, i, tail) {
+      location.href = "mailto:" + i + "@" + d + tail;
+    }
+    </script>
+  
+    <table width="100%">
+      <tr style="font-size:small; font-family:sans-serif;" >
+        <td>
+          <a href="http://creativecommons.org/licenses/by/2.0/fr/deed.en_US"><img src="http://i.creativecommons.org/l/by/2.0/fr/80x15.png" border=0></a>
+          <a href="javascript:doEmail2('gmail.com','Olivier.Potonniee','?subject=WTracks')">Olivier Potonni&eacute;e</a>
+          - <a href="html/privacy.html">Privacy Policy</a>
+          - <a href="http://code.google.com/p/wtracks/">Contribute</a>
+        </td>
+        <td align="right" style="display:none;">
+        <i>URL syntax:</i> <%= "http" + (request.getServerPort() == 80 ? "": "s") + "://" + request.getServerName() + request.getRequestURI() %>[?gpx=&lt;gpx file url&gt;[&amp;marks=(true|false)][&amp;labels=(true|false)]
+        </td>
+      </tr>
+    </table>
 
-  <table width="100%">
-    <tr style="font-size:small; font-family:sans-serif;" >
-      <td>
-        <a href="http://creativecommons.org/licenses/by/2.0/fr/deed.en_US"><img src="http://i.creativecommons.org/l/by/2.0/fr/80x15.png" border=0></a>
-        <a href="javascript:doEmail2('gmail.com','Olivier.Potonniee','?subject=WTracks')">Olivier Potonni&eacute;e</a>
-        - <a href="html/privacy.html">Privacy Policy</a>
-        - <a href="http://code.google.com/p/wtracks/">Contribute</a>
-      </td>
-      <td align="right">
-      <i>URL syntax:</i> <%= "http" + (request.getServerPort() == 80 ? "": "s") + "://" + request.getServerName() + request.getRequestURI() %>[?gpx=&lt;gpx file url&gt;[&amp;marks=(true|false)][&amp;labels=(true|false)]
-      </td>
-    </tr>
-  </table>
+  </div>   <!-- FOOTER -->
 
   <!-- GOOGLE ANALYTICS -->
   <script type="text/javascript">
@@ -424,8 +412,9 @@
   var isroundtrip = true;
 
   var map;
+  var cluster;
   var geocoder;
-  var clusterer;
+  var infoWindow;
 
   var info; // info line
   var debug; // debug area
@@ -435,22 +424,12 @@
   var WTRACKS = "WTracks - Online GPX track editor"
 
   //  wpt icon
-  var wp_icon = new GIcon(G_DEFAULT_ICON);
-  wp_icon.image            = "img/icon13.png"; // http://maps.google.com/mapfiles/kml/pal2/
-  wp_icon.shadow           = "img/icon13s.png";
-  wp_icon.iconSize         = new GSize(32,32);
-  wp_icon.shadowSize       = new GSize(56,32);
-  wp_icon.iconAnchor       = new GPoint(16, 32);
-  wp_icon.infoWindowAnchor = new GPoint(16, 0);
+  var wp_icon = new google.maps.MarkerImage("img/icon13.png") // http://maps.google.com/mapfiles/kml/pal2/
+  var wp_icon_shadow = new google.maps.MarkerImage("img/icon13s.png") // http://maps.google.com/mapfiles/kml/pal2/
 
   //  wpt icon
-  var trkpt_icon = new GIcon(G_DEFAULT_ICON);
-  trkpt_icon.image            = "img/mm_20_red.png";
-  trkpt_icon.shadow           = "img/mm_20_shadow.png";
-  trkpt_icon.iconSize         = new GSize(12, 20);
-  trkpt_icon.shadowSize       = new GSize(22, 20);
-  trkpt_icon.iconAnchor       = new GPoint(6, 20);
-  trkpt_icon.infoWindowAnchor = new GPoint(5, 1);
+  var trkpt_icon = new google.maps.MarkerImage("img/mm_20_red.png");
+  var trkpt_icon_shadow = new google.maps.MarkerImage("img/mm_20_shadow.png");
 
   /*------------ Utility functions -----------*/
 
@@ -569,7 +548,7 @@
 
   // Distance 3D = square(a^2 + b^2)
   function distance3D(trkpt1, trkpt2) {
-    var a = trkpt2.getPoint().distanceFrom(trkpt1.getPoint());
+    var a = trkpt2.getPosition().distanceFrom(trkpt1.getPosition());
     var b = trkpt2.wt_alt() - trkpt1.wt_alt();
     return Math.sqrt((a*a) + (b*b));
   }
@@ -578,6 +557,23 @@
   function lead0( v ) {
     if (v < 10) return "0" + v;
     return v;
+  }
+
+  function mapIt(p, always) {
+    if (true || always) {
+      p.setMap(map);
+    } else {
+      cluster.addMarker(p);
+      p.clustered = true
+    }
+  }
+  function unmapIt(p) {
+    if (p.clustered) {
+      cluster.removeMarker(p);
+      p.clustered = undefined;
+    } else {
+      p.setMap(null);
+    }
   }
 
   /*------------ SpeedProfile -----------*/
@@ -613,23 +609,57 @@
     return 0;
   }
 
-  /*------------ Wpt --------------*/
+  /* GMaps API v2 compatibility */
+
+  google.maps.LatLng.prototype.distanceFrom = function(newLatLng) {
+    //var R = 6371; // km (change this constant to get miles)
+    var R = 6371000; // meters
+    var lat1 = this.lat();
+    var lon1 = this.lng();
+    var lat2 = newLatLng.lat();
+    var lon2 = newLatLng.lng();
+    var dLat = (lat2-lat1) * Math.PI / 180;
+    var dLon = (lon2-lon1) * Math.PI / 180;
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180 ) * Math.cos(lat2 * Math.PI / 180 )  *  Math.sin(dLon/2) * Math.sin(dLon/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    var d = R * c;
+    return d;
+  }
+
+  function openInfoWindow(pos, html) {
+    closeInfoWindow();
+    var infoOpts = {
+      content: html,
+      disableAutoPan: true,
+      position: pos
+    }
+    infoWindow = new google.maps.InfoWindow(infoOpts)
+    infoWindow.open(map);
+  }
+
+  function closeInfoWindow() {
+    if (infoWindow) {
+      infoWindow.close();
+      infoWindow = undefined;
+    }
+  }
+  
+/*------------ Wpt --------------*/
 
   function toPt(marker, i) {
     marker.wt_manalt = undefined
     marker.wt_name = undefined
-    marker.wt_label = undefined
     marker.wt_i = i
     // click event
-    GEvent.addListener(marker, "click", function() {
+    google.maps.event.addListener(marker, "click", function() {
       wt_showInfo(marker, true)
     });
     // drag event
-    GEvent.addListener(marker, "dragend", function() {
+    google.maps.event.addListener(marker, "dragend", function() {
       marker.wt_relocate(false)
     });
     // drag event
-    GEvent.addListener(marker, "drag", function() {
+    google.maps.event.addListener(marker, "drag", function() {
       marker.wt_relocate(false)
     });
 
@@ -637,45 +667,45 @@
     marker.wt_showMarker(true);
   }
 
-  GMarker.prototype.Wt_getName = function() {
+  google.maps.Marker.prototype.Wt_getName = function() {
     return (this.wt_name ? this.wt_name : "");
   }
 
-  GMarker.prototype.Wpt_relocate = function(openinfo) {
-    map.closeInfoWindow();
-    if (this.wt_label) this.wt_label.setPoint(this.getPoint());
+  google.maps.Marker.prototype.Wpt_relocate = function(openinfo) {
+    closeInfoWindow();
     if (openinfo) {
       this.wt_showInfo(true);
     }
   }
 
 
-  GMarker.prototype.wt_infoHead = function() {
+  google.maps.Marker.prototype.wt_infoHead = function() {
     var ptinfo = "Name: <input type='text' size='10' value='" + this.Wt_getName()
         + "' onchange='"+ this.wt_arrayname + "[" + this.wt_i + "].wt_setName(this.value)' onkeyup='"
         + this.wt_arrayname + "[" + this.wt_i + "].wt_setName(this.value)'/><br/>";
-    ptinfo += "Position: <span id='ppos'>" + this.getPoint().toUrlValue() + "</span><br/>";
+    ptinfo += "Position: <span id='ppos'>" + this.getPosition().toUrlValue() + "</span><br/>";
     return ptinfo
   }
 
-  GMarker.prototype.Wpt_showInfo = function(openinfo) {
+  google.maps.Marker.prototype.Wpt_showInfo = function(openinfo) {
      current_trkpt = undefined
      info.set("");
      if (openinfo) {
-       var ptinfo = "<form style='font-size:smaller'>";
+       var ptinfo = "<form style='font-size:smaller' onsubmit='return false'>";
 
        ptinfo += this.wt_infoHead()
        ptinfo += "Altitude: <span id='altv'>" + this.wt_altview() + "</span>";
-       ptinfo += " <a href='javascript:wpts[" + this.wt_i + "].Wpt_setAltDB()'>alt DB</a>";
-       ptinfo += "</form>";
-       ptinfo += "<a href='javascript:wpts[" + this.wt_i + "].Wpt_delete()'>Delete</a> - ";
-       ptinfo += "<a href='javascript:wpts[" + this.wt_i + "].Wpt_duplicate()'>Duplicate</a>";
-
-       map.openInfoWindowHtml(this.getPoint(), ptinfo);
+       ptinfo += " <a href='javascript:wpts[" + this.wt_i + "].Wpt_setAltDB();'>alt DB</a>";
+       ptinfo += "</form><div style='margin:2px'>";
+       ptinfo += "<a href='javascript:wpts[" + this.wt_i + "].Wpt_delete();'>Delete</a> - ";
+       ptinfo += "<a href='javascript:wpts[" + this.wt_i + "].Wpt_duplicate();'>Duplicate</a>";
+       ptinfo += "</div>";
+       
+       openInfoWindow(this.getPosition(), ptinfo)
     }
   }
 
-  GMarker.prototype.Wpt_altview = function() {
+  google.maps.Marker.prototype.Wpt_altview = function() {
     var scripttxt = this.wt_arrayname + "[" + this.wt_i + "].wt_setAlt(false, this.value); wt_showInfo("
                     + this.wt_arrayname + "[" + this.wt_i + "],false)"
     var alt = this.wt_alt()
@@ -683,46 +713,38 @@
     return "<input type='text' size='4' name='alt' value='" + alt + "' onchange='" + scripttxt + "' onkeyup='" + scripttxt + "'/>";
   }
 
-  GMarker.prototype.wt_updateTitle = function() {
+  google.maps.Marker.prototype.wt_updateTitle = function() {
     var title = "";
     if (this.wt_name && this.wt_name != "") title += this.wt_name;
     if ((this.wt_manalt != undefined) && (this.wt_autoalt == undefined || !this.wt_autoalt)) {
       title += " (" + this.wt_manalt + "&nbsp;m)";
     }
     if (title != "") {
-      if (this.wt_label) {
-        this.wt_label.setContents(title);
-      } else {
-        this.wt_label = new ELabel(this.getPoint(), title, "ptlabel", new GSize(0,10), 70);
-        if (this.wt_areLabelsShown()) {
-          clusterer.AddMarker(this.wt_label, this.wt_label.html);
-        }
-      }
+      this.set("labelContent", title)
+      this.set("labelAnchor", new google.maps.Point(10, 0))
+      this.set("labelClass", "ptlabel")
     } else {
-      if (this.wt_label) {
-        clusterer.RemoveMarker(this.wt_label);
-        this.wt_label = undefined;
-      }
+      this.set("labelContent", "")
     }
   }
 
-  GMarker.prototype.wt_setName = function(name) {
+  google.maps.Marker.prototype.wt_setName = function(name) {
     this.wt_name = name;
     this.wt_updateTitle();
   }
 
-  GMarker.prototype.Wpt_setAlt = function(auto, man) {
+  google.maps.Marker.prototype.Wpt_setAlt = function(auto, man) {
     this.wt_manalt = man ? parseFloat(man) : undefined;
     this.wt_autoalt = auto;
     this.wt_updateTitle();
   }
 
-  GMarker.prototype.Wpt_setAltDB = function() {
-    this.wt_setAlt(false, getAltitude( this.getPoint().lat(), this.getPoint().lng() ));
+  google.maps.Marker.prototype.Wpt_setAltDB = function() {
+    this.wt_setAlt(false, getAltitude( this.getPosition().lat(), this.getPosition().lng() ));
     wt_showInfo(this, true)
   }
 
-  GMarker.prototype.wt_updateAutoalt = function(newautoalt) {
+  google.maps.Marker.prototype.wt_updateAutoalt = function(newautoalt) {
     //debug.set("i=" + i + ", newautoalt=" + newautoalt);
     this.wt_setAlt(newautoalt, this.wt_alt());
     wt_showInfo(this, false)
@@ -730,30 +752,30 @@
     altv.innerHTML = this.wt_altview();
   }
 
-  GMarker.prototype.wt_showMarker = function(isnew) {
+  google.maps.Marker.prototype.wt_showMarker = function(isnew) {
     if (this.wt_areMarkersShown()) {
       // show marker
-      clusterer.AddMarker(this, this.Wt_getName())
+      mapIt(this);
     } else if (!isnew) {
-      clusterer.RemoveMarker(this)
+      mapIt(this)
     }
   }
 
-  GMarker.prototype.Wpt_alt = function() {
+  google.maps.Marker.prototype.Wpt_alt = function() {
     return this.wt_manalt
   }
 
-  GMarker.prototype.Wpt_duplicate = function() {
-    var pos = new GLatLng(this.getPoint().lat()+0.0001, this.getPoint().lng()+0.0001)
+  google.maps.Marker.prototype.Wpt_duplicate = function() {
+    var pos = new google.maps.LatLng(this.getPosition().lat()+0.0001, this.getPosition().lng()+0.0001)
     var pt = new_Wpt(pos)
     pt.wt_manalt = this.wt_manalt
     pt.wt_setName(this.wt_name)
     wt_showInfo(this, true)
-    map.openInfoWindowHtml(pos, "Duplicated point");
+    openInfoWindow(pos, "Duplicated point");
   }
 
-  GMarker.prototype.Wpt_delete = function() {
-    map.closeInfoWindow();
+  google.maps.Marker.prototype.Wpt_delete = function() {
+    closeInfoWindow();
     var newwpts = [];
 
     for (i=0; i < wpts.length; i++) {
@@ -762,30 +784,29 @@
        newwpts.push(wpts[i])
      }
     }
-    clusterer.RemoveMarker(this);
-    if (this.wt_label) clusterer.RemoveMarker(this.wt_label)
+    unmapIt(this);
     wpts = newwpts
   }
 
-  GMarker.prototype.toWpt = function(i) {
+  google.maps.Marker.prototype.toWpt = function(i) {
     this.dummy = "dummy"
     this.wt_arrayname = "wpts"
     this.wt_gpxelt = "wpt"
-    this.wt_relocate = GMarker.prototype.Wpt_relocate
-    this.wt_showInfo = GMarker.prototype.Wpt_showInfo
-    this.wt_alt = GMarker.prototype.Wpt_alt
-    this.wt_altview = GMarker.prototype.Wpt_altview
+    this.wt_relocate = google.maps.Marker.prototype.Wpt_relocate
+    this.wt_showInfo = google.maps.Marker.prototype.Wpt_showInfo
+    this.wt_alt = google.maps.Marker.prototype.Wpt_alt
+    this.wt_altview = google.maps.Marker.prototype.Wpt_altview
     this.wt_areMarkersShown = areWptsShown
     this.wt_areLabelsShown = areWptsShown
-    this.wt_setAlt = GMarker.prototype.Wpt_setAlt
+    this.wt_setAlt = google.maps.Marker.prototype.Wpt_setAlt
 
     toPt(this, i)
     this.wt_updateTitle();
   }
 
-  GMarker.prototype.wt_toGPX = function(savealt, savetime) {
+  google.maps.Marker.prototype.wt_toGPX = function(savealt, savetime) {
     var gpx = "<" + this.wt_gpxelt + " ";
-    gpx += "lat=\"" + this.getPoint().lat() + "\" lon=\"" + this.getPoint().lng() + "\">";
+    gpx += "lat=\"" + this.getPosition().lat() + "\" lon=\"" + this.getPosition().lng() + "\">";
     if (this.wt_name) {
       gpx += "<name>" + this.wt_name + "</name>";
     }
@@ -803,7 +824,16 @@
 
 
   function new_Wpt(point, alt, name) {
-    var pt = new GMarker(point, {draggable: true, icon: wp_icon}) //  (icon setting doesn't work)
+    var markOpts = {
+      draggable: true,
+      icon: wp_icon,
+      shadow: wp_icon_shadow,
+      position: point,
+      title: name,
+      labelContent:name?name:"",
+      visible: true
+    }
+    var pt = new MarkerWithLabel(markOpts)
     pt.toWpt(wpts.length)
     wpts.push(pt)
     if (alt) pt.wt_setAlt(false, alt)
@@ -814,7 +844,7 @@
 
  /*------------- Trkpt ------------*/
 
-  GMarker.prototype.Trkpt_altview = function() {
+  google.maps.Marker.prototype.Trkpt_altview = function() {
     if (this.wt_autoalt) {
       return this.wt_alt();
     } else {
@@ -822,7 +852,7 @@
     }
   }
 
-  GMarker.prototype.Trkpt_setAlt = function(auto, man) {
+  google.maps.Marker.prototype.Trkpt_setAlt = function(auto, man) {
     this.Wpt_setAlt(auto, man)
     // update infos from last known alt point
     var i = this.wt_i > 0 ? this.wt_i-1 : 0
@@ -832,11 +862,10 @@
     wt_updateInfoFrom(trkpts[i])
   }
 
-  GMarker.prototype.Trkpt_relocate = function(openinfo) {
-    map.closeInfoWindow();
-    points[this.wt_i] = this.getPoint();
+  google.maps.Marker.prototype.Trkpt_relocate = function(openinfo) {
+    closeInfoWindow();
+    points[this.wt_i] = this.getPosition();
     wt_drawPolyline();
-    if (this.wt_label) this.wt_label.setPoint(this.getPoint());
     wt_updateInfoFrom(this)
     if (openinfo) {
       wt_showInfo(this, true);
@@ -845,23 +874,23 @@
     }
   }
 
-  GMarker.prototype.Trkpt_updateAlt = function() {
+  google.maps.Marker.prototype.Trkpt_updateAlt = function() {
     // --- altitude
     if (this.wt_autoalt) {
       if ((this.wt_i > 0) && ((this.wt_i + 1) < trkpts.length)) {
         var previ = this.wt_i-1;
-        var prevdist = trkpts[previ].getPoint().distanceFrom(this.getPoint());
+        var prevdist = trkpts[previ].getPosition().distanceFrom(this.getPosition());
         while ((previ > 0) && trkpts[previ].wt_autoalt) {
           previ--;
-          prevdist += trkpts[previ].getPoint().distanceFrom(
-                        trkpts[previ+1].getPoint());
+          prevdist += trkpts[previ].getPosition().distanceFrom(
+                        trkpts[previ+1].getPosition());
         }
         var nexti = this.wt_i+1;
-        var nextdist = trkpts[nexti].getPoint().distanceFrom(this.getPoint());
+        var nextdist = trkpts[nexti].getPosition().distanceFrom(this.getPosition());
         while ((nexti < (trkpts.length - 1)) && trkpts[nexti].wt_autoalt) {
           nexti++;
-          nextdist += trkpts[nexti].getPoint().distanceFrom(
-                       trkpts[nexti-1].getPoint());
+          nextdist += trkpts[nexti].getPosition().distanceFrom(
+                       trkpts[nexti-1].getPosition());
         }
         this.wt_manalt =
           trkpts[previ].wt_alt() + Math.round(
@@ -875,7 +904,7 @@
   }
 
   // --- distance
-  GMarker.prototype.Trkpt_updateDistance = function() {
+  google.maps.Marker.prototype.Trkpt_updateDistance = function() {
     if (this.wt_i > 0) {
       var prev = trkpts[this.wt_i-1]
       var prevalt = prev.wt_alt()
@@ -889,7 +918,7 @@
   }
 
   // -- time
-  GMarker.prototype.Trkpt_updateTime = function() {
+  google.maps.Marker.prototype.Trkpt_updateTime = function() {
     if (this.wt_autotime) {
       if (this.wt_i > 0) {
         var dist = distance3D(trkpts[this.wt_i-1], trkpts[this.wt_i]);
@@ -903,7 +932,7 @@
     }
   }
 
-  GMarker.prototype.Trkpt_updateTime_rt = function() {
+  google.maps.Marker.prototype.Trkpt_updateTime_rt = function() {
     if (this.wt_autotime) {
       if (this.wt_i < trkpts.length - 1) {
         var dist = distance3D(trkpts[this.wt_i+1], trkpts[this.wt_i]);
@@ -917,11 +946,11 @@
     }
   }
 
-  GMarker.prototype.Trkpt_showInfo = function(openinfo) {
+  google.maps.Marker.prototype.Trkpt_showInfo = function(openinfo) {
      current_trkpt = this
      if (openinfo) {
 
-       var ptinfo = "<form style='font-size:smaller'>";
+       var ptinfo = "<form style='font-size:smaller' onsubmit='return false'>";
        ptinfo += this.wt_infoHead()
        ptinfo += "Altitude: Auto? <input type='checkbox' id='autoalt'"
             +  (this.wt_autoalt ? " checked" : "")
@@ -932,25 +961,26 @@
        if (isroundtrip && (this.wt_time_rt() != this.wt_time())) {
          ptinfo += " and <span id='ptime_rt'>" + showTime(this.wt_time_rt()) + "</span>"
        }
-       ptinfo += "</form>";
+       ptinfo += "</form>\n";
        ptinfo += "Distance from start: <span id='pdistt'>" + showDistance(this.wt_tdist) + "</span>";
        if (this.wt_i > 0) {
          ptinfo += "(<span id='pdistr'>" + showDistance(this.wt_rdist) + "</span> from last)";
        }
-       ptinfo += "<br/>";
+       ptinfo += "<div style='margin:2px'>";
        if (this.wt_i > 0) {
          ptinfo += "<a href='javascript:trkpts[0].Trkpt_showInfo(true)'>|&lt</a>&nbsp;";
          ptinfo += "<a href='javascript:trkpts[" + (this.wt_i-1) + "].Trkpt_showInfo(true)'>&lt&lt</a>&nbsp;";
        }
        ptinfo += "<a href='javascript:trkpts[" + this.wt_i + "].Trkpt_delete()'>Delete</a> - ";
        ptinfo += "<a href='javascript:trkpts[" + this.wt_i + "].Trkpt_duplicate()'>Duplicate</a> - ";
-       ptinfo += "<a href='javascript:trkpts[" + this.wt_i + "].Trkpt_detach()'>Detach</a>";
+       ptinfo += "<a href='javascript:trkpts[" + this.wt_i + "].Trkpt_detach()'>Detach</a>\n";
        if (this.wt_i < trkpts.length -1) {
          ptinfo += "&nbsp;<a href='javascript:trkpts[" + (this.wt_i+1) + "].Trkpt_showInfo(true)'>&gt;&gt;</a>";
-         ptinfo += "&nbsp;<a href='javascript:trkpts[" + (trkpts.length-1) + "].Trkpt_showInfo(true)'>&gt;|</a>";
+         ptinfo += "&nbsp;<a href='javascript:trkpts[" + (trkpts.length-1) + "].Trkpt_showInfo(true)'>&gt;|</a>\n";
        }
+       ptinfo += "</div>";
 
-       map.openInfoWindowHtml(this.getPoint(), ptinfo);
+       openInfoWindow(this.getPosition(), ptinfo);
     } else {
       document.getElementById("pdistt").innerHTML = showDistance(this.wt_tdist)
       document.getElementById("pdistr").innerHTML = showDistance(this.wt_rdist)
@@ -962,15 +992,15 @@
   }
 
 
-  GMarker.prototype.Trkpt_detach = function() {
-    var pt = new_Wpt(this.getPoint(), this.wt_manalt, this.wt_name)
+  google.maps.Marker.prototype.Trkpt_detach = function() {
+    var pt = new_Wpt(this.getPosition(), this.wt_manalt, this.wt_name)
     this.Trkpt_delete()
     wt_showInfo(undefined, false)
     pt.wt_showInfo(true)
   }
 
-  GMarker.prototype.Trkpt_duplicate = function() {
-    map.closeInfoWindow();
+  google.maps.Marker.prototype.Trkpt_duplicate = function() {
+    closeInfoWindow();
     var newpoints = [];
     var newtrkpts = [];
     var pt
@@ -978,15 +1008,23 @@
     for (i=0; i < trkpts.length; i++) {
      trkpts[i].wt_i = newtrkpts.length
      newtrkpts.push(trkpts[i])
-     newpoints.push(trkpts[i].getPoint())
+     newpoints.push(trkpts[i].getPosition())
      if (i == this.wt_i){
-       pos = new GLatLng(trkpts[i].getPoint().lat()+0.0001, trkpts[i].getPoint().lng()+0.0001)
-       pt = new GMarker(pos, {draggable: true, icon: trkpt_icon})
+       pos = new google.maps.LatLng(trkpts[i].getPosition().lat()+0.0001, trkpts[i].getPosition().lng()+0.0001)
+       var markOpts = {
+          draggable: true,
+          icon: trkpt_icon,
+          shadow: trkpt_icon_shadow,
+          position: pos,
+          labelContent:"",
+          visible: true
+       }
+       pt = new MarkerWithLabel(markOpts)
        pt.toTrkpt(newtrkpts.length)
        pt.wt_i = newtrkpts.length
        newtrkpts.push(pt)
        newpoints.push(pos)
-       map.openInfoWindowHtml(pos, "Duplicated point");
+       openInfoWindow(pos, "Duplicated point");
      }
     }
     points = newpoints;
@@ -995,19 +1033,18 @@
     wt_drawPolyline();
   }
 
-  GMarker.prototype.Trkpt_delete = function() {
-    map.closeInfoWindow();
+  google.maps.Marker.prototype.Trkpt_delete = function() {
+    closeInfoWindow();
     var newpoints = [];
     var newtrkpts = [];
     for (i=0; i < trkpts.length; i++) {
      if (i != this.wt_i){
        trkpts[i].wt_i = newtrkpts.length
        newtrkpts.push(trkpts[i])
-       newpoints.push(trkpts[i].getPoint())
+       newpoints.push(trkpts[i].getPosition())
      }
     }
-    clusterer.RemoveMarker(this);
-    if (this.wt_label) clusterer.RemoveMarker(this.wt_label)
+    unmapIt(this);
     points = newpoints;
     trkpts = newtrkpts
     wt_drawPolyline();
@@ -1018,28 +1055,28 @@
   }
 
 
-  GMarker.prototype.Trkpt_alt = function() {
+  google.maps.Marker.prototype.Trkpt_alt = function() {
     return this.wt_manalt ? this.wt_manalt : 0
   }
 
-  GMarker.prototype.wt_time = function() {
+  google.maps.Marker.prototype.wt_time = function() {
     return this.wt_mantime;
   }
 
-  GMarker.prototype.wt_time_rt = function() {
+  google.maps.Marker.prototype.wt_time_rt = function() {
     return this.wt_mantime_rt;
   }
 
-  GMarker.prototype.toTrkpt = function(i) {
+  google.maps.Marker.prototype.toTrkpt = function(i) {
     this.wt_arrayname = "trkpts"
     this.wt_gpxelt = "trkpt"
-    this.wt_relocate = GMarker.prototype.Trkpt_relocate
-    this.wt_showInfo = GMarker.prototype.Trkpt_showInfo
-    this.wt_alt = GMarker.prototype.Trkpt_alt
-    this.wt_altview = GMarker.prototype.Trkpt_altview
+    this.wt_relocate = google.maps.Marker.prototype.Trkpt_relocate
+    this.wt_showInfo = google.maps.Marker.prototype.Trkpt_showInfo
+    this.wt_alt = google.maps.Marker.prototype.Trkpt_alt
+    this.wt_altview = google.maps.Marker.prototype.Trkpt_altview
     this.wt_areMarkersShown = areMarkersShown
     this.wt_areLabelsShown = areLabelsShown
-    this.wt_setAlt = GMarker.prototype.Trkpt_setAlt
+    this.wt_setAlt = google.maps.Marker.prototype.Trkpt_setAlt
     this.wt_autoalt = true;
     this.wt_autotime = true; // not used yet...
     this.wt_mantime = 0
@@ -1052,10 +1089,19 @@
   }
 
   function new_Trkpt(point, alt, name) {
-    var pt = new GMarker(point, {draggable: true, icon: trkpt_icon })
+    var markOpts = {
+      draggable: true,
+      icon: trkpt_icon,
+      shadow: trkpt_icon_shadow,
+      position: point,
+      title: name,
+      labelContent:name?name:"",
+      visible: true
+    }
+    var pt = new MarkerWithLabel(markOpts)
     pt.toTrkpt(trkpts.length, alt, name)
     trkpts.push(pt)
-    points.push(pt.getPoint())
+    points.push(pt.getPosition())
     if (name) pt.wt_setName(name)
     if (alt) {
       pt.wt_setAlt(false, alt)
@@ -1175,30 +1221,35 @@
 
   function wt_drawPolyline() {
     if (polyline) {
-      map.removeOverlay(polyline);
+      unmapIt(polyline);
     }
     if (points && points.length > 0) {
-      polyline = new GPolyline(points, "#ff0000", 5);
-      map.addOverlay(polyline);
+      var lineOpts = {
+        clickable:false,
+        path:points,
+        strokeColor:"#FF0000",
+        strokeWeight:5
+      }
+      polyline = new google.maps.Polyline(lineOpts);
+      mapIt(polyline, true);
     } else {
       polyline = undefined
     }
   }
 
   function wt_clear() {
-    map.clearOverlays()
+    closeInfoWindow();
     var i = 0
     while (i < trkpts.length) {
-      clusterer.RemoveMarker(trkpts[i])
-      if (trkpts[i].wt_label) clusterer.RemoveMarker(trkpts[i].wt_label)
+      unmapIt(trkpts[i]);
       i++
     }
     i = 0
     while (i < wpts.length) {
-      clusterer.RemoveMarker(wpts[i])
-      if (wpts[i].wt_label) clusterer.RemoveMarker(wpts[i].wt_label)
+      unmapIt(wpts[i]);
       i++
     }
+    if (polyline) unmapIt(polyline);
     polyline = undefined
     points = [];
     trkpts = [];
@@ -1217,7 +1268,7 @@
     close_popup('load-box');
     //info.set("loading " + filename + "...<br>");
     info.set("<img src='img/processing.gif'> Loading...");
-    GDownloadUrl("httpget_proxy.jsp?" + filename, function(data, responseCode) {
+    downloadUrl("httpget_proxy.jsp?" + filename, function(data, responseCode) {
       wt_importGPX(data);
     });
   }
@@ -1226,7 +1277,7 @@
     close_popup('load-box');
     //info.set("loading " + filename + "...<br>");
     info.set("<img src='img/processing.gif'> Loading...");
-    GDownloadUrl("usertracks.jsp?oid=" + useroid + "&name=" + filename, function(data, responseCode) {
+    downloadUrl("usertracks.jsp?oid=" + useroid + "&name=" + filename, function(data, responseCode) {
       wt_importGPX(data);
     });
   }
@@ -1234,7 +1285,7 @@
   function wt_importPoints(xmlpts, is_trk) {
     var point;
     for (var i = 0; i < xmlpts.length; i++) {
-      point = new GLatLng(parseFloat(xmlpts[i].getAttribute("lat")),
+      point = new google.maps.LatLng(parseFloat(xmlpts[i].getAttribute("lat")),
                           parseFloat(xmlpts[i].getAttribute("lon")));
       var ele = undefined
       var eles = xmlpts[i].getElementsByTagName("ele");
@@ -1257,12 +1308,17 @@
 
   function wt_importGPX(gpxinput) {
       wt_clear();
-      if (!gpxinput || gpxinput == "") {
+      if (!gpxinput) {
         info.add("Failed to read file<br>")
         return
       }
       info.add("Importing... <br>");
-      var xml = GXml.parse(gpxinput);
+      var xml
+      if (gpxinput.firstChild) {
+        xml = gpxinput;
+      } else {
+        xml = xmlParse(gpxinput);
+      }
       var gpx = xml ? xml.getElementsByTagName("gpx") : undefined
       //debug.set("gpxinput:<textarea width='40' height='20'>" + gpxinput + "</textarea>")
       debug.add("xml:" + xml)
@@ -1284,33 +1340,33 @@
         if (pts) wt_importPoints(pts, true);
         pts = gpx.getElementsByTagName("wpt");
         if (pts) wt_importPoints(pts, false);
-        var center = new GLatLng(0,0)
+        var center = new google.maps.LatLng(0,0)
         var zoom = 10
-        var mapbounds = new GLatLngBounds();
+        var mapbounds = new google.maps.LatLngBounds();
         if (bounds && bounds.length > 0) {
           //debug.add(bounds.length)
-          var sw = new GLatLng(parseFloat(bounds[0].getAttribute("minlat")),
+          var sw = new google.maps.LatLng(parseFloat(bounds[0].getAttribute("minlat")),
                                parseFloat(bounds[0].getAttribute("minlon")))
-          var ne = new GLatLng(parseFloat(bounds[0].getAttribute("maxlat")),
+          var ne = new google.maps.LatLng(parseFloat(bounds[0].getAttribute("maxlat")),
                                parseFloat(bounds[0].getAttribute("maxlon")))
-          mapbounds = new GLatLngBounds(sw, ne)
+          mapbounds = new google.maps.LatLngBounds(sw, ne)
         } else {
           // compute bounds to include all trackpoints and waypoints
           if (trkpts) {
             for(var i = 0; i < trkpts.length; i++) {
-              mapbounds.extend(trkpts[i].getPoint());
+              mapbounds.extend(trkpts[i].getPosition());
             }
           }
           if (wpts) {
             for(var i = 0; i < wpts.length; i++) {
-              mapbounds.extend(wpts[i].getPoint());
+              mapbounds.extend(wpts[i].getPosition());
             }
           }
         }
-        center = mapbounds.getCenter()
+        //center = mapbounds.getCenter()
         //zoom = Math.max(map.getBoundsZoomLevel(mapbounds),15)
-        zoom = map.getBoundsZoomLevel(mapbounds)
-        map.setCenter(center, zoom);
+        zoom = map.fitBounds(mapbounds)
+        //map.setCenter(center, zoom);
         if (trkpts && trkpts.length > 0) {
           var pt = trkpts[trkpts.length - 1];
           wt_drawPolyline();
@@ -1323,54 +1379,55 @@
   }
 
   function wt_showTrkMarkers(show) {
-    //map.closeInfoWindow();
+    //closeInfoWindow();
     var i = 0;
     while (i < trkpts.length) {
       if (show) {
-        clusterer.AddMarker(trkpts[i], trkpts[i].Wt_getName());
+        mapIt(trkpts[i]);
       } else {
-        clusterer.RemoveMarker(trkpts[i]);
+        unmapIt(trkpts[i]);
       }
       i++;
     }
   }
 
   function wt_showLabels(show) {
-   //map.closeInfoWindow();
+    //closeInfoWindow();
     var i = 0;
     while (i < trkpts.length) {
-      if (trkpts[i].wt_label) {
-        if (show) {
-          trkpts[i].wt_label.show();
-        } else {
-          trkpts[i].wt_label.hide();
-        }
-      }
+      trkpts[i].set("labelVisible", show);
       i++;
     }
   }
 
   function wt_showWaypoints(show) {
-    //map.closeInfoWindow();
+    //closeInfoWindow();
     var i = 0;
     while (i < wpts.length) {
       if (show) {
-        clusterer.AddMarker(wpts[i], wpts[i].Wt_getName());
+        mapIt(wpts[i]);
       } else {
-        clusterer.RemoveMarker(wpts[i]);
-      }
-      if (wpts[i].wt_label) {
-        if (show) {
-          clusterer.AddMarker(wpts[i].wt_label, wpts[i].wt_label.html);
-        } else {
-          clusterer.RemoveMarker(wpts[i].wt_label);
-        }
+        unmapIt(wpts[i]);
       }
       i++;
     }
   }
 
-  function wt_showAddress(address) {
+  function wt_showAddress(addr) {
+    geocoder.geocode(
+      {address:addr},
+      function(res) {
+        var geo = res[0].geometry;
+        if (!geo) {
+          alert(address + " not found");
+        } else {
+          map.setCenter(geo.location);
+          map.setZoom(13);
+          openInfoWindow(geo.location, addr);
+        }
+      }
+      );
+      /*
     geocoder.getLatLng(
       address,
       function(point) {
@@ -1378,10 +1435,11 @@
           alert(address + " not found");
         } else {
           map.setCenter(point, 13);
-          map.openInfoWindowHtml(point, address);
+          openInfoWindow(point, address);
         }
       }
     );
+    */
   }
 
   //----- Stop page scrolling if wheel over map ----
@@ -1394,98 +1452,100 @@
   }
 
   function wt_load() {
-    if (GBrowserIsCompatible()) {
-      info = new DocElement("message");
-      debug = new DocElement("debug");
+    info = new DocElement("message");
+    debug = new DocElement("debug");
 
-      var mapDiv = document.getElementById("map")
-      map = new GMap2(mapDiv);
-      map.addControl(new GLargeMapControl());
-      map.addControl(new GMapTypeControl());
-      map.addControl(new GOverviewMapControl());
-      map.setCenter(new GLatLng(0,0), 3, G_HYBRID_MAP);
-      map.enableScrollWheelZoom();
+    var mapDiv = document.getElementById("map")
+    var mapOptions = {
+      zoom: 3,
+      center: new google.maps.LatLng(0,0),
+      mapTypeId: google.maps.MapTypeId.HYBRID,
+      scrollwheel: true,
+      disableDoubleClickZoom:false
+    }
+    map = new google.maps.Map(mapDiv, mapOptions);
+    cluster = new MarkerClusterer(map, [], {maxZoom:13, zoomOnClick: false});
 
-      //----- Stop page scrolling if wheel over map ----
-      GEvent.addDomListener(mapDiv, "DOMMouseScroll", wheelevent);
-      mapDiv.onmousewheel = wheelevent;
+    //----- Stop page scrolling if wheel over map ----
+    google.maps.event.addDomListener(mapDiv, "DOMMouseScroll", wheelevent);
+    mapDiv.onmousewheel = wheelevent;
 
-      // to allow many points without perf issue
-      // see http://www.acme.com/javascript/#Clusterer
-      clusterer = new Clusterer(map);
+    geocoder = new google.maps.Geocoder();
 
-      geocoder = new GClientGeocoder();
+    // speed profiles = pairs of <slope, meters per second>
 
-      // speed profiles = pairs of <slope, meters per second>
+    speed_profiles.push(new SpeedProfile("Walking",
+    [ [-35, 0.4722], [-25, 0.555], [-20, 0.6944], [-14, 0.8333], [-12, 0.9722],
+      [-10, 1.1111], [-8, 1.1944], [-6, 1.25], [-5, 1.2638], [-3, 1.25],
+      [2, 1.1111], [6, 0.9722], [10, 0.8333], [15, 0.6944], [19, 0.5555],
+      [26, 0.4166], [38, 0.2777] ] ))
 
-      speed_profiles.push(new SpeedProfile("Walking",
-      [ [-35, 0.4722], [-25, 0.555], [-20, 0.6944], [-14, 0.8333], [-12, 0.9722],
-        [-10, 1.1111], [-8, 1.1944], [-6, 1.25], [-5, 1.2638], [-3, 1.25],
-        [2, 1.1111], [6, 0.9722], [10, 0.8333], [15, 0.6944], [19, 0.5555],
-        [26, 0.4166], [38, 0.2777] ] ))
+    speed_profiles.push(new SpeedProfile("Running",
+    [ [-16, (12.4/3.6)], [-14,(12.8/3.6)], [-11,(13.4/3.6)], [-8,(12.8/3.6)],
+      [-5,(12.4/3.6)], [0,(11.8/3.6)], [9,(9/3.6)], [15,(7.8/3.6)] ] ))
 
-      speed_profiles.push(new SpeedProfile("Running",
-      [ [-16, (12.4/3.6)], [-14,(12.8/3.6)], [-11,(13.4/3.6)], [-8,(12.8/3.6)],
-        [-5,(12.4/3.6)], [0,(11.8/3.6)], [9,(9/3.6)], [15,(7.8/3.6)] ] ))
+    speed_profiles.push(new SpeedProfile("Cycling",
+    [ [-6, 13.8888], [-4, 11.1111], [-2, 8.8888], [0, 7.5], [2, 6.1111],
+      [4, (16/3.6)], [6, (11/3.6)] ] ))
 
-      speed_profiles.push(new SpeedProfile("Cycling",
-      [ [-6, 13.8888], [-4, 11.1111], [-2, 8.8888], [0, 7.5], [2, 6.1111],
-        [4, (16/3.6)], [6, (11/3.6)] ] ))
+    speed_profiles.push(new SpeedProfile("VTT (cross country cycling)", [ [0, 3.33] ]));
 
-      speed_profiles.push(new SpeedProfile("VTT (cross country cycling)", [ [0, 3.33] ]));
+    speed_profiles.push(new SpeedProfile("Swimming", [ [0, 0.77] ]));
 
-      speed_profiles.push(new SpeedProfile("Swimming", [ [0, 0.77] ]));
+    var sp = document.getElementById("speedprofile");
+    sp.style.textAlign = "right";
+    var i = 0
+    var res = ""
+    while (i < speed_profiles.length) {
+      var opt = document.createElement("option");
+      setText(opt, speed_profiles[i].name)
+      opt.style.textAlign = "right";
+      sp.appendChild(opt);
+      //res += "<option value='" + speed_profiles[i].name + "'>" + speed_profiles[i].name + "</option> "
+      i++
+    }
+    wt_updateSpeedProfile()
 
-      var sp = document.getElementById("speedprofile");
-      sp.style.textAlign = "right";
-      var i = 0
-      var res = ""
-      while (i < speed_profiles.length) {
-        var opt = document.createElement("option");
-        setText(opt, speed_profiles[i].name)
-        opt.style.textAlign = "right";
-        sp.appendChild(opt);
-        //res += "<option value='" + speed_profiles[i].name + "'>" + speed_profiles[i].name + "</option> "
-        i++
-      }
-      wt_updateSpeedProfile()
+    // click events
 
-      // click event
-      GEvent.addListener(map, "click", function(marker, point) {
-        if (!marker) {
-          var pt = new_Trkpt(point);
-          wt_drawPolyline();
-          wt_showInfo(undefined, false);
-        }
-      });
-
+    // right click: create track point
+    google.maps.event.addListener(map, "rightclick", function(event) {
+      var pt = new_Trkpt(event.latLng);
+      wt_drawPolyline();
+      wt_showInfo(undefined, false);
+    });
+    
+    // left click: close info window
+    google.maps.event.addListener(map, "click", function(event) {
+      closeInfoWindow()
+    })
+    
 <%
-  if (!"".equals(file)) {
-      out.println("info.set('Uploaded " + file_name + "<br>')");
+if (!"".equals(file)) {
+    out.println("info.set('Uploaded " + file_name + "<br>')");
 %>
-      wt_importGPX(document.getElementById('gpxarea').value);
+    wt_importGPX(document.getElementById('gpxarea').value);
 <%
+} else {
+%>
+
+    var useroid="<%= ((request.getParameter("oid") == null) ? "" : request.getParameter("oid")) %>";
+    var usertrack="<%= ((request.getParameter("name") == null) ? "" : request.getParameter("name")) %>";
+    if ((useroid.length>1) && (usertrack.length>1)) {
+      wt_loadUserGPX(escape(usertrack), escape(useroid));
     } else {
-%>
-
-      var useroid="<%= ((request.getParameter("oid") == null) ? "" : request.getParameter("oid")) %>";
-      var usertrack="<%= ((request.getParameter("name") == null) ? "" : request.getParameter("name")) %>";
-      if ((useroid.length>1) && (usertrack.length>1)) {
-        wt_loadUserGPX(escape(usertrack), escape(useroid));
+      var gpxurl="<%= ((request.getParameter("gpx") == null) ? "" : request.getParameter("gpx")) %>";
+      if (gpxurl.length>1) {
+debug.add(gpxurl);
+        //document.getElementById("showmarkers").checked = false;
       } else {
-        var gpxurl="<%= ((request.getParameter("gpx") == null) ? "" : request.getParameter("gpx")) %>";
-        if (gpxurl.length>1) {
-  debug.add(gpxurl);
-          //document.getElementById("showmarkers").checked = false;
-        } else {
-          gpxurl = "tracks/everest.gpx";
-        }
-        wt_loadGPX(gpxurl);
+        gpxurl = "tracks/everest.gpx";
       }
+      wt_loadGPX(gpxurl);
+    }
 <%
-    }
+}
 %>
-    }
   }
 
   function wt_check_fileupload(form) {
@@ -1501,7 +1561,7 @@
   }
 
   function wt_update_infos() {
-    if (map.getInfoWindow().isHidden()) {
+    if (!infoWindow) {
       current_trkpt = undefined
     }
     wt_showInfo(current_trkpt, current_trkpt != undefined);
@@ -1530,7 +1590,7 @@
   }
 
   function check_for_escape(e, sPopupID){
-    //debug.add(String.fromCharCode(e.keyCode))
+    //alert(String.fromCharCode(e.keyCode))
     if (e.keyCode==27) {
       close_popup(sPopupID);
     }
@@ -1663,6 +1723,7 @@
 
    <script src="js/htmlEncode.js" type="text/javascript"></script>
    <script src="js/showmail.js" type="text/javascript"></script>
+   <script src="js/util.js" type="text/javascript"></script>
 
 <!-- plotkit includes (for graph disply) -->
    <script src="js/MochiKit.js" type="text/javascript"></script>
@@ -1671,9 +1732,9 @@
 <!-- end of plotkit includes -->
 
 <!-- utility scripts -->
-   <script src="js/gpsies_clusterer2.js" type="text/javascript"></script>
-   <script src="http://www.ajaxbuch.de/lokris/lokris.js" type="text/javascript"></script>
-   <script src="js/elabel.js" type="text/javascript"></script>
+   <script src="js/lokris.js" type="text/javascript"></script>
+   <script src="js/markerwithlabel.js" type="text/javascript"></script>
+   <script src="js/markerclusterer.js" type="text/javascript"></script>
 
   <!-- RPXNOW -->
 <script src="https://rpxnow.com/openid/v2/widget"

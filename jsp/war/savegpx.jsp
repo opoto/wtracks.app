@@ -1,6 +1,4 @@
-<%@ page import="java.util.*, java.io.*, java.lang.Exception, wtracks.GPX, wtracks.PMF, javax.jdo.PersistenceManager" %>
-<%@ include file="userid.jsp" %>
-<%
+<%@ page import="java.util.*, java.io.*, java.lang.Exception, wtracks.GPX, wtracks.PMF, javax.jdo.PersistenceManager" %><%@ include file="userid.jsp" %><%
 
 String action = request.getParameter("action");
 String gpxdata = request.getParameter("gpxarea").replaceAll("\\\"", "\"");

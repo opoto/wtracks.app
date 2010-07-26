@@ -16,10 +16,10 @@
 
   <available property="links.exists" file="war/img" />
   <target name="createlinks" unless="links.exists">
-    <symlink link="war/" resource="../../common/js" failonerror="false" overwrite="true" />
-    <symlink link="war/" resource="../../common/tracks" failonerror="false" />
-    <symlink link="war/" resource="../../common/html" failonerror="false" />
-    <symlink link="war/" resource="../../common/img" failonerror="false" />
+    <symlink link="war/img" resource="../../common/img" failonerror="false" />
+    <symlink link="war/js" resource="../../common/js" failonerror="false" overwrite="true" />
+    <symlink link="war/tracks" resource="../../common/tracks" failonerror="false" />
+    <symlink link="war/html" resource="../../common/html" failonerror="false" />
   </target>
   
   <target name="copyjars" depends="createlinks"
