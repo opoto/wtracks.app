@@ -195,7 +195,7 @@
     </table>
     <div id="map" style="position: absolute; top: 70px; bottom: 125px; left: 10px; right: 10px;"></div>
 
-    <div class="graph-box" id="graph-box" onkeypress='check_for_escape(event, "graph-box")'>
+    <div class="graph-box" id="graph-box" onkeydown='check_for_escape(event, "graph-box")'>
       <table>
         <tr>
           <th style="text-align:left">Track profile</th>
@@ -209,7 +209,7 @@
     </div>
 
 
-    <div class="options-box" id="load-box" onkeypress='check_for_escape(event, "load-box")' style="z-index:10;">
+    <div class="options-box" id="load-box" onkeydown='check_for_escape(event, "load-box")' style="z-index:10;">
       <table>
         <tr>
           <th style="text-align:left">Load Options</th>
@@ -251,7 +251,7 @@
     </div>
 
 
-    <div class="options-box" id="save-box" onkeypress='check_for_escape(event, "save-box")'>
+    <div class="options-box" id="save-box" onkeydown='check_for_escape(event, "save-box")'>
       <table>
         <tr>
           <th style="text-align:left">Save Options</th>
@@ -260,7 +260,7 @@
         </tr>
         <tr>
           <td>Track Name</td>
-          <form><td><input type="text" size="40" id="trackname"/></td></form>
+          <form><td><input type="text" size="40" id="trackname" /></td></form>
         </tr>
         <tr>
           <form><td align="right"><input type="checkbox" id="savealt"/></td></form>
@@ -630,7 +630,7 @@
     closeInfoWindow();
     var infoOpts = {
       content: html,
-      disableAutoPan: true,
+      disableAutoPan: false,
       position: pos
     }
     infoWindow = new google.maps.InfoWindow(infoOpts)
@@ -1518,6 +1518,9 @@
     // left click: close info window
     google.maps.event.addListener(map, "click", function(event) {
       closeInfoWindow()
+      close_popup("save-box");
+      close_popup("load-box");
+      close_popup("graph-box")
     })
     
 <%
@@ -1631,6 +1634,7 @@ debug.add(gpxurl);
   function show_save_box(){
     document.getElementById("trackname").value = trackname
     close_popup("load-box");
+    close_popup("graph-box");
     show_popup("save-box");
     var obj = document.getElementById("trackname");
     obj.focus();
@@ -1666,6 +1670,7 @@ debug.add(gpxurl);
       load_tracks("");
     }
     close_popup("save-box");
+    close_popup("graph-box");
     show_popup("load-box");
     var obj = document.getElementById("gpxurl");
     obj.focus();
@@ -1715,6 +1720,8 @@ debug.add(gpxurl);
     //var chart = new SweetCanvasRenderer(document.getElementById("graph"), layout);
     var chart = new PlotKit.SweetCanvasRenderer($("graph"), layout);
     chart.render();
+    close_popup("save-box");
+    close_popup("load-box");
     show_popup("graph-box")
   }
 
