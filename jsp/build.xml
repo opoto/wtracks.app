@@ -79,7 +79,11 @@
 
   <target name="rollback" depends="datanucleusenhance"
       description="Rolls back an interrupted application update.">
-    <appcfg action="rollback" email="${email}" war="war" />
+    <appcfg action="rollback" war="war" >
+      <options>
+        <arg value="--email=${email}"/>
+      </options>
+    </appcfg>
   </target>
 
   <target name="request_logs"
