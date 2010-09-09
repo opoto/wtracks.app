@@ -2,10 +2,10 @@
 <%!
   void includeFile(HttpServletResponse response, String contentType, String url) {
     OutputStream o = null;
+    InputStream is = null;
     try {
       response.setContentType(contentType);
       o = response.getOutputStream();
-      InputStream is;
       if (url.matches("^[a-z]+://.*")) {
         is = new URL(url).openStream();
       } else {
@@ -19,11 +19,16 @@
     } catch (Exception e) {
       System.err.println("ERROR in includeFile: " + e);
     } finally {
+      if (is!=null) {
+        try {
+          is.close();
+        } catch (Exception e2) {}
+      }
       if (o!=null) {
         try {
           o.flush();
           o.close(); // *important* to ensure no more jsp output
-        } catch (Exception e2) {}
+        } catch (Exception e3) {}
       }
     }
     return; 
