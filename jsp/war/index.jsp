@@ -4,7 +4,7 @@
   String host = request.getServerName();
   String rpxgoto = "goto=" + java.net.URLEncoder.encode(request.getRequestURI());
   String rpxnow_token_url = "/login.jsp?" + rpxgoto;
-  boolean testing = (request.getRequestURI().indexOf("testing") >= 0);
+  boolean debugging = (request.getParameter("debug") != null);
 
   String file = ""; // $HTTP_POST_FILES['gpxfile']['tmp_name'];
   String file_name = ""; // $HTTP_POST_FILES['gpxfile']['name'];
@@ -96,104 +96,216 @@
       /*height: 250px;*/
       visibility: hidden;
       overflow:auto;
-    }
+     }
 
     .graph-box{
       background: #eee;
       border: 1px solid black;
       padding: 10px;
-      position: absolute;
       left: 10px;
-      top: 150px;
-      /*width: 500px;*/
-      /*height: 250px;*/
+      top: 75px;
+      position: absolute;
       visibility: hidden;
-      overflow:auto;
     }
 
-    </style>
+    #map {
+      width: 100%;
+      height: 100%;
+    }
 
-   <!-- Google API license key -->
+    body {
+      position:absolute;
+      width: 100%;
+      height: 100%;
+      top:0;
+      left:0;
+      margin:0
+    }
+
+    #header {
+      height: auto;
+      width: 100%;
+    }
+    #content {
+      height: 100%;
+      width: 100%;
+    }
+    #footer {
+      height: auto;
+      width: 100%;
+    }
+  </style>
+
+    <!-- Google API license key -->
     <script src="http://maps.google.com/maps/api/js?sensor=true" type="text/javascript"></script>
 
   </head>
   <body onload="wt_load()">
 
-<!-- =================== Top bar =================== -->
+    <table style="width:100%; height:100%; position:fixed; top:0; left:0">
 
-<table width="100%"><tr><td style="text-align:left" width="33%">
-<strong>GPX track:</strong>
-<a href="javascript:clear_track();">New</a>
-| <a href="javascript:show_load_box()">Load</a>
-| <a href="javascript:show_save_box()">Save</a>
+    <tr id="header"><td>
 
-</td><td style="text-align:center" width="33%">
-<span id="message"><img src='img/processing.gif'> Initializing...</span>
-</td><td style="text-align:right" width="33%">
+      <!-- =================== Top bar =================== -->
 
-<!-- OpenID login (rpxnow) -->
-<%
-  openID = getUserID(session);
+      <table width="100%"><tr><td style="text-align:left" width="33%">
+      <strong>GPX track:</strong>
+      <a href="javascript:clear_track();">New</a>
+      | <a href="javascript:show_load_box()">Load</a>
+      | <a href="javascript:show_save_box()">Save</a>
 
-  if ((openID == null) || (openID.length() == 0)) {
-    openID = null;
-%>
-<a class="rpxnow" onclick="return false;"
-   href="https://<%=rpxnow_realm%>.rpxnow.com/openid/v2/signin?token_url=<%=rpxnow_token_url%>">
-  <img src="http://wiki.openid.net/f/openid-16x16.gif" alt="" border="0"> Sign In
-</a>
-<script type='text/javascript'>
-  var oid = ''
-</script>
-<%
-  } else {
-%>
-<script type='text/javascript'>
-  var openID = <%= openID %>;
-  var name = openID.profile.displayName;
-  var oid = openID.profile.identifier;
-  if (name == '') {
-    name = oid.replace('http://', '');
-  }
-  document.write("<a href='" + oid + "'>" + name + "</a>");
-</script>
- | <a href='login.jsp?action=logout&<%=rpxgoto%>'>Logout</a><br>
-<%
-  }
-%>
-<!-- OpenID login (rpxnow) -->
+      </td><td style="text-align:center" width="33%">
+      <span id="message"><img src='img/processing.gif'> Initializing...</span>
+      </td><td style="text-align:right" width="33%">
 
-</td></tr></table>
-<!-- =================== end of Top bar =================== -->
+      <!-- OpenID login (rpxnow) -->
+      <%
+        openID = getUserID(session);
 
-    <table width="100%">
-      <tr>
-        <form action="#" onsubmit="wt_showAddress(this.address.value); return false">
-        <th style="text-align:left;">
-          <strong>Go to:</strong>
-          <input type="text" size="20" name="address" value=""/>
-          <input type="submit" value="Go!"/>
-        </th>
-        </form>
-        <th class="title" id="trktitle"></th>
-        <form onsubmit="return false">
-        <th style="text-align:right">
-            Show: <img src="img/mm_20_red.png" alt="handles" title="handles"/>
-            <input type="checkbox" id="showmarkers"
-            <% if (showmarkers) out.print("checked"); %>
-            onclick="wt_showTrkMarkers(this.checked)" />
-            &nbsp;/&nbsp; Labels
-            <input type="checkbox" id="showlabels"
-            <% if (showlabels) out.print("checked"); %>
-            onclick="wt_showLabels(this.checked)" />
-            &nbsp;/&nbsp; <img src="img/icon13noshade.gif" alt="waypoints" title="waypoints"/>
-            <input type="checkbox" id="showwaypoints" checked
-            onclick="wt_showWaypoints(this.checked)" />
-        </th>
-        </form>
-      </tr>
-    </table>
-    <div id="map" style="position: absolute; top: 70px; bottom: 125px; left: 10px; right: 10px;"></div>
+        if ((openID == null) || (openID.length() == 0)) {
+          openID = null;
+      %>
+      <a class="rpxnow" onclick="return false;"
+        href="https://<%=rpxnow_realm%>.rpxnow.com/openid/v2/signin?token_url=<%=rpxnow_token_url%>">
+        <img src="http://wiki.openid.net/f/openid-16x16.gif" alt="" border="0"> Sign In
+      </a>
+      <script type='text/javascript'>
+        var oid = ''
+      </script>
+      <%
+        } else {
+      %>
+      <script type='text/javascript'>
+        var openID = <%= openID %>;
+        var name = openID.profile.displayName;
+        var oid = openID.profile.identifier;
+        if (name == '') {
+          name = oid.replace('http://', '');
+        }
+        document.write("<a href='" + oid + "'>" + name + "</a>");
+      </script>
+      | <a href='login.jsp?action=logout&<%=rpxgoto%>'>Logout</a><br>
+      <%
+        }
+      %>
+      <!-- OpenID login (rpxnow) -->
+
+      </td></tr></table>
+
+      <!-- =================== end of Top bar =================== -->
+
+      <table width="100%">
+        <tr>
+          <form action="#" onsubmit="wt_showAddress(this.address.value); return false">
+          <th style="text-align:left;">
+            <strong>Go to:</strong>
+            <input type="text" size="20" name="address" value=""/>
+            <input type="submit" value="Go!"/>
+          </th>
+          </form>
+          <th class="title" id="trktitle"></th>
+          <form onsubmit="return false">
+          <th style="text-align:right">
+              Show: <img src="img/mm_20_red.png" alt="handles" title="handles"/>
+              <input type="checkbox" id="showmarkers"
+              <% if (showmarkers) out.print("checked"); %>
+              onclick="wt_showTrkMarkers(this.checked)" />
+              &nbsp;/&nbsp; Labels
+              <input type="checkbox" id="showlabels"
+              <% if (showlabels) out.print("checked"); %>
+              onclick="wt_showLabels(this.checked)" />
+              &nbsp;/&nbsp; <img src="img/icon13noshade.gif" alt="waypoints" title="waypoints"/>
+              <input type="checkbox" id="showwaypoints" checked
+              onclick="wt_showWaypoints(this.checked)" />
+          </th>
+          </form>
+        </tr>
+      </table>
+
+    </td></tr>
+    <tr id="content"><td><div id="map"></div></td></tr>
+    <tr id="footer"><td>
+
+      <!-- PAGE FOOTER -->
+        <!-- div style="position: absolute; bottom: 10px; right: 10px; left: 10px; top: auto;" -->
+        <table>
+          <tr>
+            <th width="200">Distance</th>
+            <td width="150">
+              <img src='img/oneway.gif' alt='One Way' title='One Way'>
+              <span id="distow"></span>
+            </td>
+            <td width="150">
+              <img src='img/roundtrip.gif' alt='Round Trip' title='Round Trip'>
+              <span id="distrt"></span>
+            </td>
+            <th width="150">Altitude Max</th>
+            <td width="60" id="altmax"></td>
+            <th width="150">Climbing</th>
+            <td width="60" id="climbing"></td><!-- name="submit" value="submit" -->
+            <td rowspan="2"><button type="submit" onclick="wt_doGraph(); return false">2D Profile<br><img src="img/2d.gif"></button></td>
+          </tr>
+          <tr>
+            <form action="#">
+            <th>
+              Duration
+              <select name="speedprofile" id="speedprofile" size="1"
+                      onchange="wt_updateSpeedProfile(); wt_update_infos()" >
+              </select>
+            </th>
+            </form>
+            <td>
+              <img src='img/oneway.gif' alt='One Way' title='One Way'>
+              <span id="timeow"></span>
+            </td>
+            <td>
+              <img src='img/roundtrip.gif' alt='Round Trip' title='Round Trip'>
+              <span id="timert"></span>
+            </td>
+            <th>Altitude Min</th>
+            <td id="altmin">
+            </td>
+            <th>Descent</th>
+            <td id="descent">
+            </td>
+          </tr>
+          <tr <% if (! debugging) out.print("style='display: none'"); %> >
+            <form action="#" onsubmit="debug.set(''); return false">
+            <td>
+              <input type="submit" value="Clear debug" />
+            </td>
+            </form>
+            <td colspan="6" id="debug">
+            </td>
+          </tr>
+        </table>
+
+        <hr />
+
+        <script type="text/javascript">
+        function doEmail2(d, i, tail) {
+          location.href = "mailto:" + i + "@" + d + tail;
+        }
+        </script>
+
+        <table width="100%">
+          <tr style="font-size:small; font-family:sans-serif;" >
+            <td>
+              <a href="http://creativecommons.org/licenses/by/2.0/fr/deed.en_US"><img src="http://i.creativecommons.org/l/by/2.0/fr/80x15.png" border=0></a>
+              <a href="javascript:doEmail2('gmail.com','Olivier.Potonniee','?subject=WTracks')">Olivier Potonni&eacute;e</a>
+              - <a href="html/privacy.html">Privacy Policy</a>
+              - <a href="http://code.google.com/p/wtracks/">Contribute</a>
+            </td>
+            <td align="right" style="display:none;">
+            <i>URL syntax:</i> <%= "http" + (request.getServerPort() == 80 ? "": "s") + "://" + request.getServerName() + request.getRequestURI() %>[?gpx=&lt;gpx file url&gt;[&amp;marks=(true|false)][&amp;labels=(true|false)]
+            </td>
+          </tr>
+        </table>
+
+      <!--/div-->   <!-- FOOTER -->
+
+    </td></tr></table>
+
 
     <div class="graph-box" id="graph-box" onkeydown='check_for_escape(event, "graph-box")'>
       <table>
@@ -298,85 +410,6 @@
         </tr>
       </table>
     </div>
-
-  <!-- PAGE FOOTER -->
-    <div style="position: absolute; bottom: 10px; right: 10px; left: 10px; top: auto;">
-    <table>
-      <tr>
-        <th width="200">Distance</th>
-        <td width="150">
-          <img src='img/oneway.gif' alt='One Way' title='One Way'>
-          <span id="distow"></span>
-        </td>
-        <td width="150">
-          <img src='img/roundtrip.gif' alt='Round Trip' title='Round Trip'>
-          <span id="distrt"></span>
-        </td>
-        <th width="150">Altitude Max</th>
-        <td width="60" id="altmax">
-        </td>
-        <th width="150">Climbing</th>
-        <td width="60" id="climbing">
-        </td><!-- name="submit" value="submit" -->
-        <td rowspan="2"><button type="submit" onclick="wt_doGraph(); return false">2D Profile<br><img src="img/2d.gif"></button></td>
-      <tr>
-        <form action="#">
-        <th>
-          Duration
-          <select name="speedprofile" id="speedprofile" size="1"
-                  onchange="wt_updateSpeedProfile(); wt_update_infos()" >
-          </select>
-        </th>
-        </form>
-        <td>
-          <img src='img/oneway.gif' alt='One Way' title='One Way'>
-          <span id="timeow"></span>
-        </td>
-        <td>
-          <img src='img/roundtrip.gif' alt='Round Trip' title='Round Trip'>
-          <span id="timert"></span>
-        </td>
-        <th>Altitude Min</th>
-        <td id="altmin">
-        </td>
-        <th>Descent</th>
-        <td id="descent">
-        </td>
-      </tr>
-      <tr <% if (! testing) out.print("style='display: none'"); %> >
-        <form action="#" onsubmit="debug.set(''); return false">
-        <td>
-          <input type="submit" value="Clear debug" />
-        </td>
-        </form>
-        <td colspan="6" id="debug">
-        </td>
-      </tr>
-    </table>
-
-    <hr />
-  
-    <script type="text/javascript">
-    function doEmail2(d, i, tail) {
-      location.href = "mailto:" + i + "@" + d + tail;
-    }
-    </script>
-  
-    <table width="100%">
-      <tr style="font-size:small; font-family:sans-serif;" >
-        <td>
-          <a href="http://creativecommons.org/licenses/by/2.0/fr/deed.en_US"><img src="http://i.creativecommons.org/l/by/2.0/fr/80x15.png" border=0></a>
-          <a href="javascript:doEmail2('gmail.com','Olivier.Potonniee','?subject=WTracks')">Olivier Potonni&eacute;e</a>
-          - <a href="html/privacy.html">Privacy Policy</a>
-          - <a href="http://code.google.com/p/wtracks/">Contribute</a>
-        </td>
-        <td align="right" style="display:none;">
-        <i>URL syntax:</i> <%= "http" + (request.getServerPort() == 80 ? "": "s") + "://" + request.getServerName() + request.getRequestURI() %>[?gpx=&lt;gpx file url&gt;[&amp;marks=(true|false)][&amp;labels=(true|false)]
-        </td>
-      </tr>
-    </table>
-
-  </div>   <!-- FOOTER -->
 
   <!-- GOOGLE ANALYTICS -->
   <script type="text/javascript">
@@ -808,7 +841,7 @@
     var gpx = "<" + this.wt_gpxelt + " ";
     gpx += "lat=\"" + this.getPosition().lat() + "\" lon=\"" + this.getPosition().lng() + "\">";
     if (this.wt_name) {
-      gpx += "<name>" + this.wt_name + "</name>";
+      gpx += "<name>" + htmlEncode(this.wt_name, false, 0)  + "</name>";
     }
     if ((savealt && (this.wt_manalt != undefined)) ||
     ((this.wt_manalt != undefined) && (this.wt_autoalt == undefined || !this.wt_autoalt))
@@ -1464,7 +1497,7 @@
       disableDoubleClickZoom:false
     }
     map = new google.maps.Map(mapDiv, mapOptions);
-    cluster = new MarkerClusterer(map, [], {maxZoom:13, zoomOnClick: false});
+    //cluster = new MarkerClusterer(map, [], {maxZoom:13, zoomOnClick: false});
 
     //----- Stop page scrolling if wheel over map ----
     google.maps.event.addDomListener(mapDiv, "DOMMouseScroll", wheelevent);
@@ -1539,7 +1572,7 @@ if (!"".equals(file)) {
     } else {
       var gpxurl="<%= ((request.getParameter("gpx") == null) ? "" : request.getParameter("gpx")) %>";
       if (gpxurl.length>1) {
-debug.add(gpxurl);
+        debug.add(gpxurl);
         //document.getElementById("showmarkers").checked = false;
       } else {
         gpxurl = "tracks/everest.gpx";
@@ -1741,7 +1774,7 @@ debug.add(gpxurl);
 <!-- utility scripts -->
    <script src="js/lokris.js" type="text/javascript"></script>
    <script src="js/markerwithlabel.js" type="text/javascript"></script>
-   <script src="js/markerclusterer.js" type="text/javascript"></script>
+   <!-- script src="js/markerclusterer.js" type="text/javascript"></script -->
 
   <!-- RPXNOW -->
 <script src="https://rpxnow.com/openid/v2/widget"
