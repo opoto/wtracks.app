@@ -328,7 +328,7 @@
           <th><a href="javascript:close_popup('load-box')"><img src="img/close.gif" alt="Cancel and Close" title="Cancel and Close" style="border: 0px"/></a></th>
         </tr>
         <tr>
-          <form onsubmit="wt_loadGPX(this.url.value); return false;">
+          <form onsubmit="wt_loadGPX(this.url.value, true); return false;">
             <td>
               <input type="submit" value="Load GPX from URL:" />
             </td><td>
@@ -486,9 +486,13 @@
   }
 
   function setTrackName(name) {
-    trackname = name
-    document.title = WTRACKS + (name ? (" - " + trackname) : "")
-    setElement("trktitle", trackname)
+    document.title = WTRACKS + (name ? (" - " + name) : "")
+    setElement("trktitle", name)
+  }
+
+  function addTrackLink(gpxURL) {
+    name = document.getElementById("trktitle").innerHTML;
+    setElement("trktitle", "<a href='?gpx=" + gpxURL + "&marks=" + areMarkersShown() + "&labels=" + areLabelsShown() + "'>" + name + "</a>")
   }
 
   function getText(element) {
@@ -1296,13 +1300,15 @@
     setTrackName("New Track")
   }
 
-
-  function wt_loadGPX(filename) {
+ 
+  function wt_loadGPX(filename, link) {
     close_popup('load-box');
     //info.set("loading " + filename + "...<br>");
     info.set("<img src='img/processing.gif'> Loading...");
     downloadUrl("httpget_proxy.jsp?" + filename, function(data, responseCode) {
-      wt_importGPX(data);
+      if (wt_importGPX(data) && link) {
+        addTrackLink(filename);
+      }
     });
   }
 
@@ -1357,7 +1363,7 @@
       debug.add("xml:" + xml)
       if (!xml.documentElement || !gpx || (gpx.length == 0)) {
         info.add("The file is not in gpx format<br>")
-        return
+        return false
       }
       gpx = xml.documentElement
       if (xml) {
@@ -1406,8 +1412,10 @@
           wt_showInfo(pt, true);
         }
         info.set("");
+        return true;
       } else {
         info.set("Can't read GPX input file");
+        return false;
       }
   }
 
@@ -1560,13 +1568,14 @@
 if (!"".equals(file)) {
     out.println("info.set('Uploaded " + file_name + "<br>')");
 %>
-    wt_importGPX(document.getElementById('gpxarea').value);
+    wt_importGPX(document.getElementById('gpxarea').value, false);
 <%
 } else {
 %>
 
     var useroid="<%= ((request.getParameter("oid") == null) ? "" : request.getParameter("oid")) %>";
     var usertrack="<%= ((request.getParameter("name") == null) ? "" : request.getParameter("name")) %>";
+    var gpxLink = false;
     if ((useroid.length>1) && (usertrack.length>1)) {
       wt_loadUserGPX(escape(usertrack), escape(useroid));
     } else {
@@ -1574,10 +1583,11 @@ if (!"".equals(file)) {
       if (gpxurl.length>1) {
         debug.add(gpxurl);
         //document.getElementById("showmarkers").checked = false;
+        gpxLink = true;
       } else {
         gpxurl = "tracks/everest.gpx";
       }
-      wt_loadGPX(gpxurl);
+      wt_loadGPX(gpxurl, gpxLink);
     }
 <%
 }
