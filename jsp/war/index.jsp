@@ -342,7 +342,7 @@
               <input name="gpxupload" type="submit" value="Load GPX from file:"
                      onclick="return wt_check_fileupload(document.getElementById('upform'));" />
             </td><td>
-              <input type="file" size="50" name="gpxfile" id="gpxfile" />
+              <input type="file" size="50" name="gpxfile" id="gpxfile" style="width:100%" />
               <input type="hidden" name="marks" value="" />
               <input type="hidden" name="labels" value="" />
             </td>
@@ -352,8 +352,12 @@
   if (openID != null) {
 %>
         <tr>
-          <td>
-            Your saved track:
+          <td style="vertical-align:top;">
+            <select id="load_list" size="1" onChange="load_tracks('')">
+	      <option selected>Your saved track:</option>
+	      <option>Public tracks:</option>
+            </select> 
+            
           </td><td>
             <span style="width:500px; max-height:300px; overflow:auto; display:inline-block;" id="usertracks-span"><img src='img/processing.gif'></span>
           </td>
@@ -488,6 +492,7 @@
   function setTrackName(name) {
     document.title = WTRACKS + (name ? (" - " + name) : "")
     setElement("trktitle", name)
+    trackname = name
   }
 
   function addTrackLink(gpxURL) {
@@ -1685,7 +1690,7 @@ if (!"".equals(file)) {
 
   function wt_doSave() {
     close_popup('save-box')
-    trackname = htmlEncode(document.getElementById("trackname").value, false, 0)
+    setTrackName(htmlEncode(document.getElementById("trackname").value, false, 0))
     document.getElementById("savedname").value = trackname
     var savealt = document.getElementById("savealt").checked
     var savetime = document.getElementById("savetime").checked
@@ -1698,8 +1703,10 @@ if (!"".equals(file)) {
 
   function load_tracks(params) {
     document.getElementById("usertracks-span").innerHTML = "<img src='img/processing.gif'>";
+    // "Your tracks" or "Public" ?
+    var targetoid = (document.getElementById("load_list").selectedIndex==0) ? oid : "*"
     Lokris.AjaxCall("usertracks.jsp" + params, show_user_tracks,
-              { method: "POST", postBody: "oid="+oid });
+              { method: "POST", postBody: "oid="+targetoid});
   }
 
   function delete_track(url) {

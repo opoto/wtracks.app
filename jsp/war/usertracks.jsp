@@ -11,7 +11,13 @@
   }
 
   void listTracks(PersistenceManager pm, JspWriter out, String oid, boolean isUserOwner) throws IOException {
-    String query = "select from " + GPX.class.getName() + " where owner=='" + oid + "'"; //  order by saveDate desc
+    String query = "select from " + GPX.class.getName(); //  order by saveDate desc
+    boolean publicList = oid.equals("*");
+    if (publicList) {
+      query += " where isPublic"; //  order by saveDate desc
+    } else {
+      query += " where owner=='" + oid + "'"; //  order by saveDate desc
+    }
     System.out.println("list query: " + query);
     List<GPX> tracks = (List<GPX>) pm.newQuery(query).execute();
     for (GPX track : tracks) {
@@ -19,9 +25,11 @@
         //out.println("<option value='" + track.getName() + "'>" + track.getName() + "</option>");
         String name = track.getName();
         String linktxt = name.length() > 50 ? name.substring(0,47) + "..." : name;
-        out.println("<a href='#' onclick='delete_track(\"" + URLEncoder.encode(name) + "\")' title='Delete this track'><img src='img/delete.gif' title='Delete this track' alt='delete' style='border:0px'></a>&nbsp;");
-        out.print("<a href='.?name=" + URLEncoder.encode(name) + "&oid=" + URLEncoder.encode(oid) + "' ");
-        out.print(" onclick='wt_loadUserGPX(\"" + URLEncoder.encode(name) + "\", \"" + URLEncoder.encode(oid) + "\"); return false; ' >");
+	if (!publicList) {
+	  out.println("<a href='#' onclick='delete_track(\"" + URLEncoder.encode(name) + "\")' title='Delete this track'><img src='img/delete.gif' title='Delete this track' alt='delete' style='border:0px'></a>&nbsp;");
+	}
+        out.print("<a href='.?name=" + URLEncoder.encode(name) + "&oid=" + URLEncoder.encode(track.getOwner()) + "' ");
+        out.print(" onclick='wt_loadUserGPX(\"" + URLEncoder.encode(name) + "\", \"" + URLEncoder.encode(track.getOwner()) + "\"); return false; ' >");
         out.println(linktxt + "</a>");
         if (track.isPublic()) {
           out.println("<img src='img/share.gif' title='Public - you can share this link' alt='public' style='border:0px'>");
@@ -74,7 +82,7 @@
     PersistenceManager pm = PMF.get().getPersistenceManager();
     listTracks(pm, out, oid, isUserOwner);
     
-  } else if ((name != null) && (oid != null)) {
+} else if ((name != null) && (oid != null)) {
 
     PersistenceManager pm = PMF.get().getPersistenceManager();
     GPX track = getTrack(pm, name, oid);
@@ -93,5 +101,5 @@
     response.setContentType("text/xml");
     out.println(track.getGpx());
 
-  }
+}
 %>
