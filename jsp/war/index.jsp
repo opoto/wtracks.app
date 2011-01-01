@@ -702,7 +702,50 @@
     var d = R * c;
     return d;
   }
-
+  
+ /**
+  * credits to: Felix Schweighofer <felix.s1000 at googlemail.com>
+  * http://sites.google.com/site/trackreducer
+  * 
+  * Calculates the distance from a given point to a line defined by two given points
+  * @param startLine The start point of the line
+  * @param endLine The end point of the line
+  * @param point The point whose distance to the line should be calculated
+  * @return The distance from the point to the line in km
+  */
+  google.maps.LatLng.prototype.distanceFromLine = function(startLine, endLine) {
+    var xS = startLine.lng()
+    var yS = startLine.lat()
+    var xE = endLine.lng()
+    var yE = endLine.lat()
+    var xP = this.lng()
+    var yP = this.lat()
+    
+    // Calculate the equation of an imagined line between startLine and endLine
+    // y = ( m * x ) + t    → m and t are unknown, the coordinates of startLine and endLine can be used as x and y
+    var m = (yE-yS) / (xE-xS);   // m = Δy / Δx
+    var t = yS - m*xS;   // t = y - m*x → Use coordinates of startLine or endLine as x and y
+    
+    // Calculate the equation of an imagined line cutting the line mentioned above orthogonally
+    // y = ( m2 * x ) + t2  → m2 and t2 are unknown, point's coordinates can be used as x and y
+    var m2 = -1/m;
+    var t2 = yP - m2*xP;
+    
+    // Calculate the coordinates of the intersection point X of the lines mentioned above
+    // yX = (m * xX ) + t = (m2 * x) + t2
+    /* X is on y=m*x+t and y=m2*x+t2
+      * m*xX +t = m2*xX +t2  // substract t and m2*xX from both sides of the equation to have all xX on the left
+      * m*xX - m2*xX = t2 -t // Factorice
+      * xX*(m-m2) = t2 -t    // divide by (m-m2)
+      * xX = (t2-t) / (m-m2)
+      */
+    var xX = (t2-t) / (m-m2);
+    var yX = m2 * xX + t2;       // Insert xX into y=m*x+t
+    
+    // Calculate the distance from point to X
+    return this.distanceFrom(new google.maps.LatLng(yX, xX));
+  }
+        
   function openInfoWindow(pos, html) {
     closeInfoWindow();
     var infoOpts = {
@@ -1191,37 +1234,54 @@
   /*------------ Global functions -----------*/
   
   /**
-   * very simple pruning function, to be refined
-   * it simply removes points located less then "prunedist" meters from the next point
+   * Pruning function
+   * It removes points located less then "prunedist" meters from the line between its adjacent points
    */
   function wt_prune(prunedist) {
-    if (trkpts.length<1) return 
-    var firstdeleted = -1
+    var initlen = trkpts.length // initial number of points
+    if (initlen < 3) return // no pruning required when 0, 1 or 2 points
     closeInfoWindow()
-    var newpoints = []
-    var newtrkpts = []
-    newtrkpts.push(trkpts[0])
-    newpoints.push(points[0])
-    var ptmax = trkpts.length - 1
-    for (var i = 1 ; i < ptmax; i++) {
-      if (distance3D(trkpts[i], trkpts[i+1]) > prunedist) {
-        trkpts[i].wt_i = newtrkpts.length
-        newtrkpts.push(trkpts[i])
-        newpoints.push(points[i])
-      }  else {
-        unmapIt(trkpts[i])
-        if (firstdeleted < 0) firstdeleted = i
+    var mindeleted = initlen // mindeleted tracks the smallest deleted point index
+    var touched // true if a point has been deleted during an iteration
+    do {
+      touched = false
+      var newpoints = []
+      var newtrkpts = []
+      
+      // we always keep first point
+      newtrkpts.push(trkpts[0])
+      newpoints.push(points[0])
+      
+      var ptmax = trkpts.length - 1
+      
+      for (var i = 1;  i < ptmax; i++) {
+        if (trkpts[i].getPosition().distanceFromLine(trkpts[i-1].getPosition(), trkpts[i+1].getPosition()) > prunedist) {
+          // keep this point
+          trkpts[i].wt_i = newtrkpts.length
+          newtrkpts.push(trkpts[i])
+          newpoints.push(points[i])
+        }  else {
+          // discard this point
+          touched = true
+          unmapIt(trkpts[i])
+          mindeleted = Math.min(i, mindeleted)
+        }
       }
-    }
-    trkpts[trkpts.length - 1].wt_i = newtrkpts.length
-    newtrkpts.push(trkpts[trkpts.length - 1])
-    newpoints.push(points[trkpts.length - 1])
-    if (firstdeleted > 0) {
-      alert("Removed " + (trkpts.length - newpoints.length) + " points")
+      
+      // we always keep last point
+      trkpts[trkpts.length - 1].wt_i = newtrkpts.length
+      newtrkpts.push(trkpts[trkpts.length - 1])
+      newpoints.push(points[trkpts.length - 1])
+      
+      // switch to new values
       points = newpoints
       trkpts = newtrkpts
+    } while (touched)
+    
+    if (mindeleted < initlen) { // we deleted something ?
+      alert("Removed " + (initlen - newtrkpts.length) + " points")
       wt_drawPolyline()
-      wt_updateInfoFrom(trkpts[firstdeleted - 1])
+      wt_updateInfoFrom(trkpts[mindeleted - 1])
     }
     close_popup('tools-box')
   }
