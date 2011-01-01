@@ -153,6 +153,7 @@
       <a href="javascript:clear_track();">New</a>
       | <a href="javascript:show_load_box()">Load</a>
       | <a href="javascript:show_save_box()">Save</a>
+      | <a href="javascript:show_tools_box()">Tools</a>
 
       </td><td style="text-align:center" width="33%">
       <span id="message"><img src='img/processing.gif'> Initializing...</span>
@@ -320,6 +321,40 @@
       </table>
     </div>
 
+    <div class="options-box" id="tools-box" onkeydown='check_for_escape(event, "tools-box")' style="z-index:10;">
+      <table>
+        <tr>
+          <th style="text-align:left">Tools</th>
+          <th><a href="javascript:close_popup('tools-box')"><img src="img/close.gif" alt="Cancel and Close" title="Cancel and Close" style="border: 0px"/></a></th>
+        </tr>
+        <tr>
+          <form onsubmit="wt_prune(this.prunedist.value); return false">
+            <td>
+              <input type="submit" value="Compact" />
+            </td><td>
+              Prune track points that are closer than
+              <input name="prunedist" type="text" size="3" value="10"/>
+              meters
+            </td>
+          </form>
+        </tr>
+        <tr>
+          <td>
+            <input type="submit" value="Flatten" onclick="wt_altRemoveAll()"/>
+          </td><td>
+            Remove altitude information from all points
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <input type="submit" value="Elevate"  onclick="wt_altComputeAll()" />
+          </td><td>
+            Compute altitude information for up to 10 points of your track,<br>
+            overwriting any existing altitude you may have entered.
+          </td>
+        </tr>
+      </table>
+    </div>
 
     <div class="options-box" id="load-box" onkeydown='check_for_escape(event, "load-box")' style="z-index:10;">
       <table>
@@ -483,7 +518,7 @@
       debug.add(" text: " + request.responseText)
       var resp = eval("(" + request.responseText + ")")
       if (resp.status == "OK") {
-        res = resp.results[0].elevation
+        res = Math.round(resp.results[0].elevation)
       }
     }
     return res;
@@ -1154,6 +1189,68 @@
   }
 
   /*------------ Global functions -----------*/
+  
+  /**
+   * very simple pruning function, to be refined
+   * it simply removes points located less then "prunedist" meters from the next point
+   */
+  function wt_prune(prunedist) {
+    if (trkpts.length<1) return 
+    var firstdeleted = -1
+    closeInfoWindow()
+    var newpoints = []
+    var newtrkpts = []
+    newtrkpts.push(trkpts[0])
+    newpoints.push(points[0])
+    var ptmax = trkpts.length - 1
+    for (var i = 1 ; i < ptmax; i++) {
+      if (distance3D(trkpts[i], trkpts[i+1]) > prunedist) {
+        trkpts[i].wt_i = newtrkpts.length
+        newtrkpts.push(trkpts[i])
+        newpoints.push(points[i])
+      }  else {
+        unmapIt(trkpts[i])
+        if (firstdeleted < 0) firstdeleted = i
+      }
+    }
+    trkpts[trkpts.length - 1].wt_i = newtrkpts.length
+    newtrkpts.push(trkpts[trkpts.length - 1])
+    newpoints.push(points[trkpts.length - 1])
+    if (firstdeleted > 0) {
+      alert("Removed " + (trkpts.length - newpoints.length) + " points")
+      points = newpoints
+      trkpts = newtrkpts
+      wt_drawPolyline()
+      wt_updateInfoFrom(trkpts[firstdeleted - 1])
+    }
+    close_popup('tools-box')
+  }
+
+  function wt_altRemoveAll() {
+    closeInfoWindow();
+    for (var i = trkpts.length - 1 ; i >= 0 ; i--) {
+      trkpts[i].Wpt_setAlt(true)
+    }
+    wt_updateInfoFrom(trkpts[0])
+    close_popup('tools-box')
+  }
+
+  function wt_altComputeAll() {
+    closeInfoWindow();
+    var inc = Math.round(Math.max(1, trkpts.length/10))
+    var i = trkpts.length - 1
+    while (i >= 0) {
+      var ptpos = trkpts[i].getPosition()
+      trkpts[i].Wpt_setAlt(false, getAltitude(ptpos.lat(), ptpos.lng()));
+      if (i==0) { 
+        break; // done
+      } else {
+        i=Math.max(0, i-inc)
+      }
+    }
+    wt_updateInfoFrom(trkpts[0])
+    close_popup('tools-box')
+  }
 
   function wt_updateAltBounds(pt) {
     var alt = pt.wt_alt()
@@ -1188,7 +1285,7 @@
       wt_updateAltBounds(trkpts[i++])
     } while (i < trkpts.length)
     if (isroundtrip) {
-       for (i = trkpts.length - 1 ; i >= 0 ; i--) {
+      for (i = trkpts.length - 1 ; i >= 0 ; i--) {
         trkpts[i].Trkpt_updateTime_rt()
       }
     }
@@ -1566,6 +1663,7 @@
       closeInfoWindow()
       close_popup("save-box");
       close_popup("load-box");
+      close_popup("tools-box");
       close_popup("graph-box")
     })
     
@@ -1679,9 +1777,17 @@ if (!"".equals(file)) {
     }
   }
 
+  function show_tools_box(){
+    close_popup("load-box");
+    close_popup("graph-box");
+    close_popup("save-box");
+    show_popup("tools-box");
+  }
+
   function show_save_box(){
     document.getElementById("trackname").value = trackname
     close_popup("load-box");
+    close_popup("tools-box");
     close_popup("graph-box");
     show_popup("save-box");
     var obj = document.getElementById("trackname");
@@ -1721,6 +1827,7 @@ if (!"".equals(file)) {
     }
     close_popup("save-box");
     close_popup("graph-box");
+    close_popup("tools-box");
     show_popup("load-box");
     var obj = document.getElementById("gpxurl");
     obj.focus();
@@ -1772,6 +1879,7 @@ if (!"".equals(file)) {
     chart.render();
     close_popup("save-box");
     close_popup("load-box");
+    close_popup("tools-box");
     show_popup("graph-box")
   }
 
