@@ -1238,13 +1238,12 @@
    * It removes points located less then "prunedist" meters from the line between its adjacent points
    */
   function wt_prune(prunedist) {
+    
     var initlen = trkpts.length // initial number of points
-    if (initlen < 3) return // no pruning required when 0, 1 or 2 points
     closeInfoWindow()
-    var mindeleted = initlen // mindeleted tracks the smallest deleted point index
-    var touched // true if a point has been deleted during an iteration
-    do {
-      touched = false
+
+    if (initlen > 2) { // no pruning required when 0, 1 or 2 points
+      var mindeleted = initlen // mindeleted tracks the smallest deleted point index
       var newpoints = []
       var newtrkpts = []
       
@@ -1252,7 +1251,7 @@
       newtrkpts.push(trkpts[0])
       newpoints.push(points[0])
       
-      var ptmax = trkpts.length - 1
+      var ptmax = initlen - 1
       
       for (var i = 1;  i < ptmax; i++) {
         if (trkpts[i].getPosition().distanceFromLine(trkpts[i-1].getPosition(), trkpts[i+1].getPosition()) > prunedist) {
@@ -1269,46 +1268,50 @@
       }
       
       // we always keep last point
-      trkpts[trkpts.length - 1].wt_i = newtrkpts.length
+      trkpts[initlen - 1].wt_i = newtrkpts.length
       newtrkpts.push(trkpts[trkpts.length - 1])
       newpoints.push(points[trkpts.length - 1])
-      
-      // switch to new values
-      points = newpoints
-      trkpts = newtrkpts
-    } while (touched)
-    
-    if (mindeleted < initlen) { // we deleted something ?
-      alert("Removed " + (initlen - newtrkpts.length) + " points")
-      wt_drawPolyline()
-      wt_updateInfoFrom(trkpts[mindeleted - 1])
+          
+      if (mindeleted < initlen) { // we deleted something ?
+        alert("Removed " + (initlen - newtrkpts.length) + " points out of " + initlen)
+        // switch to new values
+        points = newpoints
+        trkpts = newtrkpts
+        // redraw
+        wt_drawPolyline()
+        wt_updateInfoFrom(trkpts[mindeleted - 1])
+      }
     }
     close_popup('tools-box')
   }
 
   function wt_altRemoveAll() {
     closeInfoWindow();
-    for (var i = trkpts.length - 1 ; i >= 0 ; i--) {
-      trkpts[i].Wpt_setAlt(true)
+    if (trkpts.length > 0) {
+      for (var i = trkpts.length - 1 ; i >= 0 ; i--) {
+        trkpts[i].Wpt_setAlt(true)
+      }
+      wt_updateInfoFrom(trkpts[0])
     }
-    wt_updateInfoFrom(trkpts[0])
     close_popup('tools-box')
   }
 
   function wt_altComputeAll() {
     closeInfoWindow();
-    var inc = Math.round(Math.max(1, trkpts.length/10))
-    var i = trkpts.length - 1
-    while (i >= 0) {
-      var ptpos = trkpts[i].getPosition()
-      trkpts[i].Wpt_setAlt(false, getAltitude(ptpos.lat(), ptpos.lng()));
-      if (i==0) { 
-        break; // done
-      } else {
-        i=Math.max(0, i-inc)
+    if (trkpts.length > 0) {
+      var inc = Math.round(Math.max(1, trkpts.length/10))
+      var i = trkpts.length - 1
+      while (i >= 0) {
+        var ptpos = trkpts[i].getPosition()
+        trkpts[i].Wpt_setAlt(false, getAltitude(ptpos.lat(), ptpos.lng()));
+        if (i==0) { 
+          break; // done
+        } else {
+          i=Math.max(0, i-inc)
+        }
       }
+      wt_updateInfoFrom(trkpts[0])
     }
-    wt_updateInfoFrom(trkpts[0])
     close_popup('tools-box')
   }
 
