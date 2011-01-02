@@ -1255,7 +1255,13 @@
       var ptmax = initlen - 1
       
       for (var i = 1;  i < ptmax; i++) {
-        if (trkpts[i].getPosition().distanceFromLine(trkpts[i-1].getPosition(), trkpts[i+1].getPosition()) > prunedist) {
+        var pt = trkpts[i].getPosition()
+        var prev = newtrkpts[newtrkpts.length -1].getPosition()
+        var next = trkpts[i+1].getPosition()
+        if (// check if pt is between prev and next
+          next.distanceFrom(prev) <= pt.distanceFrom(prev)
+          // check if pt is within pruning distance
+          || pt.distanceFromLine(prev, next) > prunedist) {
           // keep this point
           trkpts[i].wt_i = newtrkpts.length
           newtrkpts.push(trkpts[i])
