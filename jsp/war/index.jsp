@@ -33,12 +33,12 @@
           fileItem = (FileItemStream)it.next();
           if (!fileItem.isFormField()) {
             file_name = fileItem.getName();
-            System.out.println("reading file: " + file_name);
+            //System.out.println("reading file: " + file_name);
             InputStream in = fileItem.openStream();
             int len;
             byte[] buffer = new byte[8192];
             while ((len = in.read(buffer, 0, buffer.length)) != -1) {
-              System.out.println("got " + len + " bytes");
+              //System.out.println("got " + len + " bytes");
               String tmp = new String(buffer, 0, len);
               file += tmp;
             }
