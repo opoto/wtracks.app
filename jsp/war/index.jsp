@@ -1150,6 +1150,7 @@
     points = newpoints;
     trkpts = newtrkpts
     wt_updateInfoFrom(pt)
+    wt_showInfo(undefined, false)
     wt_drawPolyline();
   }
 
@@ -1279,6 +1280,7 @@
         // redraw
         wt_drawPolyline()
         wt_updateInfoFrom(trkpts[mindeleted - 1])
+        wt_showInfo(undefined, false)
       }
     }
     close_popup('tools-box')
@@ -1291,6 +1293,7 @@
         trkpts[i].Wpt_setAlt(true)
       }
       wt_updateInfoFrom(trkpts[0])
+      wt_showInfo(undefined, false)
     }
     close_popup('tools-box')
   }
@@ -1310,6 +1313,7 @@
         }
       }
       wt_updateInfoFrom(trkpts[0])
+      wt_showInfo(undefined, false)
     }
     close_popup('tools-box')
   }
