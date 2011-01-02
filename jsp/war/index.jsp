@@ -1261,7 +1261,6 @@
           newpoints.push(points[i])
         }  else {
           // discard this point
-          touched = true
           unmapIt(trkpts[i])
           mindeleted = Math.min(i, mindeleted)
         }
