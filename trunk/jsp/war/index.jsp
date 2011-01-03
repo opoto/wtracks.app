@@ -702,48 +702,38 @@
     var d = R * c;
     return d;
   }
-  
- /**
-  * credits to: Felix Schweighofer <felix.s1000 at googlemail.com>
-  * http://sites.google.com/site/trackreducer
-  * 
-  * Calculates the distance from a given point to a line defined by two given points
-  * @param startLine The start point of the line
-  * @param endLine The end point of the line
-  * @param point The point whose distance to the line should be calculated
-  * @return The distance from the point to the line in km
-  */
+
+  /**
+   * Returns the closest distance (2D) of a point to a segment defined by 2 points
+   * 
+   * Adapted from Paul Bourke http://local.wasp.uwa.edu.au/~pbourke/geometry/pointline/
+   *
+   * @param startLine  First point of the segment
+   * @param endLine    Second point of the segment
+   * @return The distance
+   */
   google.maps.LatLng.prototype.distanceFromLine = function(startLine, endLine) {
-    var xS = startLine.lng()
-    var yS = startLine.lat()
-    var xE = endLine.lng()
-    var yE = endLine.lat()
-    var xP = this.lng()
-    var yP = this.lat()
-    
-    // Calculate the equation of an imagined line between startLine and endLine
-    // y = ( m * x ) + t    → m and t are unknown, the coordinates of startLine and endLine can be used as x and y
-    var m = (yE-yS) / (xE-xS);   // m = Δy / Δx
-    var t = yS - m*xS;   // t = y - m*x → Use coordinates of startLine or endLine as x and y
-    
-    // Calculate the equation of an imagined line cutting the line mentioned above orthogonally
-    // y = ( m2 * x ) + t2  → m2 and t2 are unknown, point's coordinates can be used as x and y
-    var m2 = -1/m;
-    var t2 = yP - m2*xP;
-    
-    // Calculate the coordinates of the intersection point X of the lines mentioned above
-    // yX = (m * xX ) + t = (m2 * x) + t2
-    /* X is on y=m*x+t and y=m2*x+t2
-      * m*xX +t = m2*xX +t2  // substract t and m2*xX from both sides of the equation to have all xX on the left
-      * m*xX - m2*xX = t2 -t // Factorice
-      * xX*(m-m2) = t2 -t    // divide by (m-m2)
-      * xX = (t2-t) / (m-m2)
-      */
-    var xX = (t2-t) / (m-m2);
-    var yX = m2 * xX + t2;       // Insert xX into y=m*x+t
-    
-    // Calculate the distance from point to X
-    return this.distanceFrom(new google.maps.LatLng(yX, xX));
+
+    var xDelta = endLine.lng() - startLine.lng();
+    var yDelta = endLine.lat() - startLine.lat();
+
+    if ((xDelta == 0) && (yDelta == 0)) {
+        // startLine and endLine are the same point, return distance from this point
+        return this.distanceFrom(startLine);
+    }
+
+    var u = ((this.lng() - startLine.lng()) * xDelta + (this.lat() - startLine.lat()) * yDelta) / (xDelta * xDelta + yDelta * yDelta);
+
+    var closestPoint;
+    if (u < 0) {
+        closestPoint = startLine;
+    } else if (u > 1) {
+        closestPoint = endLine;
+    } else {
+        closestPoint = new google.maps.LatLng(startLine.lat() + u * yDelta, startLine.lng() + u * xDelta);
+    }
+
+    return this.distanceFrom(closestPoint);
   }
         
   function openInfoWindow(pos, html) {
@@ -1258,10 +1248,7 @@
         var pt = trkpts[i].getPosition()
         var prev = newtrkpts[newtrkpts.length -1].getPosition()
         var next = trkpts[i+1].getPosition()
-        if (// check if pt is between prev and next
-          next.distanceFrom(prev) <= pt.distanceFrom(prev)
-          // check if pt is within pruning distance
-          || pt.distanceFromLine(prev, next) > prunedist) {
+        if (pt.distanceFromLine(prev, next) > prunedist) {
           // keep this point
           trkpts[i].wt_i = newtrkpts.length
           newtrkpts.push(trkpts[i])
