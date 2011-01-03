@@ -1,7 +1,13 @@
 <project xmlns:ivy="antlib:org.apache.ivy.ant" name="wtracks" default="compile" >
+<!--
+To use this script, you should create a "ant.properties" file in current directory, containing the following properties value:
+  ivy.jar: the path of your ivy jar file
+  sdk.dir: the path to your appengine SDK installation
+  email: your google account identifier
+-->
   <property file="ant.properties" />
   <path id="ivy.lib.path">
-    <fileset dir="/usr/share/java" includes="ivy.jar"/>
+    <pathelement path="${ivy.jar}"/>
   </path>
   <taskdef resource="org/apache/ivy/ant/antlib.xml"
          uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
