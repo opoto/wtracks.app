@@ -137,7 +137,7 @@
   </style>
 
     <!-- Google API license key -->
-    <script src="http://maps.google.com/maps/api/js?sensor=true" type="text/javascript"></script>
+    <script src="http://maps.google.com/maps/api/js?libraries=geometry&sensor=true" type="text/javascript"></script>
 
   </head>
   <body onload="wt_load()">
@@ -689,18 +689,7 @@
   /* GMaps API v2 compatibility */
 
   google.maps.LatLng.prototype.distanceFrom = function(newLatLng) {
-    //var R = 6371; // km (change this constant to get miles)
-    var R = 6371000; // meters
-    var lat1 = this.lat();
-    var lon1 = this.lng();
-    var lat2 = newLatLng.lat();
-    var lon2 = newLatLng.lng();
-    var dLat = (lat2-lat1) * Math.PI / 180;
-    var dLon = (lon2-lon1) * Math.PI / 180;
-    var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180 ) * Math.cos(lat2 * Math.PI / 180 )  *  Math.sin(dLon/2) * Math.sin(dLon/2);
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    var d = R * c;
-    return d;
+    return google.maps.geometry.spherical.computeDistanceBetween(this, newLatLng)
   }
 
   /**
