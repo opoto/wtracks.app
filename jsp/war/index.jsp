@@ -6,8 +6,8 @@
   String rpxnow_token_url = "/login.jsp?" + rpxgoto;
   boolean debugging = (request.getParameter("debug") != null);
 
-  String file = ""; // $HTTP_POST_FILES['gpxfile']['tmp_name'];
-  String file_name = ""; // $HTTP_POST_FILES['gpxfile']['name'];
+  StringBuilder file = null; // uploaded file content
+  String file_name = null; // uploaded file name
 
   boolean showmarkers = !("false".equals(request.getParameter("marks")));
   boolean showlabels = !("false".equals(request.getParameter("labels")));
@@ -35,12 +35,13 @@
             file_name = fileItem.getName();
             //System.out.println("reading file: " + file_name);
             InputStream in = fileItem.openStream();
+            file = new StringBuilder();
             int len;
             byte[] buffer = new byte[8192];
             while ((len = in.read(buffer, 0, buffer.length)) != -1) {
               //System.out.println("got " + len + " bytes");
               String tmp = new String(buffer, 0, len);
-              file += tmp;
+              file.append(tmp);
             }
           //file = fileItem.getString();
           break;
@@ -441,7 +442,7 @@
                         id="gpxarea" readonly rows="20" cols="80"><%
 
   if (file != null) {
-     out.print(file); // the uploaded file content
+     out.print(file.toString()); // the uploaded file content
   }
 %></textarea>
             </td>
@@ -609,6 +610,12 @@
 
   function areMarkersShown() {
     return document.getElementById("showmarkers").checked;
+  }
+
+  function setMarkersShown(shown) {
+    var wereShown = document.getElementById("showmarkers").checked
+    document.getElementById("showmarkers").checked = shown
+    return wereShown
   }
 
   function areWptsShown() {
@@ -1188,7 +1195,7 @@
     toPt(this, i)
   }
 
-  function new_Trkpt(point, alt, name) {
+  function new_Trkpt(point, alt, name, updateInfo) {
     var markOpts = {
       draggable: true,
       icon: trkpt_icon,
@@ -1204,8 +1211,12 @@
     points.push(pt.getPosition())
     if (name) pt.wt_setName(name)
     if (alt) {
-      pt.wt_setAlt(false, alt)
-    } else {
+      if (updateInfo) {
+        pt.wt_setAlt(false, alt)
+      } else {
+        pt.Wpt_setAlt(false, alt)
+      }
+    } else if (updateInfo) {
       wt_updateInfoFrom(pt)
     }
     return pt
@@ -1472,6 +1483,10 @@
   }
 
   function wt_importPoints(xmlpts, is_trk) {
+    if (is_trk && (xmlpts.length > 500)) {
+      alert("Tracks contains " + xmlpts.length + " points, they are hidden to avoid degrading performance.\nUse Tools/Compact to reduce number of points") 
+      setMarkersShown(false)
+    }
     var point;
     for (var i = 0; i < xmlpts.length; i++) {
       point = new google.maps.LatLng(parseFloat(xmlpts[i].getAttribute("lat")),
@@ -1487,12 +1502,13 @@
         name  = getText(names[0])
       }
       if (is_trk) {
-        pt = new_Trkpt(point, ele, name)
+        pt = new_Trkpt(point, ele, name, false)
       } else {
         pt = new_Wpt(point, ele, name)
       }
     }
 
+    if (is_trk && (trkpts.length > 0)) wt_updateInfoFrom(trkpts[0])
   }
 
   function wt_importGPX(gpxinput) {
@@ -1657,6 +1673,7 @@
     map = new google.maps.Map(mapDiv, mapOptions);
     //cluster = new MarkerClusterer(map, [], {maxZoom:13, zoomOnClick: false});
 
+
     //----- Stop page scrolling if wheel over map ----
     google.maps.event.addDomListener(mapDiv, "DOMMouseScroll", wheelevent);
     mapDiv.onmousewheel = wheelevent;
@@ -1701,7 +1718,7 @@
 
     // right click: create track point
     google.maps.event.addListener(map, "rightclick", function(event) {
-      var pt = new_Trkpt(event.latLng);
+      var pt = new_Trkpt(event.latLng, undefined, true);
       wt_drawPolyline();
       wt_showInfo(undefined, false);
     });
@@ -1716,7 +1733,7 @@
     })
     
 <%
-if (!"".equals(file)) {
+if (file_name != null) {
     out.println("info.set('Uploaded " + file_name + "<br>')");
 %>
     wt_importGPX(document.getElementById('gpxarea').value, false);
