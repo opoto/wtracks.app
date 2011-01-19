@@ -333,9 +333,9 @@
             <td>
               <input type="submit" value="Compact" />
             </td><td>
-              Prune track points that are closer than
+              Delete as many track points as possible, keeping track within a 
               <input name="prunedist" type="text" size="3" value="10"/>
-              meters
+              meters wide band
             </td>
           </form>
         </tr>
@@ -378,7 +378,8 @@
               <input name="gpxupload" type="submit" value="Load GPX from file:"
                      onclick="return wt_check_fileupload(document.getElementById('upform'));" />
             </td><td>
-              <input type="file" size="50" name="gpxfile" id="gpxfile" style="width:100%" />
+              <input type="file" size="50" name="gpxfile" id="gpxfile" style="width:100%" 
+                     onchange="if (wt_check_fileupload(document.getElementById('upform'))) this.form.submit()" />
               <input type="hidden" name="marks" value="" />
               <input type="hidden" name="labels" value="" />
             </td>
@@ -1229,54 +1230,65 @@
    * It removes points located less then "prunedist" meters from the line between its adjacent points
    */
   function wt_prune(prunedist) {
-    
-    var initlen = trkpts.length // initial number of points
-    closeInfoWindow()
+    try {
+      var initlen = trkpts.length // initial number of points
+      closeInfoWindow()
 
-    if (initlen > 2) { // no pruning required when 0, 1 or 2 points
-      var mindeleted = initlen // mindeleted tracks the smallest deleted point index
-      var newpoints = []
-      var newtrkpts = []
-      
-      // we always keep first point
-      newtrkpts.push(trkpts[0])
-      newpoints.push(points[0])
-      
-      var ptmax = initlen - 1
-      
-      for (var i = 1;  i < ptmax; i++) {
-        var pt = trkpts[i].getPosition()
-        var prev = newtrkpts[newtrkpts.length -1].getPosition()
-        var next = trkpts[i+1].getPosition()
-        if (pt.distanceFromLine(prev, next) > prunedist) {
-          // keep this point
-          trkpts[i].wt_i = newtrkpts.length
-          newtrkpts.push(trkpts[i])
-          newpoints.push(points[i])
-        }  else {
-          // discard this point
-          unmapIt(trkpts[i])
-          mindeleted = Math.min(i, mindeleted)
+      if (initlen > 2) { // no pruning required when 0, 1 or 2 points
+        var mindeleted = initlen // mindeleted tracks the smallest deleted point index
+        var newpoints = []
+        var newtrkpts = []
+        
+        // we always keep first point
+        newtrkpts.push(trkpts[0])
+        newpoints.push(points[0])
+        
+        var ptmax = initlen - 1 // max trkpt index
+        var ptlast = 0 // mast inserted trakpt index
+        
+        for (var i = 1;  i < ptmax; i++) {
+          
+          var prev = newtrkpts[newtrkpts.length -1].getPosition()
+          var next = trkpts[i+1].getPosition()
+          
+          for (var j = i; j > ptlast; j--) {
+            var pt = trkpts[j].getPosition()
+            var delta = pt.distanceFromLine(prev, next)
+            if (delta > prunedist) {
+              // removing i loses this pt, keep this trkpt[i]
+              trkpts[i].wt_i = newtrkpts.length
+              ptlast = i
+              newtrkpts.push(trkpts[i])
+              newpoints.push(points[i])
+              break
+            }
+          }
+          // did we keep i?
+          if (ptlast != i) {
+            // discard this point
+            unmapIt(trkpts[i])
+            mindeleted = Math.min(i, mindeleted)
+          }
+        }
+        
+        // we always keep last point
+        trkpts[initlen - 1].wt_i = newtrkpts.length
+        newtrkpts.push(trkpts[trkpts.length - 1])
+        newpoints.push(points[trkpts.length - 1])
+            
+        if (mindeleted < initlen) { // we deleted something ?
+          alert("Removed " + (initlen - newtrkpts.length) + " points out of " + initlen)
+          // switch to new values
+          points = newpoints
+          trkpts = newtrkpts
+          // redraw
+          wt_drawPolyline()
+          wt_updateInfoFrom(trkpts[mindeleted - 1])
+          wt_showInfo(undefined, false)
         }
       }
-      
-      // we always keep last point
-      trkpts[initlen - 1].wt_i = newtrkpts.length
-      newtrkpts.push(trkpts[trkpts.length - 1])
-      newpoints.push(points[trkpts.length - 1])
-          
-      if (mindeleted < initlen) { // we deleted something ?
-        alert("Removed " + (initlen - newtrkpts.length) + " points out of " + initlen)
-        // switch to new values
-        points = newpoints
-        trkpts = newtrkpts
-        // redraw
-        wt_drawPolyline()
-        wt_updateInfoFrom(trkpts[mindeleted - 1])
-        wt_showInfo(undefined, false)
-      }
-    }
-    close_popup('tools-box')
+      close_popup('tools-box')
+    } catch (e) { alert(e) }
   }
 
   function wt_altRemoveAll() {
