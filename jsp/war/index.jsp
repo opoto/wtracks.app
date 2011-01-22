@@ -1730,7 +1730,7 @@
 
     // right click: create track point
     google.maps.event.addListener(map, "rightclick", function(event) {
-      var pt = new_Trkpt(event.latLng, undefined, true);
+      var pt = new_Trkpt(event.latLng, undefined, undefined, true);
       wt_drawPolyline();
       wt_showInfo(undefined, false);
     });
