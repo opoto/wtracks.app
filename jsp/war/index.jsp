@@ -385,21 +385,25 @@
             </td>
           </form>
         </tr>
-<%
-  if (openID != null) {
-%>
         <tr>
           <td style="vertical-align:top;">
             <select id="load_list" size="1" onChange="load_tracks('')">
-	      <option selected>Your saved track:</option>
-	      <option>Public tracks:</option>
+<%
+  if (openID != null) {
+%>
+              <option selected>Your saved track:</option>
+              <option>Public tracks:</option>
+<% } else {
+%>
+              <option disabled>Sign in to have your own</option>
+              <option selected>Public tracks:</option>
+<% } %>
             </select> 
             
           </td><td>
             <span style="width:500px; max-height:300px; overflow:auto; display:inline-block;" id="usertracks-span"><img src='img/processing.gif'></span>
           </td>
         </tr>
-<% } %>
       </table>
     </div>
 
@@ -437,7 +441,7 @@
               <input type='submit' name='action' value='Save on this server' />
               <input type='checkbox' name='public' value='yes' /> Public
 <% } else { %>
-              (Sign in to be able to save on this server)
+              (Sign in to save on this server)
 <% } %>
               <textarea name="gpxarea" class="hidden"
                         id="gpxarea" readonly rows="20" cols="80"><%
@@ -1899,9 +1903,7 @@ if (file_name != null) {
   }
 
   function show_load_box(){
-    if (oid != "") {
-      load_tracks("");
-    }
+    load_tracks("");
     close_popup("save-box");
     close_popup("graph-box");
     close_popup("tools-box");
