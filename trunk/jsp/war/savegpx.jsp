@@ -7,9 +7,9 @@ String trackname = request.getParameter("savedname");
 boolean isPublic = request.getParameter("public") != null;
 String host = request.getServerName();
 
-System.out.println("gpx: " + gpxdata);
-System.out.println("trackname: " + trackname);
-System.out.println("oid: " + oid);
+//System.out.println("gpx: " + gpxdata);
+//System.out.println("trackname: " + trackname);
+//System.out.println("oid: " + oid);
 
 if ("Save".equals(action)) {
   response.setContentType("application/octet-stream");
