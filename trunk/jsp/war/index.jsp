@@ -417,7 +417,7 @@
         </tr>
         <tr>
           <td>Track Name</td>
-          <form><td><input type="text" size="40" id="trackname" /></td></form>
+          <form><td><input type="text" size="40" id="trackname" onkeypress="return clickOnEnter(event,'savebutton')"/></td></form>
         </tr>
         <tr>
           <form><td align="right"><input type="checkbox" id="savealt"/></td></form>
@@ -431,7 +431,7 @@
           <form target="_blank" action="savegpx.jsp" method="post" onSubmit="wt_doSave()">
             <td colspan="2">
               <input type='hidden' id='savedname' name='savedname' value='' />
-              <input type="submit" name="action" value="Save" />
+              <input type="submit" id="savebutton" name="action" value="Save" />
 <%
   if (openID != null) {
 %>
@@ -1882,6 +1882,15 @@ if (file_name != null) {
     var savealt = document.getElementById("savealt").checked
     var savetime = document.getElementById("savetime").checked
     document.getElementById("gpxarea").value = wt_toGPX(savealt, savetime)
+  }
+
+  function clickOnEnter(e,toClick) {
+    var key=e.keyCode || e.which;
+    if (key==13){
+      document.getElementById(toClick).click()
+	  return false
+    }
+	return true
   }
 
   function show_user_tracks(res) {
