@@ -1,7 +1,7 @@
 <%@ page import="java.util.*, java.io.*, javax.servlet.jsp.JspWriter, java.net.URLEncoder, java.net.URLDecoder, java.lang.Exception, wtracks.GPX, wtracks.PMF, javax.jdo.PersistenceManager" %><%@ include file="userid.jsp" %><%!
 
   GPX getTrack(PersistenceManager pm, String name, String oid) {
-    String query = "select from " + GPX.class.getName() + " where name=='" + name + "' && owner=='" + oid + "'";
+    String query = "select from " + GPX.class.getName() + " where name=='" + name.replaceAll("'", "\\\\'") + "' && owner=='" + oid + "'";
     System.out.println("get query: " + query);
     List<GPX> tracks = (List<GPX>) pm.newQuery(query).execute();
     if (tracks.isEmpty()) {
