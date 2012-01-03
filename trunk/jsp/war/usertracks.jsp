@@ -34,7 +34,7 @@
         if (track.getSharedMode() == GPX.SHARED_PUBLIC) {
           out.println("<img src='img/share.gif' title='Public - Anyone can see and read this track' alt='public' style='border:0px'>");
         } else if (track.getSharedMode() == GPX.SHARED_LINK) {
-          out.println("<img src='img/link.gif' title='Shareable - you can share this link' alt='shareable' style='border:0px'>");
+          out.println("<img src='img/link.png' title='Shareable - you can share this link' alt='shareable' style='border:0px'>");
         }
         out.println("<br>");
       }
