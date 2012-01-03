@@ -20,16 +20,20 @@ public class GPX {
     private Text gpx;
 
     @Persistent
-    private boolean isPublic;
+    private int sharedMode;
+
+    public final static int SHARED_PRIVATE = 0;
+    public final static int SHARED_LINK = 1;
+    public final static int SHARED_PUBLIC = 2;
 
     @Persistent
     private Date saveDate;
 
-    public GPX(String name, String owner, String gpx, boolean isPublic, Date saveDate) {
+    public GPX(String name, String owner, String gpx, int sharedMode, Date saveDate) {
         this.name = name;
         this.owner = owner;
         this.gpx = new Text(gpx);
-        this.isPublic = isPublic;
+        this.sharedMode = sharedMode;
         this.saveDate = saveDate;
     }
 
@@ -47,8 +51,8 @@ public class GPX {
         return gpx.getValue();
     }
 
-    public boolean isPublic() {
-        return isPublic;
+    public int getSharedMode() {
+        return sharedMode;
     }
 
     public Date getSaveDate() {

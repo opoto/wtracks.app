@@ -4,7 +4,7 @@ String action = request.getParameter("action");
 String gpxdata = request.getParameter("gpxarea").replaceAll("\\\"", "\"");
 String oid = request.getParameter("oid");
 String trackname = request.getParameter("savedname");
-boolean isPublic = request.getParameter("public") != null;
+int sharedMode = Integer.parseInt(request.getParameter("sharemode"));
 String host = request.getServerName();
 
 //System.out.println("gpx: " + gpxdata);
@@ -24,7 +24,7 @@ if ("Save".equals(action)) {
     return;
   }
 
-  GPX gpx = new GPX(trackname, oid, gpxdata, isPublic, new Date());
+  GPX gpx = new GPX(trackname, oid, gpxdata, sharedMode, new Date());
 
   PersistenceManager pm = PMF.get().getPersistenceManager();
 

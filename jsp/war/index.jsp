@@ -439,7 +439,12 @@
               document.write("<input type='hidden' name='oid' value='" + oid + "' />");
 </script>
               <input type='submit' name='action' value='Save on this server' />
-              <input type='checkbox' name='public' value='yes' /> Public
+              Visibility :
+               <select name="sharemode" size="1">
+                  <option value="<%=wtracks.GPX.SHARED_PRIVATE%>">Private</option>
+                  <option value="<%=wtracks.GPX.SHARED_LINK%>">Shareable</option>
+                  <option value="<%=wtracks.GPX.SHARED_PUBLIC%>">Public</option>
+                </select>
 <% } else { %>
               (Sign in to save on this server)
 <% } %>
