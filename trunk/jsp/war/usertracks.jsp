@@ -14,14 +14,14 @@
     String query = "select from " + GPX.class.getName(); //  order by saveDate desc
     boolean publicList = oid.equals("*");
     if (publicList) {
-      query += " where isPublic"; //  order by saveDate desc
+      query += " where sharedMode==" + GPX.SHARED_PUBLIC; //  order by saveDate desc
     } else {
       query += " where owner=='" + oid + "'"; //  order by saveDate desc
     }
     System.out.println("list query: " + query);
     List<GPX> tracks = (List<GPX>) pm.newQuery(query).execute();
     for (GPX track : tracks) {
-      if (isUserOwner || track.isPublic()) {
+      if (isUserOwner || (track.getSharedMode() == GPX.SHARED_PUBLIC)) {
         //out.println("<option value='" + track.getName() + "'>" + track.getName() + "</option>");
         String name = track.getName();
         String linktxt = name.length() > 50 ? name.substring(0,47) + "..." : name;
@@ -31,8 +31,10 @@
         out.print("<a href='.?name=" + URLEncoder.encode(name) + "&oid=" + URLEncoder.encode(track.getOwner()) + "' ");
         out.print(" onclick='wt_loadUserGPX(\"" + URLEncoder.encode(name) + "\", \"" + URLEncoder.encode(track.getOwner()) + "\"); return false; ' >");
         out.println(linktxt + "</a>");
-        if (track.isPublic()) {
-          out.println("<img src='img/share.gif' title='Public - you can share this link' alt='public' style='border:0px'>");
+        if (track.getSharedMode() == GPX.SHARED_PUBLIC) {
+          out.println("<img src='img/share.gif' title='Public - Anyone can see and read this track' alt='public' style='border:0px'>");
+        } else if (track.getSharedMode() == GPX.SHARED_LINK) {
+          out.println("<img src='img/link.gif' title='Shareable - you can share this link' alt='shareable' style='border:0px'>");
         }
         out.println("<br>");
       }
@@ -92,7 +94,7 @@
     }
 
     // check oid matches logged user
-    if ((!isUserOwner) && (!track.isPublic())) {
+    if ((!isUserOwner) && (track.getSharedMode() == GPX.SHARED_PRIVATE)) {
       // not authorized
       response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not authorized to get this track");
       return;
