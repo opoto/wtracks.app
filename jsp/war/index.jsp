@@ -1911,7 +1911,8 @@ if (file_name != null) {
   }
 
   function delete_track(url) {
-    if (confirm("Delete track '" + url + "'?")) {
+    var name = decodeURIComponent((url + '').replace(/\+/g, '%20'))
+    if (confirm("Delete track '" + name + "'?")) {
       load_tracks('?delete=' + url);
     }
   }
