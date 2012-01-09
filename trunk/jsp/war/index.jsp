@@ -297,7 +297,9 @@
               <a href="javascript:doEmail2('gmail.com','Olivier.Potonniee','?subject=WTracks')">Olivier Potonni&eacute;e</a>
               - <a href="html/privacy.html">Privacy Policy</a>
               - <a href="http://code.google.com/p/wtracks/">Contribute</a>
-              - NEW! Share: <%@ include file="share.jsp" %>
+              <span style="margin-left:20px">
+                NEW! Share:&nbsp;&nbsp;&nbsp; <%@ include file="share.jsp" %>
+              </span>
             </td>
             <!-- useful? -->
             <td align="right" style="display:none;">
