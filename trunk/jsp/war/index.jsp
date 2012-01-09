@@ -297,7 +297,9 @@
               <a href="javascript:doEmail2('gmail.com','Olivier.Potonniee','?subject=WTracks')">Olivier Potonni&eacute;e</a>
               - <a href="html/privacy.html">Privacy Policy</a>
               - <a href="http://code.google.com/p/wtracks/">Contribute</a>
+              - NEW! Share: <%@ include file="share.jsp" %>
             </td>
+            <!-- useful? -->
             <td align="right" style="display:none;">
             <i>URL syntax:</i> <%= "http" + (request.getServerPort() == 80 ? "": "s") + "://" + request.getServerName() + request.getRequestURI() %>[?gpx=&lt;gpx file url&gt;[&amp;marks=(true|false)][&amp;labels=(true|false)]
             </td>
