@@ -4,8 +4,6 @@ String action = request.getParameter("action");
 String gpxdata = request.getParameter("gpxarea").replaceAll("\\\"", "\"");
 String oid = request.getParameter("oid");
 String trackname = request.getParameter("savedname");
-int sharedMode = Integer.parseInt(request.getParameter("sharemode"));
-String host = request.getServerName();
 
 //System.out.println("gpx: " + gpxdata);
 //System.out.println("trackname: " + trackname);
@@ -16,6 +14,8 @@ if ("Save".equals(action)) {
   response.setHeader("Content-disposition", "attachment; filename=\"" + trackname + ".gpx\"");
   out.print(gpxdata);
 } else if ((oid != null) && (oid.length() > 0)) {
+
+  int sharedMode = Integer.parseInt(request.getParameter("sharemode"));
 
   // check oid matches logged user
   if (!isUser(session,oid)) {
