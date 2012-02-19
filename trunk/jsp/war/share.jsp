@@ -16,8 +16,9 @@
 }(document, 'script', 'facebook-jssdk'));</script>
 <!-- -->
 
-<!-- Place the code for your plugin wherever you want the plugin to appear on your page: -->
+<!-- Place the code for your plugin wherever you want the plugin to appear on your page: --
 <div class="fb-like" style="display:inline" data-href="http://wtracks.appspot.com/" data-send="false" data-layout="button_count" data-width="90" data-show-faces="false"></div>
+<!-- -->
 
 
 <!-- Google +1: -->
