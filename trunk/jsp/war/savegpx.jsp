@@ -24,9 +24,22 @@ if ("Save".equals(action)) {
     return;
   }
 
+  PersistenceManager pm = PMF.get().getPersistenceManager();
+
+  // search for an existing track with this name
+  String query = "select from " + GPX.class.getName() + " where name=='" + trackname.replaceAll("'", "\\\\'") + "'";
+  List<GPX> tracks = (List<GPX>) pm.newQuery(query).execute();
+  if (!tracks.isEmpty()) {
+    // at most one should exist
+    if (!tracks.get(0).getOwner().equals(oid)) {
+      // cannot overwrite someone else's track
+      response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "This track name is already used by another user, please use a different track name");
+      return;
+    }
+  }
+
   GPX gpx = new GPX(trackname, oid, gpxdata, sharedMode, new Date());
 
-  PersistenceManager pm = PMF.get().getPersistenceManager();
 
   try {
     pm.makePersistent(gpx);
