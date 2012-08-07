@@ -11,10 +11,11 @@
 
   boolean showmarkers = !("false".equals(request.getParameter("marks")));
   boolean showlabels = !("false".equals(request.getParameter("labels")));
+  boolean showalts = ("true".equals(request.getParameter("alts")));
 
   String openID = null;
 
-  // following config file should define gmaps_key, ganalytics_key, and rpxnow_realm
+  // The following config file should set gmaps_key, ganalytics_key, rpxnow_realm and rpxnow_key
 %>
 <%@ include file="config.jsp" %>
 <%@ include file="userid.jsp" %>
@@ -216,6 +217,10 @@
               <input type="checkbox" id="showlabels"
               <% if (showlabels) out.print("checked"); %>
               onclick="wt_showLabels(this.checked)" />
+              &nbsp;/&nbsp; Alts
+              <input type="checkbox" id="showalts"
+              <% if (showalts) out.print("checked"); %>
+              onclick="wt_showAlts(this.checked)" />
               &nbsp;/&nbsp; <img src="img/icon13noshade.gif" alt="waypoints" title="waypoints"/>
               <input type="checkbox" id="showwaypoints" checked
               onclick="wt_showWaypoints(this.checked)" />
@@ -386,6 +391,7 @@
                      onchange="if (wt_check_fileupload(document.getElementById('upform'))) this.form.submit()" />
               <input type="hidden" name="marks" value="" />
               <input type="hidden" name="labels" value="" />
+              <input type="hidden" name="alts" value="" />
             </td>
           </form>
         </tr>
@@ -547,7 +553,7 @@
 
   function addTrackLink(gpxURL) {
     name = document.getElementById("trktitle").innerHTML;
-    setElement("trktitle", "<a href='?gpx=" + gpxURL + "&marks=" + areMarkersShown() + "&labels=" + areLabelsShown() + "'>" + name + "</a>")
+    setElement("trktitle", "<a href='?gpx=" + gpxURL + "&marks=" + areMarkersShown() + "&labels=" + areLabelsShown() + "&alts=" + areAltsShown() + "'>" + name + "</a>")
   }
 
   function getText(element) {
@@ -638,6 +644,10 @@
 
   function areLabelsShown() {
     return document.getElementById("showlabels").checked;
+  }
+
+  function areAltsShown() {
+    return document.getElementById("showalts").checked;
   }
 
   function slope(dist, altdiff) {
@@ -836,7 +846,7 @@
   google.maps.Marker.prototype.wt_updateTitle = function() {
     var title = "";
     if (this.wt_name && this.wt_name != "") title += this.wt_name;
-    if ((this.wt_manalt != undefined) && (this.wt_autoalt == undefined || !this.wt_autoalt)) {
+    if ((this.wt_manalt != undefined) && (this.wt_autoalt == undefined || !this.wt_autoalt) && areAltsShown()) {
       title += " (" + this.wt_manalt + "&nbsp;m)";
     }
     if (title != "") {
@@ -917,7 +927,6 @@
     this.wt_alt = google.maps.Marker.prototype.Wpt_alt
     this.wt_altview = google.maps.Marker.prototype.Wpt_altview
     this.wt_areMarkersShown = areWptsShown
-    this.wt_areLabelsShown = areWptsShown
     this.wt_setAlt = google.maps.Marker.prototype.Wpt_setAlt
 
     toPt(this, i)
@@ -1196,7 +1205,6 @@
     this.wt_alt = google.maps.Marker.prototype.Trkpt_alt
     this.wt_altview = google.maps.Marker.prototype.Trkpt_altview
     this.wt_areMarkersShown = areMarkersShown
-    this.wt_areLabelsShown = areLabelsShown
     this.wt_setAlt = google.maps.Marker.prototype.Trkpt_setAlt
     this.wt_autoalt = true;
     this.wt_autotime = true; // not used yet...
@@ -1632,6 +1640,20 @@
     }
   }
 
+  function wt_showAlts(show) {
+    //closeInfoWindow();
+    var i = 0;
+    while (i < trkpts.length) {
+      trkpts[i].wt_updateTitle();
+      i++;
+    }
+    i = 0;
+    while (i < wpts.length) {
+      wpts[i].wt_updateTitle();
+      i++;
+    }
+  }
+
   function wt_showWaypoints(show) {
     //closeInfoWindow();
     var i = 0;
@@ -1796,6 +1818,7 @@ if (file_name != null) {
     close_popup('load-box');
     form.marks.value = document.getElementById('showmarkers').checked;
     form.labels.value = document.getElementById('showlabels').checked;
+    form.alts.value = document.getElementById('showalts').checked;
     return true;
   }
 
