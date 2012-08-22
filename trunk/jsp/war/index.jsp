@@ -438,6 +438,10 @@
           <td>Save computed timings?</td>
         </tr>
         <tr>
+          <form><td align="right"><input type="checkbox" id="asroute"/></td></form>
+          <td>Use GPX route instead of track?</td>
+        </tr>
+        <tr>
           <form target="_blank" action="savegpx.jsp" method="post" onSubmit="wt_doSave()">
             <td colspan="2">
               <input type='hidden' id='savedname' name='savedname' value='' />
@@ -921,7 +925,7 @@
   google.maps.Marker.prototype.toWpt = function(i) {
     this.dummy = "dummy"
     this.wt_arrayname = "wpts"
-    this.wt_gpxelt = "wpt"
+    this.wt_gpxelt = function(asroute) { return "wpt" }
     this.wt_relocate = google.maps.Marker.prototype.Wpt_relocate
     this.wt_showInfo = google.maps.Marker.prototype.Wpt_showInfo
     this.wt_alt = google.maps.Marker.prototype.Wpt_alt
@@ -933,8 +937,8 @@
     this.wt_updateTitle();
   }
 
-  google.maps.Marker.prototype.wt_toGPX = function(savealt, savetime) {
-    var gpx = "<" + this.wt_gpxelt + " ";
+  google.maps.Marker.prototype.wt_toGPX = function(savealt, savetime, asroute) {
+    var gpx = "<" + this.wt_gpxelt(asroute) + " ";
     gpx += "lat=\"" + this.getPosition().lat() + "\" lon=\"" + this.getPosition().lng() + "\">";
     if (this.wt_name) {
       gpx += "<name>" + htmlEncode(this.wt_name, false, 0)  + "</name>";
@@ -947,7 +951,7 @@
     if (savetime && (this.wt_mantime != undefined)) {
       gpx += "<time>" + showDateTime(this.wt_mantime) + "</time>";
     }
-    gpx += "</" + this.wt_gpxelt + ">\n";
+    gpx += "</" + this.wt_gpxelt(asroute) + ">\n";
     return gpx;
   }
 
@@ -1199,7 +1203,7 @@
 
   google.maps.Marker.prototype.toTrkpt = function(i) {
     this.wt_arrayname = "trkpts"
-    this.wt_gpxelt = "trkpt"
+    this.wt_gpxelt = function(asroute) { return asroute ? "rtept" : "trkpt" }
     this.wt_relocate = google.maps.Marker.prototype.Trkpt_relocate
     this.wt_showInfo = google.maps.Marker.prototype.Trkpt_showInfo
     this.wt_alt = google.maps.Marker.prototype.Trkpt_alt
@@ -1412,7 +1416,7 @@
   }
 
 
-  function wt_toGPX(savealt, savetime) {
+  function wt_toGPX(savealt, savetime, asroute) {
     var gpx = '<\?xml version="1.0" encoding="ISO-8859-1" standalone="no" \?>\n';
     gpx += '<gpx creator="WTracks" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" version="1.1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">\n';
     gpx += "<metadata>\n"
@@ -1436,16 +1440,24 @@
 
     var i = 0;
     while (i < wpts.length) {
-      gpx += "  " + wpts[i].wt_toGPX(savealt, savetime);
+      gpx += "  " + wpts[i].wt_toGPX(savealt, savetime, asroute);
       i++;
     }
-    gpx += "<trk><name>the track</name><trkseg>\n";
+    if (asroute) {
+      gpx += "<rte><name>the track</name>\n";
+    } else {
+      gpx += "<trk><name>the track</name><trkseg>\n";
+    }
     i = 0;
     while (i < trkpts.length) {
-      gpx += "  " + trkpts[i].wt_toGPX(savealt, savetime);
+      gpx += "  " + trkpts[i].wt_toGPX(savealt, savetime, asroute);
       i++;
     }
-    gpx += "</trkseg></trk></gpx>\n";
+    if (asroute) {
+      gpx += "</rte></gpx>\n";
+    } else {
+      gpx += "</trkseg></trk></gpx>\n";
+    }
     return gpx;
   }
 
@@ -1575,7 +1587,14 @@
         }
         var bounds = gpx.getElementsByTagName("bounds");
         var pts = gpx.getElementsByTagName("trkpt");
-        if (pts) wt_importPoints(pts, true);
+        if (pts && pts.length > 0) {
+	  // there are track points
+          wt_importPoints(pts, true);
+	} else {
+	  // no track point, look for route points
+          pts = gpx.getElementsByTagName("rtept");
+          if (pts) wt_importPoints(pts, true);
+        }
         pts = gpx.getElementsByTagName("wpt");
         if (pts) wt_importPoints(pts, false);
         var center = new google.maps.LatLng(0,0)
@@ -1913,7 +1932,8 @@ if (file_name != null) {
     document.getElementById("savedname").value = trackname
     var savealt = document.getElementById("savealt").checked
     var savetime = document.getElementById("savetime").checked
-    document.getElementById("gpxarea").value = wt_toGPX(savealt, savetime)
+    var asroute = document.getElementById("asroute").checked
+    document.getElementById("gpxarea").value = wt_toGPX(savealt, savetime, asroute)
   }
 
   function clickOnEnter(e,toClick) {
