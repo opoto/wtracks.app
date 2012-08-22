@@ -363,6 +363,14 @@
             overwriting any existing altitude you may have entered.
           </td>
         </tr>
+        <tr>
+          <td>
+            <input type="submit" value="Revert"  onclick="wt_revert()" />
+          </td><td>
+            Reverts the track: the start becomes the end,<br>
+            and the end becomes the start.
+          </td>
+        </tr>
       </table>
     </div>
 
@@ -1346,6 +1354,32 @@
       wt_showInfo(undefined, false)
     }
     close_popup('tools-box')
+  }
+
+  /**
+   * invert track points order
+   */
+  function wt_revert() {
+    try {
+
+      closeInfoWindow()
+
+      var midlen = trkpts.length / 2
+      for (var i = 0; i < midlen; i++) {
+        var tmppt = trkpts[i]
+        trkpts[i] = trkpts[trkpts.length - i -1]
+        trkpts[i].wt_i = i
+        trkpts[trkpts.length - i -1] = tmppt
+        trkpts[trkpts.length - i -1].wt_i = trkpts.length - i -1
+      }
+
+      // redraw
+      wt_drawPolyline()
+      wt_updateInfoFrom(trkpts[0])
+      wt_showInfo(undefined, false)
+
+      close_popup('tools-box')
+    } catch (e) { alert(e) }
   }
 
   function wt_updateAltBounds(pt) {
