@@ -2,7 +2,7 @@
 
   GPX getTrack(PersistenceManager pm, String name, String oid) {
     String query = "select from " + GPX.class.getName() + " where name=='" + name.replaceAll("'", "\\\\'") + "' && owner=='" + oid + "'";
-    System.out.println("get query: " + query);
+    //System.out.println("get query: " + query);
     List<GPX> tracks = (List<GPX>) pm.newQuery(query).execute();
     if (tracks.isEmpty()) {
       return null;
@@ -18,7 +18,7 @@
     } else {
       query += " where owner=='" + oid + "'"; //  order by saveDate desc
     }
-    System.out.println("list query: " + query);
+    //System.out.println("list query: " + query);
     List<GPX> tracks = (List<GPX>) pm.newQuery(query).execute();
     for (GPX track : tracks) {
       if (isUserOwner || (track.getSharedMode() == GPX.SHARED_PUBLIC)) {
@@ -46,12 +46,12 @@
   String name = request.getParameter("name");
   String delete = request.getParameter("delete");
   boolean isUserOwner = isUser(session, oid);
-
+/*
   System.out.println("oid: " + oid);
   System.out.println("Logged OpenID: " + getUserID(session));
   System.out.println("name: " + name);
   System.out.println("delete: " + delete);
-  
+*/
   if (delete != null) {
 
     // check oid presence
