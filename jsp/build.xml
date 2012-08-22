@@ -13,6 +13,13 @@ To use this script, you should create a "ant.properties" file in current directo
          uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
   <property name="ivy.lib.dir" value="war/WEB-INF/lib" />
 
+  <condition property="proxy.enabled">
+    <and>
+      <isset property="proxy.host"/>
+      <isreachable host="${proxy.host}"/>
+    </and>
+  </condition>
+
   <import file="${sdk.dir}/config/user/ant-macros.xml" />
 
   <path id="project.classpath">
@@ -32,7 +39,13 @@ To use this script, you should create a "ant.properties" file in current directo
     <symlink link="war/tracks" resource="../../common/tracks" failonerror="false" />
     <symlink link="war/html" resource="../../common/html" failonerror="false" />
   </target>
-  
+
+  <target name="proxy" if="proxy.enabled">
+    <echo>setting proxy ${proxy.user}:${proxy.password}@${proxy.host}:${proxy.port}</echo>
+    <setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}"
+      proxyuser="${proxy.user}" proxypassword="${proxy.password}"/>
+  </target>
+
   <target name="copyjars" depends="createlinks"
       description="Copies requires JARS (App Engine JARs and others) to the WAR.">
     <copy
@@ -57,7 +70,7 @@ To use this script, you should create a "ant.properties" file in current directo
         srcdir="src"
         destdir="war/WEB-INF/classes"
         classpathref="project.classpath"
-        debug="on" />
+        debug="on" includeantruntime="false" />
   </target>
 
   <target name="datanucleusenhance" depends="compile"
@@ -70,7 +83,7 @@ To use this script, you should create a "ant.properties" file in current directo
     <dev_appserver war="war" />
   </target>
 
-  <target name="update" depends="datanucleusenhance"
+  <target name="update" depends="datanucleusenhance, proxy"
       description="Uploads the application to App Engine.">
     <appcfg action="update" war="war">
       <options>
@@ -79,7 +92,7 @@ To use this script, you should create a "ant.properties" file in current directo
     </appcfg>
   </target>
 
-  <target name="update_indexes" depends="datanucleusenhance"
+  <target name="update_indexes" depends="datanucleusenhance, proxy"
       description="Uploads just the datastore index configuration to App Engine.">
     <appcfg action="update_indexes" war="war">
       <options>
@@ -88,7 +101,7 @@ To use this script, you should create a "ant.properties" file in current directo
     </appcfg>
   </target>
 
-  <target name="rollback" depends="datanucleusenhance"
+  <target name="rollback" depends="datanucleusenhance, proxy"
       description="Rolls back an interrupted application update.">
     <appcfg action="rollback" war="war" >
       <options>
@@ -97,7 +110,7 @@ To use this script, you should create a "ant.properties" file in current directo
     </appcfg>
   </target>
 
-  <target name="request_logs"
+  <target name="request_logs, proxy"
       description="Downloads log data from App Engine for the application.">
     <appcfg action="request_logs" email="${email}" war="war">
       <options>
