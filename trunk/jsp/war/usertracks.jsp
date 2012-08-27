@@ -10,7 +10,7 @@
     return tracks.get(0); // only one should exist
   }
 
-  void listTracks(PersistenceManager pm, JspWriter out, String oid, boolean isUserOwner) throws IOException {
+  void listTracks(PersistenceManager pm, JspWriter out, String oid, boolean isUserOwner, String hostURL) throws IOException {
     String query = "select from " + GPX.class.getName(); //  order by saveDate desc
     boolean publicList = oid.equals("*");
     if (publicList) {
@@ -25,10 +25,11 @@
         //out.println("<option value='" + track.getName() + "'>" + track.getName() + "</option>");
         String name = track.getName();
         String linktxt = name.length() > 50 ? name.substring(0,47) + "..." : name;
-	if (!publicList) {
-	  out.println("<a href='#' onclick='delete_track(\"" + URLEncoder.encode(name) + "\")' title='Delete this track'><img src='img/delete.gif' title='Delete this track' alt='delete' style='border:0px'></a>&nbsp;");
-	}
-        out.print("<a href='.?name=" + URLEncoder.encode(name) + "&oid=" + URLEncoder.encode(track.getOwner()) + "' ");
+        if (!publicList) {
+          out.println("<a href='#' onclick='delete_track(\"" + URLEncoder.encode(name) + "\")' title='Delete this track'><img src='img/delete.gif' title='Delete this track' alt='delete' style='border:0px'></a>&nbsp;");
+        }
+        String qparam = "?name=" + URLEncoder.encode(name) + "&oid=" + URLEncoder.encode(track.getOwner());
+        out.print("<a href='." + qparam + "' ");
         out.print(" onclick='wt_loadUserGPX(\"" + URLEncoder.encode(name) + "\", \"" + URLEncoder.encode(track.getOwner()) + "\"); return false; ' >");
         out.println(linktxt + "</a>");
         if (track.getSharedMode() == GPX.SHARED_PUBLIC) {
@@ -36,6 +37,7 @@
         } else if (track.getSharedMode() == GPX.SHARED_LINK) {
           out.println("<img src='img/link.png' title='Shareable - you can share this link' alt='shareable' style='border:0px'>");
         }
+        out.println("<a target='_blank' href='http://chart.apis.google.com/chart?cht=qr&chs=400x400&chld=L&choe=UTF-8&chl="+URLEncoder.encode(hostURL + qparam)+"'><img src='img/qrcode.png' title='Show QRCode' alt='QRCode' style='border:0px'></a>");
         out.println("<br>");
       }
     }
@@ -45,6 +47,7 @@
   String oid = request.getParameter("oid");
   String name = request.getParameter("name");
   String delete = request.getParameter("delete");
+  String hostURL = "http://" + request.getServerName() + "/";
   boolean isUserOwner = isUser(session, oid);
 /*
   System.out.println("oid: " + oid);
@@ -76,13 +79,13 @@
 
     pm.deletePersistent(track);
 
-    listTracks(pm, out, oid, isUserOwner);
+    listTracks(pm, out, oid, isUserOwner, hostURL);
 
 } else if ((oid != null) && (name == null)) {
 
     // list
     PersistenceManager pm = PMF.get().getPersistenceManager();
-    listTracks(pm, out, oid, isUserOwner);
+    listTracks(pm, out, oid, isUserOwner, hostURL);
     
 } else if ((name != null) && (oid != null)) {
 
