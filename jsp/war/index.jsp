@@ -1477,10 +1477,11 @@
       gpx += "  " + wpts[i].wt_toGPX(savealt, savetime, asroute);
       i++;
     }
+    var xmlname = "<name>" + trackname + "</name>"
     if (asroute) {
-      gpx += "<rte><name>the track</name>\n";
+      gpx += "<rte>" + xmlname + "\n";
     } else {
-      gpx += "<trk><name>the track</name><trkseg>\n";
+      gpx += "<trk>" + xmlname + "<trkseg>\n";
     }
     i = 0;
     while (i < trkpts.length) {
