@@ -1760,6 +1760,9 @@
   }
 
   function wt_load() {
+	// google refesh 2013: https://developers.google.com/maps/documentation/javascript/basics?utm_source=welovemapsdevelopers&utm_campaign=blog-visualrefresh#EnableVisualRefresh 
+	google.maps.visualRefresh = true;
+
     info = new DocElement("message");
     debug = new DocElement("debug");
 
