@@ -11,7 +11,7 @@
       URL oid = new URL("https://rpxnow.com/api/v2/auth_info?token=" + token + "&apiKey=" + apiKey);
       BufferedReader in = new BufferedReader(
                                 new InputStreamReader(
-                                oid.openStream()));
+                                oid.openStream(), "UTF-8"));
       String inputLine;
       while ((inputLine = in.readLine()) != null) {
         res.append(inputLine);
