@@ -1,8 +1,22 @@
 <!-- file upload imports -->
 <%@ page import="org.apache.commons.fileupload.*, org.apache.commons.fileupload.servlet.ServletFileUpload, org.apache.commons.fileupload.disk.DiskFileItemFactory, java.util.*, java.io.*, java.lang.Exception" %>
 <%
+  // compute application url
   String host = request.getServerName();
-  String rpxgoto = "goto=" + java.net.URLEncoder.encode(request.getRequestURI());
+  int port = request.getServerPort();
+  String scheme = request.getScheme();
+  boolean isDefaultPort = (request.isSecure() && (port == 443)) || (port == 80);
+  String appUrl = scheme + "://" + host;
+  if (!isDefaultPort) {
+    appUrl += (":" + port);
+  }
+  String ctxPath = request.getContextPath();
+  if (ctxPath.length() == 0) {
+    ctxPath = "/";
+  }
+  appUrl += ctxPath;
+
+  String rpxgoto = "goto=" + java.net.URLEncoder.encode(ctxPath);
   String rpxnow_token_url = "/login.jsp?" + rpxgoto;
   boolean debugging = (request.getParameter("debug") != null);
 
@@ -61,7 +75,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <META name="keywords"
           content="GoogleMaps, Map, GPX, track, editor, online, GPS, upload, save, DHTML">
-    <title>WTracks <%=host%>- Online GPX track editor</title>
+    <title>WTracks - Online GPX track editor</title>
     <link rel="shortcut icon" href="img/favicon.ico" />
     <style type="text/css">
     v\:* {
@@ -500,6 +514,8 @@
 
     <script type="text/javascript">
     //<![CDATA[
+
+  var isMobile = (/iphone|ipod|android|blackberry|mini|windows\sce|palm/i.test(navigator.userAgent.toLowerCase()));
 
   var speed_profiles = [];
 
@@ -1457,7 +1473,7 @@
     gpx += "  <name>" + trackname + "</name>\n"
     gpx += "  <desc></desc>\n"
     gpx += "  <author><name>" + WTRACKS + "</name></author>\n"
-    gpx += '  <link href="http://<%=host%>">\n'
+    gpx += '  <link href="<%=appUrl%>">\n'
     gpx += "    <text>WTracks</text>\n"
     gpx += "    <type>text/html</type>\n"
     gpx += "  </link>\n"
@@ -1772,7 +1788,7 @@
       center: new google.maps.LatLng(0,0),
       mapTypeId: google.maps.MapTypeId.HYBRID,
       scrollwheel: true,
-      disableDoubleClickZoom:false
+      disableDoubleClickZoom: !isMobile // we suppose mobile=>touch, hence pinch and zoom instead, dblclick is then used to add points
     }
     map = new google.maps.Map(mapDiv, mapOptions);
     //cluster = new MarkerClusterer(map, [], {maxZoom:13, zoomOnClick: false});
@@ -1821,12 +1837,13 @@
     // click events
 
     // right click: create track point
-    google.maps.event.addListener(map, "rightclick", function(event) {
+    var addPointHandler = function(event) {
       var pt = new_Trkpt(event.latLng, undefined, undefined, true);
       wt_drawPolyline();
       wt_showInfo(undefined, false);
-    });
-    
+    }
+    google.maps.event.addListener(map, isMobile ? "dblclick" : "rightclick", addPointHandler);
+
     // left click: close info window
     google.maps.event.addListener(map, "click", function(event) {
       closeInfoWindow()
@@ -2084,7 +2101,7 @@ if (file_name != null) {
 <script src="https://rpxnow.com/openid/v2/widget"
         type="text/javascript"></script>
 <script type="text/javascript">
-  RPXNOW.token_url = "http://<%= host + rpxnow_token_url %>";
+  RPXNOW.token_url = "<%= appUrl + rpxnow_token_url %>";
   RPXNOW.realm = "<%=rpxnow_realm%>";
   RPXNOW.overlay = true;
   RPXNOW.language_preference = 'en';
