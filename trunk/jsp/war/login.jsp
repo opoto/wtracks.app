@@ -33,8 +33,8 @@
 
   String openID = getUserID(session);
 
-  System.out.println("token: " + token);
-  System.out.println("openID: " + openID);
+  //System.out.println("token: " + token);
+  //System.out.println("openID: " + openID);
 
   if ("logout".equals(action)) {
     clearUserID(session);
