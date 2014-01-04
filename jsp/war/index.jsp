@@ -1788,7 +1788,7 @@
       center: new google.maps.LatLng(0,0),
       mapTypeId: google.maps.MapTypeId.HYBRID,
       scrollwheel: true,
-      disableDoubleClickZoom: !isMobile // we suppose mobile=>touch, hence pinch and zoom instead, dblclick is then used to add points
+      disableDoubleClickZoom: isMobile // we suppose mobile=>touch, hence pinch and zoom instead, dblclick is then used to add points
     }
     map = new google.maps.Map(mapDiv, mapOptions);
     //cluster = new MarkerClusterer(map, [], {maxZoom:13, zoomOnClick: false});
