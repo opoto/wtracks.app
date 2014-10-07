@@ -153,7 +153,7 @@
   </style>
 
     <!-- Google API license key -->
-    <script src="http://maps.google.com/maps/api/js?libraries=geometry&sensor=true&key=<%=gmaps_key%>" type="text/javascript"></script>
+    <script src="http://maps.google.com/maps/api/js?v=3&libraries=geometry" type="text/javascript"></script>
 
   </head>
   <body onload="wt_load()">
