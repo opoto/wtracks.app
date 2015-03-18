@@ -1,0 +1,9 @@
+
+jsp/war/WEB-INF/classes
+jsp/war/WEB-INF/lib
+jsp/ant.properties
+jsp/war/WEB-INF/appengine*
+jsp/war/html
+jsp/war/img
+jsp/war/js
+jsp/war/tracks
