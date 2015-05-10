@@ -1571,7 +1571,7 @@
   function wt_loadGPX(filename, link) {
     close_popup('load-box');
     //info.set("loading " + filename + "...<br>");
-    info.set("<img src='img/processing.gif'> Loading " + filename + "...");
+    info.set("<img src='img/processing.gif'> Loading...");
     downloadUrl("httpget_proxy.jsp?" + filename, function(data, responseCode) {
       if (wt_importGPX(data) && link) {
         addTrackLink(filename);
@@ -1865,7 +1865,7 @@
     
 <%
 if (file_name != null) {
-    out.println("info.set('Uploaded " + file_name + "<br>')");
+    out.println("info.set('Uploaded file<br>')");
 %>
     wt_importGPX(document.getElementById('gpxarea').value, false);
 <%
