@@ -13,8 +13,18 @@
       }
       byte[] buf = new byte[32 * 1024]; // 32k buffer
       int nRead = 0;
+      boolean bof = true; // beginning of file
       while( (nRead=is.read(buf)) != -1 ) {
-          o.write(new String(buf, 0, nRead));
+          int pos = 0; // by default copy from start of buf
+          if (bof) {
+            bof = false;
+            if ((buf[0] == (byte)0xEF) && (buf[1] == (byte)0xBB)) {
+              // this is UTF8 BOM header, skip it
+              pos = 3;
+            }
+          }
+          //System.out.println("writing from " + pos + " to " + (nRead - pos));
+          o.write(new String(buf, pos, nRead - pos));
       }
     } catch (Exception e) {
       System.err.println("ERROR in includeFile: " + e);

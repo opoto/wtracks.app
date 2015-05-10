@@ -52,10 +52,20 @@
             InputStream in = fileItem.openStream();
             file = new StringBuilder();
             int len;
+            boolean bof = true; // beginning of file
             byte[] buffer = new byte[8192];
             while ((len = in.read(buffer, 0, buffer.length)) != -1) {
-              //System.out.println("got " + len + " bytes");
-              String tmp = new String(buffer, 0, len);
+              int pos = 0; // by default copy from start of buffer
+              if (bof) {
+                bof = false;
+                if ((buffer[0] == (byte)0xEF) && (buffer[1] == (byte)0xBB)) {
+                  // this is UTF8 BOM header, skip it
+                  pos = 3;
+                }
+              }
+
+              //System.out.println("got " + (len - pos) + " bytes from " + pos);
+              String tmp = new String(buffer, pos, len - pos);
               file.append(tmp);
             }
           //file = fileItem.getString();
@@ -1561,7 +1571,7 @@
   function wt_loadGPX(filename, link) {
     close_popup('load-box');
     //info.set("loading " + filename + "...<br>");
-    info.set("<img src='img/processing.gif'> Loading...");
+    info.set("<img src='img/processing.gif'> Loading " + filename + "...");
     downloadUrl("httpget_proxy.jsp?" + filename, function(data, responseCode) {
       if (wt_importGPX(data) && link) {
         addTrackLink(filename);
