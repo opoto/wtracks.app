@@ -1,12 +1,12 @@
 <%@ page import="javax.servlet.http.HttpSession" %><%!
   String getUserID(HttpSession session) {
-    return (String)session.getAttribute("LoginOpenID");
+    return (String)session.getAttribute("LoginUserID");
   }
   void setUserID(HttpSession session, String id) {
-    session.setAttribute("LoginOpenID", id);
+    session.setAttribute("LoginUserID", id);
   }
   void clearUserID(HttpSession session) {
-    session.removeAttribute("LoginOpenID");
+    session.removeAttribute("LoginUserID");
   }
   boolean isUser(HttpSession session, String identifier) {
     String currentUser = getUserID(session);

@@ -27,7 +27,7 @@
   boolean showlabels = !("false".equals(request.getParameter("labels")));
   boolean showalts = ("true".equals(request.getParameter("alts")));
 
-  String openID = null;
+  String userID = null;
 
   // The following config file should set gmaps_key, ganalytics_key, rpxnow_realm and rpxnow_key
 %>
@@ -165,6 +165,37 @@
     <!-- Google API license key -->
     <script src="http://maps.google.com/maps/api/js?v=3&libraries=geometry" type="text/javascript"></script>
 
+    <!-- Janrain RPX widget -->
+    <script type="text/javascript">
+    (function() {
+        if (typeof window.janrain !== 'object') window.janrain = {};
+        if (typeof window.janrain.settings !== 'object') window.janrain.settings = {};
+    
+        janrain.settings.tokenUrl = "<%=appUrl + rpxnow_token_url%>";
+
+        function isReady() { janrain.ready = true; };
+        if (document.addEventListener) {
+          document.addEventListener("DOMContentLoaded", isReady, false);
+        } else {
+          window.attachEvent('onload', isReady);
+        }
+
+        var e = document.createElement('script');
+        e.type = 'text/javascript';
+        e.id = 'janrainAuthWidget';
+
+        if (document.location.protocol === 'https:') {
+          e.src = 'https://rpxnow.com/js/lib/wtracks/engage.js';
+        } else {
+          e.src = 'http://widget-cdn.rpxnow.com/js/lib/wtracks/engage.js';
+        }
+
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(e, s);
+    })();
+    </script>
+    <!-- end rpx -->
+
   </head>
   <body onload="wt_load()">
 
@@ -185,17 +216,14 @@
       <span id="message"><img src='img/processing.gif'> Initializing...</span>
       </td><td style="text-align:right" width="33%">
 
-      <!-- OpenID login (rpxnow) -->
+      <!-- login (rpxnow) -->
       <%
-        openID = getUserID(session);
+        userID = getUserID(session);
 
-        if ((openID == null) || (openID.length() == 0)) {
-          openID = null;
+        if ((userID == null) || (userID.length() == 0)) {
+          userID = null;
       %>
-      <a class="rpxnow" onclick="return false;"
-        href="https://<%=rpxnow_realm%>.rpxnow.com/openid/v2/signin?token_url=<%=rpxnow_token_url%>">
-        <img src="http://wiki.openid.net/f/openid-16x16.gif" alt="" border="0"> Sign In
-      </a>
+      <a class="janrainEngage" href="#">Sign-In</a>
       <script type='text/javascript'>
         var oid = ''
       </script>
@@ -203,9 +231,9 @@
         } else {
       %>
       <script type='text/javascript'>
-        var openID = <%= openID %>;
-        var name = openID.profile.displayName;
-        var oid = openID.profile.identifier;
+        var userID = <%= userID %>;
+        var name = userID.profile.displayName;
+        var oid = userID.profile.identifier;
         if (name == '') {
           name = oid.replace('http://', '');
         }
@@ -215,7 +243,7 @@
       <%
         }
       %>
-      <!-- OpenID login (rpxnow) -->
+      <!-- login (rpxnow) -->
 
       </td></tr></table>
 
@@ -431,7 +459,7 @@
           <td style="vertical-align:top;">
             <select id="load_list" size="1" onChange="load_tracks('')">
 <%
-  if (openID != null) {
+  if (userID != null) {
 %>
               <option selected>Your saved track:</option>
               <option>Public tracks:</option>
@@ -479,7 +507,7 @@
               <input type='hidden' id='savedname' name='savedname' value='' />
               <input type="submit" id="savebutton" name="action" value="Save" />
 <%
-  if (openID != null) {
+  if (userID != null) {
 %>
 <script type="text/javascript">
               document.write("<input type='hidden' name='oid' value='" + oid + "' />");
@@ -1579,11 +1607,11 @@
     });
   }
 
-  function wt_loadUserGPX(filename, useroid) {
+  function wt_loadUserGPX(filename, oid) {
     close_popup('load-box');
     //info.set("loading " + filename + "...<br>");
     info.set("<img src='img/processing.gif'> Loading...");
-    downloadUrl("usertracks.jsp?oid=" + useroid + "&name=" + filename, function(data, responseCode) {
+    downloadUrl("usertracks.jsp?oid=" + oid + "&name=" + filename, function(data, responseCode) {
       wt_importGPX(data);
     });
   }
@@ -1872,11 +1900,11 @@ if (file_name != null) {
 } else {
 %>
 
-    var useroid="<%= ((request.getParameter("oid") == null) ? "" : request.getParameter("oid")) %>";
+    var userid="<%= ((request.getParameter("oid") == null) ? "" : request.getParameter("oid")) %>";
     var usertrack="<%= ((request.getParameter("name") == null) ? "" : request.getParameter("name")) %>";
     var gpxLink = false;
-    if ((useroid.length>1) && (usertrack.length>1)) {
-      wt_loadUserGPX(escape(usertrack), escape(useroid));
+    if ((userid.length>1) && (usertrack.length>1)) {
+      wt_loadUserGPX(escape(usertrack), escape(userid));
     } else {
       var gpxurl="<%= ((request.getParameter("gpx") == null) ? "" : request.getParameter("gpx")) %>";
       if (gpxurl.length>1) {
@@ -2106,17 +2134,6 @@ if (file_name != null) {
    <script src="js/lokris.js" type="text/javascript"></script>
    <script src="js/markerwithlabel.js" type="text/javascript"></script>
    <!-- script src="js/markerclusterer.js" type="text/javascript"></script -->
-
-  <!-- RPXNOW -->
-<script src="https://rpxnow.com/openid/v2/widget"
-        type="text/javascript"></script>
-<script type="text/javascript">
-  RPXNOW.token_url = "<%= appUrl + rpxnow_token_url %>";
-  RPXNOW.realm = "<%=rpxnow_realm%>";
-  RPXNOW.overlay = true;
-  RPXNOW.language_preference = 'en';
-</script>
-  <!-- END OF RPXNOW -->
 
 </html>
 

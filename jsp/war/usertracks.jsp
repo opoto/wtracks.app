@@ -51,7 +51,7 @@
   boolean isUserOwner = isUser(session, oid);
 /*
   System.out.println("oid: " + oid);
-  System.out.println("Logged OpenID: " + getUserID(session));
+  System.out.println("Logged UserID: " + getUserID(session));
   System.out.println("name: " + name);
   System.out.println("delete: " + delete);
 */
