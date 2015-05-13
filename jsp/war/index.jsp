@@ -20,9 +20,6 @@
   String rpxnow_token_url = "/login.jsp?" + rpxgoto;
   boolean debugging = (request.getParameter("debug") != null);
 
-  StringBuilder file = null; // uploaded file content
-  String file_name = null; // uploaded file name
-
   boolean showmarkers = !("false".equals(request.getParameter("marks")));
   boolean showlabels = !("false".equals(request.getParameter("labels")));
   boolean showalts = ("true".equals(request.getParameter("alts")));
@@ -33,8 +30,12 @@
 %>
 <%@ include file="config.jsp" %>
 <%@ include file="userid.jsp" %>
+<%@ include file="includeFile.jsp" %>
 
 <%
+  StringBuffer file = null; // uploaded file content
+  String file_name = null; // uploaded file name
+
   // File Upload detection
   if (ServletFileUpload.isMultipartContent(request)){
     ServletFileUpload servletFileUpload = new ServletFileUpload(new DiskFileItemFactory());
@@ -42,6 +43,7 @@
 
     String optionalFileName = "";
     FileItemStream fileItem = null;
+    InputStream in = null;
 
     try {
       while (it.hasNext()){
@@ -49,27 +51,11 @@
           if (!fileItem.isFormField()) {
             file_name = fileItem.getName();
             //System.out.println("reading file: " + file_name);
-            InputStream in = fileItem.openStream();
-            file = new StringBuilder();
-            int len;
-            boolean bof = true; // beginning of file
-            byte[] buffer = new byte[8192];
-            while ((len = in.read(buffer, 0, buffer.length)) != -1) {
-              int pos = 0; // by default copy from start of buffer
-              if (bof) {
-                bof = false;
-                if ((buffer[0] == (byte)0xEF) && (buffer[1] == (byte)0xBB)) {
-                  // this is UTF8 BOM header, skip it
-                  pos = 3;
-                }
-              }
-
-              //System.out.println("got " + (len - pos) + " bytes from " + pos);
-              String tmp = new String(buffer, pos, len - pos);
-              file.append(tmp);
-            }
-          //file = fileItem.getString();
-          break;
+            in = fileItem.openStream();
+            StringWriter tmpWriter = new StringWriter();
+            transferFile(in, tmpWriter);
+            file = tmpWriter.getBuffer();
+            break;
           }
       }
     } catch (Exception ex) {
