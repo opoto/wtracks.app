@@ -1,4 +1,4 @@
-<%@ page import="java.util.*, java.io.*, javax.servlet.jsp.JspWriter, java.net.URLEncoder, java.net.URLDecoder, java.lang.Exception, wtracks.GPX, wtracks.PMF, javax.jdo.PersistenceManager" %><%@ include file="userid.jsp" %><%!
+<%@ page import="java.util.*, java.io.*, javax.servlet.jsp.JspWriter, java.net.URLEncoder, java.net.URLDecoder, java.lang.Exception, wtracks.GPX, wtracks.PMF, javax.jdo.PersistenceManager, org.apache.commons.lang3.StringEscapeUtils" %><%@ include file="userid.jsp" %><%!
 
   GPX getTrack(PersistenceManager pm, String name, String oid) {
     String query = "select from " + GPX.class.getName() + " where name=='" + name.replaceAll("'", "\\\\'") + "' && owner=='" + oid + "'";
@@ -20,11 +20,19 @@
     }
     //System.out.println("list query: " + query);
     List<GPX> tracks = (List<GPX>) pm.newQuery(query).execute();
+    /* for debug
+    tracks = new ArrayList<GPX>();
+    tracks.add(new GPX("sample one", "toto", "pouet", GPX.SHARED_PUBLIC, new Date()));
+    tracks.add(new GPX("this is a test", "tutu", "pouet", GPX.SHARED_PUBLIC, new Date()));
+    tracks.add(new GPX("got it, ain't you?", "titi", "pouet", GPX.SHARED_PUBLIC, new Date()));
+    */
+    out.println("<input type='text' id='track-filter' size='60' onkeyup='return filterTracks(event, this.value)'><br>");
     for (GPX track : tracks) {
       if (isUserOwner || (track.getSharedMode() == GPX.SHARED_PUBLIC)) {
         //out.println("<option value='" + track.getName() + "'>" + track.getName() + "</option>");
         String name = track.getName();
         String linktxt = name.length() > 50 ? name.substring(0,47) + "..." : name;
+        out.println("<div class='atrackentry' name='" + StringEscapeUtils.escapeXml(name) + "'>");
         if (!publicList) {
           out.println("<a href='#' onclick='delete_track(\"" + URLEncoder.encode(name) + "\")' title='Delete this track'><img src='img/delete.gif' title='Delete this track' alt='delete' style='border:0px'></a>&nbsp;");
         }
@@ -38,7 +46,7 @@
           out.println("<img src='img/link.png' title='Shareable - you can share this link' alt='shareable' style='border:0px'>");
         }
         out.println("<a target='_blank' href='http://chart.apis.google.com/chart?cht=qr&chs=400x400&chld=L&choe=UTF-8&chl="+URLEncoder.encode(hostURL + qparam)+"'><img src='img/qrcode.png' title='Show QRCode' alt='QRCode' style='border:0px'></a>");
-        out.println("<br>");
+        out.println("</div>");
       }
     }
   }

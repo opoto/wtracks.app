@@ -2021,7 +2021,23 @@ if (file_name != null) {
       document.getElementById(toClick).click()
 	  return false
     }
-	return true
+	  return true
+  }
+
+  function filterTracks(e, filter) {
+    //console.log("filter: " + filter);
+    var entries = document.getElementsByClassName("atrackentry");
+    var re = new RegExp(filter);
+    for (var i = 0; i < entries.length; i++) {
+      var entry = entries[i];
+      var name = entry.getAttribute("name");
+      var display = "none";
+      if (re.test(name)) {
+        display = "block";
+      }
+      entry.setAttribute("style", "display:"+display)
+    }
+	  return true
   }
 
   function show_user_tracks(res) {
