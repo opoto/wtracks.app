@@ -20,12 +20,12 @@
     }
     //System.out.println("list query: " + query);
     List<GPX> tracks = (List<GPX>) pm.newQuery(query).execute();
-    /* for debug
+    /* for debug *
     tracks = new ArrayList<GPX>();
-    tracks.add(new GPX("sample one", "toto", "pouet", GPX.SHARED_PUBLIC, new Date()));
-    tracks.add(new GPX("this is a test", "tutu", "pouet", GPX.SHARED_PUBLIC, new Date()));
-    tracks.add(new GPX("got it, ain't you?", "titi", "pouet", GPX.SHARED_PUBLIC, new Date()));
-    */
+    tracks.add(new GPX("Sample one", "toto", "pouet", GPX.SHARED_PUBLIC, new Date()));
+    tracks.add(new GPX("This is a test", "tutu", "pouet", GPX.SHARED_PUBLIC, new Date()));
+    tracks.add(new GPX("Got it, ain't you?", "titi", "pouet", GPX.SHARED_PUBLIC, new Date()));
+    * */
     out.println("<input type='text' id='track-filter' size='60' onkeyup='return filterTracks(event, this.value)'><br>");
     for (GPX track : tracks) {
       if (isUserOwner || (track.getSharedMode() == GPX.SHARED_PUBLIC)) {

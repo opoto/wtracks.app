@@ -2027,12 +2027,12 @@ if (file_name != null) {
   function filterTracks(e, filter) {
     //console.log("filter: " + filter);
     var entries = document.getElementsByClassName("atrackentry");
-    var re = new RegExp(filter);
+    var re = new RegExp(filter.toLowerCase());
     for (var i = 0; i < entries.length; i++) {
       var entry = entries[i];
       var name = entry.getAttribute("name");
       var display = "none";
-      if (re.test(name)) {
+      if (re.test(name.toLowerCase())) {
         display = "block";
       }
       entry.setAttribute("style", "display:"+display)
