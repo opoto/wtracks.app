@@ -457,6 +457,7 @@
             </select> 
             
           </td><td>
+            <input type='text' id='track-filter' size='60' onkeyup='return filterTracks(event, this.value)'>
             <span style="width:500px; max-height:300px; overflow:auto; display:inline-block;" id="usertracks-span"><img src='img/processing.gif'></span>
           </td>
         </tr>
@@ -2042,10 +2043,13 @@ if (file_name != null) {
 
   function show_user_tracks(res) {
     document.getElementById("usertracks-span").innerHTML = res;
+    document.getElementById("track-filter").style.display = "block"
   }
 
   function load_tracks(params) {
     document.getElementById("usertracks-span").innerHTML = "<img src='img/processing.gif'>";
+    document.getElementById("track-filter").value = "";
+    document.getElementById("track-filter").style.display = "none"
     // "Your tracks" or "Public" ?
     var targetoid = (document.getElementById("load_list").selectedIndex==0) ? oid : "*"
     Lokris.AjaxCall("usertracks.jsp" + params, show_user_tracks,
