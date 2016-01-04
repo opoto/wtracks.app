@@ -23,6 +23,7 @@
   boolean showmarkers = !("false".equals(request.getParameter("marks")));
   boolean showlabels = !("false".equals(request.getParameter("labels")));
   boolean showalts = ("true".equals(request.getParameter("alts")));
+  boolean showstats = !("false".equals(request.getParameter("stats")));
 
   String userID = null;
 
@@ -90,9 +91,9 @@
     }
 
     .title {
-      text-align: center;
       font-size:12pt;
-      border: 1px solid black;
+      line-height: 2em;
+      margin-left: 10px;
     }
 
     .hidden {display: none}
@@ -102,8 +103,8 @@
       border: 1px solid black;
       padding: 10px;
       position: absolute;
-      left: 10px;
-      top: 75px;
+      left: 5px;
+      top: 40px;
       /*width: 500px;*/
       /*height: 250px;*/
       visibility: hidden;
@@ -118,6 +119,40 @@
       top: 75px;
       position: absolute;
       visibility: hidden;
+    }
+
+    #menu-list {
+      list-style-type: none;
+      padding:0;
+      min-width:150px;
+    }
+
+    #menu-list a {
+      width: 95%;
+      border-top: 1px solid grey;
+      border-left: 1px solid transparent;
+      border-right: 1px solid transparent;
+      border-bottom: 1px solid transparent;
+      display: block;
+      text-decoration: none;
+      padding: 5px;
+    }
+    #menu-list a:hover {
+      border: 1px solid black;
+      background: #BBB;
+      border-bottom-left-radius: 5px;
+    }
+
+    a {
+      color: #666;
+    }
+
+    a:VISITED {
+      color: #666;
+    }
+
+    #about div {
+      margin-top: 20px;
     }
 
     #map {
@@ -145,7 +180,38 @@
     #footer {
       height: auto;
       width: 100%;
+      display: <%= showstats ? "block" : "none" %>
     }
+
+    .share-on-link {
+      padding:5px 10px;
+      color:white
+    }
+    a.share-on-link {
+      text-decoration: none;
+    }
+    .share-on-link:hover,.share-on-link:active,a.share-on-link:visited {
+      color:white
+    }
+    .share-on-twitter {
+      background:#41B7D8
+    }
+    .share-on-twitter:hover,.share-on-twitter:active {
+      background:#279ebf
+    }
+    .share-on-facebook {
+      background:#3B5997
+    }
+    .share-on-facebook:hover,.share-on-facebook:active {
+      background:#2d4372
+    }
+    .share-on-googleplus {
+      background:#D64937
+    }
+    .share-on-googleplus:hover,.share-on-googleplus:active {
+      background:#b53525
+    }
+    
   </style>
 
     <!-- Google API license key -->
@@ -156,7 +222,7 @@
     (function() {
         if (typeof window.janrain !== 'object') window.janrain = {};
         if (typeof window.janrain.settings !== 'object') window.janrain.settings = {};
-    
+
         janrain.settings.tokenUrl = "<%=appUrl + rpxnow_token_url%>";
 
         function isReady() { janrain.ready = true; };
@@ -191,79 +257,48 @@
 
       <!-- =================== Top bar =================== -->
 
-      <table width="100%"><tr><td style="text-align:left" width="33%">
-      <strong>GPX track:</strong>
-      <a href="javascript:clear_track();">New</a>
-      | <a href="javascript:show_load_box()">Load</a>
-      | <a href="javascript:show_save_box()">Save</a>
-      | <a href="javascript:show_tools_box()">Tools</a>
 
-      </td><td style="text-align:center" width="33%">
-      <span id="message"><img src='img/processing.gif'> Initializing...</span>
-      </td><td style="text-align:right" width="33%">
+      <span id="message" style="display:none"><img src='img/processing.gif'> Initializing...</span>
 
-      <!-- login (rpxnow) -->
-      <%
-        userID = getUserID(session);
-
-        if ((userID == null) || (userID.length() == 0)) {
-          userID = null;
-      %>
-      <a class="janrainEngage" href="#">Sign-In</a>
-      <script type='text/javascript'>
-        var oid = ''
-      </script>
-      <%
-        } else {
-      %>
-      <script type='text/javascript'>
-        var userID = <%= userID %>;
-        var name = userID.profile.displayName;
-        var oid = userID.profile.identifier;
-        if (name == '') {
-          name = oid.replace('http://', '');
-        }
-        document.write("<a href='" + oid + "'>" + name + "</a>");
-      </script>
-      | <a href='login.jsp?action=logout&<%=rpxgoto%>'>Logout</a><br>
-      <%
-        }
-      %>
-      <!-- login (rpxnow) -->
-
-      </td></tr></table>
 
       <!-- =================== end of Top bar =================== -->
 
-      <table width="100%">
+      <table width="100%" style="border-collapse: collapse">
         <tr>
-          <form action="#" onsubmit="wt_showAddress(this.address.value); return false">
           <th style="text-align:left;">
-            <strong>Go to:</strong>
-            <input type="text" size="20" name="address" value=""/>
-            <input type="submit" value="Go!"/>
+            <a onclick="toggle_menu(); return false;"><img src="img/menu-icon.png"/></a>
+            <span class="title" id="trktitle"></span>
           </th>
-          </form>
-          <th class="title" id="trktitle"></th>
-          <form onsubmit="return false">
           <th style="text-align:right">
-              Show: <img src="img/mm_20_red.png" alt="handles" title="handles"/>
-              <input type="checkbox" id="showmarkers"
-              <% if (showmarkers) out.print("checked"); %>
-              onclick="wt_showTrkMarkers(this.checked)" />
-              &nbsp;/&nbsp; Labels
-              <input type="checkbox" id="showlabels"
-              <% if (showlabels) out.print("checked"); %>
-              onclick="wt_showLabels(this.checked)" />
-              &nbsp;/&nbsp; Alts
-              <input type="checkbox" id="showalts"
-              <% if (showalts) out.print("checked"); %>
-              onclick="wt_showAlts(this.checked)" />
-              &nbsp;/&nbsp; <img src="img/icon13noshade.gif" alt="waypoints" title="waypoints"/>
-              <input type="checkbox" id="showwaypoints" checked
-              onclick="wt_showWaypoints(this.checked)" />
+            <!-- login (rpxnow) -->
+            <%
+              userID = getUserID(session);
+
+              if ((userID == null) || (userID.length() == 0)) {
+                userID = null;
+            %>
+            <a class="janrainEngage" href="#">Sign-In</a>
+            <script type='text/javascript'>
+              var oid = ''
+            </script>
+            <%
+              } else {
+            %>
+            <script type='text/javascript'>
+              var userID = <%= userID %>;
+              var name = userID.profile.displayName;
+              var oid = userID.profile.identifier;
+              if (name == '') {
+                name = oid.replace('http://', '');
+              }
+              document.write("<a href='" + oid + "'>" + name + "</a>");
+            </script>
+            | <a href='login.jsp?action=logout&<%=rpxgoto%>'>Logout</a><br>
+            <%
+              }
+            %>
+            <!-- login (rpxnow) -->
           </th>
-          </form>
         </tr>
       </table>
 
@@ -325,32 +360,6 @@
           </tr>
         </table>
 
-        <hr />
-
-        <script type="text/javascript">
-        function doEmail2(d, i, tail) {
-          location.href = "mailto:" + i + "@" + d + tail;
-        }
-        </script>
-
-        <table width="100%">
-          <tr style="font-size:small; font-family:sans-serif;" >
-            <td>
-              <a href="http://creativecommons.org/licenses/by/2.0/fr/deed.en_US"><img src="http://i.creativecommons.org/l/by/2.0/fr/80x15.png" border=0></a>
-              <a href="javascript:doEmail2('gmail.com','Olivier.Potonniee','?subject=WTracks')">Olivier Potonni&eacute;e</a>
-              - <a href="html/privacy.html">Privacy Policy</a>
-              - <a href="http://code.google.com/p/wtracks/">Contribute</a>
-              <span style="margin-left:20px">
-                NEW! Share:&nbsp;&nbsp;&nbsp; <%@ include file="share.jsp" %>
-              </span>
-            </td>
-            <!-- useful? -->
-            <td align="right" style="display:none;">
-            <i>URL syntax:</i> <%= "http" + (request.getServerPort() == 80 ? "": "s") + "://" + request.getServerName() + request.getRequestURI() %>[?gpx=&lt;gpx file url&gt;[&amp;marks=(true|false)][&amp;labels=(true|false)]
-            </td>
-          </tr>
-        </table>
-
       <!--/div-->   <!-- FOOTER -->
 
     </td></tr></table>
@@ -369,6 +378,97 @@
       </table>
     </div>
 
+    <div class="options-box" id="menu" onkeydown='check_for_escape(event, "menu")'>
+      <ul id="menu-list">
+        <li><a href="#" onclick="clear_track(); return false;">New</a></li>
+        <li><a href="#" onclick="show_load_box(); return false;">Load</a></li>
+        <li><a href="#" onclick="show_save_box(); return false;">Save</a></li>
+        <li><a href="#" onclick="show_view_box(); return false;">View</a></li>
+        <li><a href="#" onclick="show_tools_box(); return false;">Tools</a></li>
+        <li><a href="#" onclick="show_about_box(); return false;">About</a></li>
+      </ul>
+    </div>
+
+    <div class="options-box" id="about" onkeydown='check_for_escape(event, "about")'>
+      <div>
+        <a href="http://creativecommons.org/licenses/by/2.0/fr/deed.en_US"><img src="http://i.creativecommons.org/l/by/2.0/fr/80x15.png" border=0></a>
+        <a href="#" onclick="doEmail('gmail.com','Olivier.Potonniee','?subject=WTracks'); return false">Olivier Potonni&eacute;e</a>
+        - <a href="html/privacy.html">Privacy Policy</a>
+        - <a href="http://code.google.com/p/wtracks/">Contribute</a>
+      </div>
+      <div style="display:block;">
+        <!-- useful? -->
+        URL syntax:<br>
+        <%= "http" + (request.getServerPort() == 80 ? "": "s") + "://" + request.getServerName() + request.getContextPath() %>/[?gpx=&lt;gpx file url&gt;[&amp;marks=(true|false)][&amp;labels=(true|false)][&amp;alts=(true|false)][&amp;stats=(true|false)]
+      </div>
+      <div>
+        Share the word:&nbsp; <%@ include file="share.jsp" %>
+      </div>
+    </div>
+
+    <div class="options-box" id="view-box" onkeydown='check_for_escape(event, "tools-box")' style="z-index:10;">
+      <table>
+        <tr>
+          <th style="text-align:left">View</th>
+          <th><a href="javascript:close_popup('view-box')"><img src="img/close.gif" alt="Close" title="Close" style="border: 0px"/></a></th>
+        </tr>
+        <tr>
+          <form action="#" onsubmit="wt_showAddress(this.address.value); return false">
+            <td style="text-align:right">
+              <input type="submit" value="Go To Location:" />
+            </td><td>
+              <input type="text" size="60" name="address" value="" />
+            </td>
+          </form>
+        </tr>
+        <tr>
+          <td style="text-align:right">
+            <input type="checkbox" id="showmarkers"
+              <% if (showmarkers) out.print("checked"); %>
+              onclick="wt_showTrkMarkers(this.checked)" />
+          </td><td>
+            <img src="img/mm_20_red.png" alt="handles" title="handles"/>&nbsp; Show track markers
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align:right">
+            <input type="checkbox" id="showlabels"
+              <% if (showlabels) out.print("checked"); %>
+              onclick="wt_showLabels(this.checked)" />
+          </td><td>
+            Show Labels
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align:right">
+            <input type="checkbox" id="showalts"
+              <% if (showalts) out.print("checked"); %>
+              onclick="wt_showAlts(this.checked)" />
+          </td><td>
+            Show Altitudes
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align:right">
+            <input type="checkbox" id="showwaypoints" checked
+              onclick="wt_showWaypoints(this.checked)" />
+          </td><td>
+            <img src="img/icon13noshade.gif" alt="waypoints" title="waypoints"/>&nbsp;
+            Show Waypoints
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align:right">
+            <input type="checkbox" id="showstats"
+              <% if (showstats) out.print("checked"); %>
+              onclick="wt_showStats(this.checked)" />
+          </td><td>
+            Show track statistics
+          </td>
+        </tr>
+      </table>
+    </div>
+
     <div class="options-box" id="tools-box" onkeydown='check_for_escape(event, "tools-box")' style="z-index:10;">
       <table>
         <tr>
@@ -380,7 +480,7 @@
             <td>
               <input type="submit" value="Compact" />
             </td><td>
-              Delete as many track points as possible, keeping track within a 
+              Delete as many track points as possible, keeping track within a
               <input name="prunedist" type="text" size="3" value="10"/>
               meters wide band
             </td>
@@ -433,7 +533,7 @@
               <input name="gpxupload" type="submit" value="Load GPX from file:"
                      onclick="return wt_check_fileupload(document.getElementById('upform'));" />
             </td><td>
-              <input type="file" size="50" name="gpxfile" id="gpxfile" style="width:100%" 
+              <input type="file" size="50" name="gpxfile" id="gpxfile" style="width:100%"
                      onchange="if (wt_check_fileupload(document.getElementById('upform'))) this.form.submit()" />
               <input type="hidden" name="marks" value="" />
               <input type="hidden" name="labels" value="" />
@@ -454,8 +554,8 @@
               <option disabled>Sign in to have your own</option>
               <option selected>Public tracks:</option>
 <% } %>
-            </select> 
-            
+            </select>
+
           </td><td>
             <input type='text' id='track-filter' size='60' onkeyup='return filterTracks(event, this.value)'>
             <span style="width:500px; max-height:300px; overflow:auto; display:inline-block;" id="usertracks-span"><img src='img/processing.gif'></span>
@@ -681,26 +781,35 @@
     return strTime
   }
 
+  function isChecked(eltId) {
+    return document.getElementById(eltId).checked;
+  }
+
+  function setChecked(eltId, checked) {
+    var elt = document.getElementById(eltId);
+    var wereShown = elt.checked;
+    elt.checked = shown;
+    return wereShown;
+  }
+
   function areMarkersShown() {
-    return document.getElementById("showmarkers").checked;
+    return isChecked("showmarkers");
   }
 
   function setMarkersShown(shown) {
-    var wereShown = document.getElementById("showmarkers").checked
-    document.getElementById("showmarkers").checked = shown
-    return wereShown
+    return setChecked("showmarkers", shown);
   }
 
   function areWptsShown() {
-    return document.getElementById("showwaypoints").checked;
+    return isChecked("showwaypoints");
   }
 
   function areLabelsShown() {
-    return document.getElementById("showlabels").checked;
+    return isChecked("showlabels");
   }
 
   function areAltsShown() {
-    return document.getElementById("showalts").checked;
+    return isChecked("showalts");
   }
 
   function slope(dist, altdiff) {
@@ -778,7 +887,7 @@
 
   /**
    * Returns the closest distance (2D) of a point to a segment defined by 2 points
-   * 
+   *
    * Adapted from Paul Bourke http://local.wasp.uwa.edu.au/~pbourke/geometry/pointline/
    *
    * @param startLine  First point of the segment
@@ -808,7 +917,7 @@
 
     return this.distanceFrom(closestPoint);
   }
-        
+
   function openInfoWindow(pos, html) {
     closeInfoWindow();
     var infoOpts = {
@@ -826,7 +935,7 @@
       infoWindow = undefined;
     }
   }
-  
+
 /*------------ Wpt --------------*/
 
   function toPt(marker, i) {
@@ -883,7 +992,7 @@
        ptinfo += "<a href='javascript:wpts[" + this.wt_i + "].Wpt_delete();'>Delete</a> - ";
        ptinfo += "<a href='javascript:wpts[" + this.wt_i + "].Wpt_duplicate();'>Duplicate</a>";
        ptinfo += "</div>";
-       
+
        openInfoWindow(this.getPosition(), ptinfo)
     }
   }
@@ -1298,7 +1407,11 @@
   }
 
   /*------------ Global functions -----------*/
-  
+
+  function doEmail(d, i, tail) {
+    location.href = "mailto:" + i + "@" + d + tail;
+  }
+
   /**
    * Pruning function
    * It removes points located less then "prunedist" meters from the line between its adjacent points
@@ -1312,19 +1425,19 @@
         var mindeleted = initlen // mindeleted tracks the smallest deleted point index
         var newpoints = []
         var newtrkpts = []
-        
+
         // we always keep first point
         newtrkpts.push(trkpts[0])
         newpoints.push(points[0])
-        
+
         var ptmax = initlen - 1 // max trkpt index
         var ptlast = 0 // mast inserted trakpt index
-        
+
         for (var i = 1;  i < ptmax; i++) {
-          
+
           var prev = newtrkpts[newtrkpts.length -1].getPosition()
           var next = trkpts[i+1].getPosition()
-          
+
           for (var j = i; j > ptlast; j--) {
             var pt = trkpts[j].getPosition()
             var delta = pt.distanceFromLine(prev, next)
@@ -1344,12 +1457,12 @@
             mindeleted = Math.min(i, mindeleted)
           }
         }
-        
+
         // we always keep last point
         trkpts[initlen - 1].wt_i = newtrkpts.length
         newtrkpts.push(trkpts[trkpts.length - 1])
         newpoints.push(points[trkpts.length - 1])
-            
+
         if (mindeleted < initlen) { // we deleted something ?
           alert("Removed " + (initlen - newtrkpts.length) + " points out of " + initlen)
           // switch to new values
@@ -1385,7 +1498,7 @@
       while (i >= 0) {
         var ptpos = trkpts[i].getPosition()
         trkpts[i].Wpt_setAlt(false, getAltitude(ptpos.lat(), ptpos.lng()));
-        if (i==0) { 
+        if (i==0) {
           break; // done
         } else {
           i=Math.max(0, i-inc)
@@ -1582,7 +1695,7 @@
     setTrackName("New Track")
   }
 
- 
+
   function wt_loadGPX(filename, link) {
     close_popup('load-box');
     //info.set("loading " + filename + "...<br>");
@@ -1605,7 +1718,7 @@
 
   function wt_importPoints(xmlpts, is_trk) {
     if (is_trk && (xmlpts.length > 500)) {
-      alert("Tracks contains " + xmlpts.length + " points, they are hidden to avoid degrading performance.\nUse Tools/Compact to reduce number of points") 
+      alert("Tracks contains " + xmlpts.length + " points, they are hidden to avoid degrading performance.\nUse Tools/Compact to reduce number of points")
       setMarkersShown(false)
     }
     var point;
@@ -1791,6 +1904,17 @@
     */
   }
 
+  function wt_showStats(show) {
+    var footer = document.getElementById("footer");
+    footer.style.display = show ? "block" : "none";
+  }
+
+  function wt_toggleMenu() {
+    var menu = document.getElementById("menu");
+    var isHidden = menu.style.display == "none";
+    menu.style.display = isHidden ? "block" : "none";
+  }
+
   //----- Stop page scrolling if wheel over map ----
   function wheelevent(e)
   {
@@ -1801,7 +1925,7 @@
   }
 
   function wt_load() {
-	// google refesh 2013: https://developers.google.com/maps/documentation/javascript/basics?utm_source=welovemapsdevelopers&utm_campaign=blog-visualrefresh#EnableVisualRefresh 
+	// google refesh 2013: https://developers.google.com/maps/documentation/javascript/basics?utm_source=welovemapsdevelopers&utm_campaign=blog-visualrefresh#EnableVisualRefresh
 	google.maps.visualRefresh = true;
 
     info = new DocElement("message");
@@ -1872,12 +1996,9 @@
     // left click: close info window
     google.maps.event.addListener(map, "click", function(event) {
       closeInfoWindow()
-      close_popup("save-box");
-      close_popup("load-box");
-      close_popup("tools-box");
-      close_popup("graph-box")
+      close_current_popup();
     })
-    
+
 <%
 if (file_name != null) {
     out.println("info.set('Uploaded file<br>')");
@@ -1950,10 +2071,18 @@ if (file_name != null) {
     mapdiv.style.height = maphv + "px"
   }
 
+  var current_popup;
+
   function check_for_escape(e, sPopupID){
     //alert(String.fromCharCode(e.keyCode))
     if (e.keyCode==27) {
       close_popup(sPopupID);
+    }
+  }
+
+  function close_current_popup() {
+    if (current_popup) {
+      close_popup(current_popup);
     }
   }
 
@@ -1971,6 +2100,7 @@ if (file_name != null) {
     {
         document.all[sID].style.visibility = "hidden";
     }
+    current_popup = false;
   }
 
   function show_popup(sID) {
@@ -1987,27 +2117,41 @@ if (file_name != null) {
     {
         document.all[sID].style.visibility = "visible";
     }
+    current_popup = sID;
+  }
+
+  function toggle_menu(){
+    var shown = (current_popup == "menu");
+    close_current_popup();
+    if (!shown) show_popup("menu");
+  }
+
+
+  function show_about_box(){
+    close_current_popup();
+    show_popup("about");
+  }
+
+  function show_view_box(){
+    close_current_popup();
+    show_popup("view-box");
   }
 
   function show_tools_box(){
-    close_popup("load-box");
-    close_popup("graph-box");
-    close_popup("save-box");
+    close_current_popup();
     show_popup("tools-box");
   }
 
   function show_save_box(){
     document.getElementById("trackname").value = trackname
-    close_popup("load-box");
-    close_popup("tools-box");
-    close_popup("graph-box");
+    close_current_popup();
     show_popup("save-box");
     var obj = document.getElementById("trackname");
     obj.focus();
   }
 
   function wt_doSave() {
-    close_popup('save-box')
+    close_current_popup();
     setTrackName(htmlEncode(document.getElementById("trackname").value, false, 0))
     document.getElementById("savedname").value = trackname
     var savealt = document.getElementById("savealt").checked
@@ -2065,9 +2209,7 @@ if (file_name != null) {
 
   function show_load_box(){
     load_tracks("");
-    close_popup("save-box");
-    close_popup("graph-box");
-    close_popup("tools-box");
+    close_current_popup();
     show_popup("load-box");
     var obj = document.getElementById("gpxurl");
     obj.focus();
@@ -2077,6 +2219,7 @@ if (file_name != null) {
     wt_clear();
     wt_clear_trackinfo();
     info.set('');
+    close_popup("menu");
   }
 
   function wt_doGraph() {
@@ -2117,9 +2260,7 @@ if (file_name != null) {
     //var chart = new SweetCanvasRenderer(document.getElementById("graph"), layout);
     var chart = new PlotKit.SweetCanvasRenderer($("graph"), layout);
     chart.render();
-    close_popup("save-box");
-    close_popup("load-box");
-    close_popup("tools-box");
+    close_current_popup();
     show_popup("graph-box")
   }
 
