@@ -20,11 +20,6 @@
   String rpxnow_token_url = "/login.jsp?" + rpxgoto;
   boolean debugging = (request.getParameter("debug") != null);
 
-  boolean showmarkers = !("false".equals(request.getParameter("marks")));
-  boolean showlabels = !("false".equals(request.getParameter("labels")));
-  boolean showalts = ("true".equals(request.getParameter("alts")));
-  boolean showstats = !("false".equals(request.getParameter("stats")));
-
   String userID = null;
 
   // The following config file should set gmaps_key, ganalytics_key, rpxnow_realm and rpxnow_key
@@ -180,7 +175,6 @@
     #footer {
       height: auto;
       width: 100%;
-      display: <%= showstats ? "block" : "none" %>
     }
 
     .share-on-link {
@@ -211,7 +205,7 @@
     .share-on-googleplus:hover,.share-on-googleplus:active {
       background:#b53525
     }
-    
+
   </style>
 
     <!-- Google API license key -->
@@ -392,14 +386,14 @@
     <div class="options-box" id="about" onkeydown='check_for_escape(event, "about")'>
       <div>
         <a href="http://creativecommons.org/licenses/by/2.0/fr/deed.en_US"><img src="http://i.creativecommons.org/l/by/2.0/fr/80x15.png" border=0></a>
-        <a href="#" onclick="doEmail('gmail.com','Olivier.Potonniee','?subject=WTracks'); return false">Olivier Potonni&eacute;e</a>
+        <a href="#" onclick="doEmail2('gmail.com','Olivier.Potonniee','?subject=WTracks'); return false">Olivier Potonni&eacute;e</a>
         - <a href="html/privacy.html">Privacy Policy</a>
         - <a href="http://code.google.com/p/wtracks/">Contribute</a>
       </div>
       <div style="display:block;">
         <!-- useful? -->
         URL syntax:<br>
-        <%= "http" + (request.getServerPort() == 80 ? "": "s") + "://" + request.getServerName() + request.getContextPath() %>/[?gpx=&lt;gpx file url&gt;[&amp;marks=(true|false)][&amp;labels=(true|false)][&amp;alts=(true|false)][&amp;stats=(true|false)]
+        <%= "http" + (request.getServerPort() == 80 ? "": "s") + "://" + request.getServerName() + request.getContextPath() %>/[?gpx=&lt;gpx file url&gt;[&amp;markers=(true|false)][&amp;labels=(true|false)][&amp;alts=(true|false)][&amp;waypoints=(true|false)][&amp;stats=(true|false)]
       </div>
       <div>
         Share the word:&nbsp; <%@ include file="share.jsp" %>
@@ -424,46 +418,42 @@
         <tr>
           <td style="text-align:right">
             <input type="checkbox" id="showmarkers"
-              <% if (showmarkers) out.print("checked"); %>
-              onclick="wt_showTrkMarkers(this.checked)" />
+              onclick="storeVal('markers', this.checked); wt_showTrkMarkers(this.checked)" />
           </td><td>
-            <img src="img/mm_20_red.png" alt="handles" title="handles"/>&nbsp; Show track markers
+            <img src="img/mm_20_red.png" alt="handles" title="handles"/>&nbsp; <label for="showmarkers">Show track markers</label>
           </td>
         </tr>
         <tr>
           <td style="text-align:right">
             <input type="checkbox" id="showlabels"
-              <% if (showlabels) out.print("checked"); %>
-              onclick="wt_showLabels(this.checked)" />
+              onclick="storeVal('labels', this.checked); wt_showLabels(this.checked)" />
           </td><td>
-            Show Labels
+            <label for="showlabels">Show markers' labels</label>
           </td>
         </tr>
         <tr>
           <td style="text-align:right">
             <input type="checkbox" id="showalts"
-              <% if (showalts) out.print("checked"); %>
-              onclick="wt_showAlts(this.checked)" />
+              onclick="storeVal('alts', this.checked); wt_showAlts(this.checked)" />
           </td><td>
-            Show Altitudes
+            <label for="showalts">Show altitudes in labels</label>
           </td>
         </tr>
         <tr>
           <td style="text-align:right">
             <input type="checkbox" id="showwaypoints" checked
-              onclick="wt_showWaypoints(this.checked)" />
+              onclick="storeVal('waypoints', this.checked); wt_showWaypoints(this.checked)" />
           </td><td>
             <img src="img/icon13noshade.gif" alt="waypoints" title="waypoints"/>&nbsp;
-            Show Waypoints
+            <label for="showwaypoints">Show waypoints</label>
           </td>
         </tr>
         <tr>
           <td style="text-align:right">
             <input type="checkbox" id="showstats"
-              <% if (showstats) out.print("checked"); %>
-              onclick="wt_showStats(this.checked)" />
+              onclick="storeVal('stats', this.checked); wt_showStats(this.checked)" />
           </td><td>
-            Show track statistics
+            <label for="showstats">Show track statistics</label>
           </td>
         </tr>
       </table>
@@ -535,7 +525,7 @@
             </td><td>
               <input type="file" size="50" name="gpxfile" id="gpxfile" style="width:100%"
                      onchange="if (wt_check_fileupload(document.getElementById('upform'))) this.form.submit()" />
-              <input type="hidden" name="marks" value="" />
+              <input type="hidden" name="markers" value="" />
               <input type="hidden" name="labels" value="" />
               <input type="hidden" name="alts" value="" />
             </td>
@@ -706,7 +696,7 @@
 
   function addTrackLink(gpxURL) {
     name = document.getElementById("trktitle").innerHTML;
-    setElement("trktitle", "<a href='?gpx=" + gpxURL + "&marks=" + areMarkersShown() + "&labels=" + areLabelsShown() + "&alts=" + areAltsShown() + "'>" + name + "</a>")
+    setElement("trktitle", "<a href='?gpx=" + gpxURL + "&markers=" + areMarkersShown() + "&labels=" + areLabelsShown() + "&alts=" + areAltsShown() + "'>" + name + "</a>")
   }
 
   function getText(element) {
@@ -788,7 +778,7 @@
   function setChecked(eltId, checked) {
     var elt = document.getElementById(eltId);
     var wereShown = elt.checked;
-    elt.checked = shown;
+    elt.checked = checked;
     return wereShown;
   }
 
@@ -1408,9 +1398,6 @@
 
   /*------------ Global functions -----------*/
 
-  function doEmail(d, i, tail) {
-    location.href = "mailto:" + i + "@" + d + tail;
-  }
 
   /**
    * Pruning function
@@ -1826,6 +1813,70 @@
       }
   }
 
+    var QueryString = function () {
+    // This function is anonymous, is executed immediately and
+    // the return value is assigned to QueryString!
+    var query_string = {};
+    var query = window.location.search.substring(1);
+    var vars = query.split("&");
+    for (var i=0;i<vars.length;i++) {
+      var pair = vars[i].split("=");
+          // If first entry with this name
+      if (typeof query_string[pair[0]] === "undefined") {
+        query_string[pair[0]] = decodeURIComponent(pair[1]);
+          // If second entry with this name
+      } else if (typeof query_string[pair[0]] === "string") {
+        var arr = [ query_string[pair[0]],decodeURIComponent(pair[1]) ];
+        query_string[pair[0]] = arr;
+          // If third or later entry with this name
+      } else {
+        query_string[pair[0]].push(decodeURIComponent(pair[1]));
+      }
+    }
+      return query_string;
+  }();
+
+  function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+  }
+
+  function mustShow(name, def) {
+    var store = window.localStorage;
+    // default
+    var doShow = def;
+    var queryShow = getParameterByName(name);
+    if (queryShow) {
+        doShow = (queryShow == "true");
+    } else if (store) {
+      var stored = store.getItem(name);
+      if (stored) {
+        doShow = (stored == "true");
+      }
+    }
+    setChecked("show"+name,doShow);
+    return doShow;
+  }
+
+  function storeVal(name, val) {
+    var store = window.localStorage;
+    if (store) {
+      store.setItem(name, val);
+    }
+  }
+
+
+  function initDisplay() {
+    wt_showTrkMarkers(mustShow("markers", true));
+    wt_showLabels(mustShow("labels", true));
+    wt_showAlts(mustShow("alts", false));
+    wt_showWaypoints(mustShow("waypoints", true));
+    
+    wt_showStats(mustShow("stats", true));
+  }
+
   function wt_showTrkMarkers(show) {
     //closeInfoWindow();
     var i = 0;
@@ -2036,7 +2087,7 @@ if (file_name != null) {
       return false;
     }
     close_popup('load-box');
-    form.marks.value = document.getElementById('showmarkers').checked;
+    form.markers.value = document.getElementById('showmarkers').checked;
     form.labels.value = document.getElementById('showlabels').checked;
     form.alts.value = document.getElementById('showalts').checked;
     return true;
@@ -2264,6 +2315,8 @@ if (file_name != null) {
     show_popup("graph-box")
   }
 
+  initDisplay();
+  
     //]]>
     </script>
 
