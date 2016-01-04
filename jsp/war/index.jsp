@@ -59,16 +59,16 @@
     }
   }
 %>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
-<head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset='utf-8'>
+    <link rel="shortcut icon" href="img/favicon.ico" />
+    <meta http-equiv="x-ua-compatible" content="IE=edge" >
+    <meta name="viewport" content="width=device-width,height=device-height, user-scalable=no" />
     <META name="keywords"
           content="GoogleMaps, Map, GPX, track, editor, online, GPS, upload, save, DHTML">
     <title>WTracks - Online GPX track editor</title>
-    <link rel="shortcut icon" href="img/favicon.ico" />
     <style type="text/css">
     v\:* {
       behavior:url(#default#VML);
@@ -110,8 +110,8 @@
       background: #eee;
       border: 1px solid black;
       padding: 10px;
-      left: 10px;
-      top: 75px;
+      left: 5px;
+      top: 40px;
       position: absolute;
       visibility: hidden;
     }
@@ -148,6 +148,7 @@
 
     #about div {
       margin-top: 20px;
+      margin-bottom: 10px;
     }
 
     #map {
@@ -175,6 +176,17 @@
     #footer {
       height: auto;
       width: 100%;
+    }
+
+    #url-syntax {
+      border: solid 1px #666;
+      border-collapse: collapse;
+    }
+    #url-syntax th,
+    #url-syntax td {
+      text-align: left;
+      padding: 3px;
+      border: solid 1px #666;
     }
 
     .share-on-link {
@@ -388,15 +400,30 @@
         <a href="http://creativecommons.org/licenses/by/2.0/fr/deed.en_US"><img src="http://i.creativecommons.org/l/by/2.0/fr/80x15.png" border=0></a>
         <a href="#" onclick="doEmail2('gmail.com','Olivier.Potonniee','?subject=WTracks'); return false">Olivier Potonni&eacute;e</a>
         - <a href="html/privacy.html">Privacy Policy</a>
-        - <a href="http://code.google.com/p/wtracks/">Contribute</a>
-      </div>
-      <div style="display:block;">
-        <!-- useful? -->
-        URL syntax:<br>
-        <%= "http" + (request.getServerPort() == 80 ? "": "s") + "://" + request.getServerName() + request.getContextPath() %>/[?gpx=&lt;gpx file url&gt;[&amp;markers=(true|false)][&amp;labels=(true|false)][&amp;alts=(true|false)][&amp;waypoints=(true|false)][&amp;stats=(true|false)]
+        - <a href="https://github.com/opoto/wtracks">Contribute</a>
       </div>
       <div>
-        Share the word:&nbsp; <%@ include file="share.jsp" %>
+        Share the word:&nbsp; 
+        <a class="share-on-link share-on-twitter" target="blank" href="https://twitter.com/intent/tweet?text=WTracks online GPX editor&amp;url=<%= appUrl %>">Twitter</a>
+
+        <a class="share-on-link share-on-facebook" target="blank"  href="https://www.facebook.com/sharer/sharer.php?u=<%= appUrl %>">Facebook</a>
+
+        <a class="share-on-link share-on-googleplus" target="blank"  href="https://plus.google.com/share?url=<%= appUrl %>">Google+</a>
+
+      </div>
+      <div>
+        URL syntax: <br>
+        <%= appUrl %>[?param1=value1[&amp;param2=value2]...]<br>
+        Where parameters can be:
+        <table id="url-syntax">
+          <tr><th>Name</th><th>Value</th><th></th></tr>
+          <tr><td>gpx</td><td>URL</td><td>URL of an online GPX file</td></tr>
+          <tr><td>markers</td><td>true|false</td><td>Controls track markers display</td></tr>
+          <tr><td>labels</td><td>true|false</td><td>Controls marker labels display</td></tr>
+          <tr><td>alts</td><td>true|false</td><td>Controls label altitudes display</td></tr>
+          <tr><td>waypoints</td><td>true|false</td><td>Controls waypoints display</td></tr>
+          <tr><td>stats</td><td>true|false</td><td>Controls statistics display</td></tr>
+        </table>
       </div>
     </div>
 
@@ -420,7 +447,7 @@
             <input type="checkbox" id="showmarkers"
               onclick="storeVal('markers', this.checked); wt_showTrkMarkers(this.checked)" />
           </td><td>
-            <img src="img/mm_20_red.png" alt="handles" title="handles"/>&nbsp; <label for="showmarkers">Show track markers</label>
+            <label for="showmarkers"><img src="img/mm_20_red.png" alt="handles" title="handles"/>&nbsp; Show track markers</label>
           </td>
         </tr>
         <tr>
@@ -444,8 +471,7 @@
             <input type="checkbox" id="showwaypoints" checked
               onclick="storeVal('waypoints', this.checked); wt_showWaypoints(this.checked)" />
           </td><td>
-            <img src="img/icon13noshade.gif" alt="waypoints" title="waypoints"/>&nbsp;
-            <label for="showwaypoints">Show waypoints</label>
+            <label for="showwaypoints"><img src="img/icon13noshade.gif" alt="waypoints" title="waypoints"/>&nbsp; Show waypoints</label>
           </td>
         </tr>
         <tr>
@@ -1873,7 +1899,7 @@
     wt_showLabels(mustShow("labels", true));
     wt_showAlts(mustShow("alts", false));
     wt_showWaypoints(mustShow("waypoints", true));
-    
+
     wt_showStats(mustShow("stats", true));
   }
 
@@ -2316,7 +2342,7 @@ if (file_name != null) {
   }
 
   initDisplay();
-  
+
     //]]>
     </script>
 
