@@ -93,6 +93,25 @@
 
     .hidden {display: none}
 
+    #user-box{
+      background: #eee;
+      border: 1px solid black;
+      padding: 10px;
+      position: absolute;
+      right: 5px;
+      top: 40px;
+      visibility: hidden;
+      overflow:auto;
+     }
+     
+    .box-table {
+      border-collapse: collapse;
+      width: 100%;
+      border: 0;
+    }
+    .box-table th:first-of-type { text-align: left; }
+    .box-table th:last-of-type { text-align: right; }
+
     .options-box{
       background: #eee;
       border: 1px solid black;
@@ -105,6 +124,14 @@
       visibility: hidden;
       overflow:auto;
      }
+
+    #info {
+      width: 80%;
+      margin-left: 10%;
+      margin-right: 10%;
+      position: relative;
+      top: 30%;
+    }
 
     .graph-box{
       background: #eee;
@@ -218,6 +245,34 @@
       background:#b53525
     }
 
+    table#statistics {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    #statistics th, #statistics td {
+      border: 1px solid rgb(153, 153, 153);
+      min-width: 30px;
+      padding: 0 5px 0 5px;
+    }
+    #statistics td {
+      text-align: center;
+    }
+
+    /* for 480px or less */
+    @media screen and (max-width: 480px) {
+      .title {
+        font-size: 10pt;
+        line-height: 1em;
+      }
+      /*#statistics th, #statistics td { width: 100px; }*/
+
+      #statistics th { display: none; }
+      #statistics td:nth-of-type(5) { display: none; }
+      .hide-on-small-screen {
+        display: none;
+      }
+    }
+
   </style>
 
     <!-- Google API license key -->
@@ -261,12 +316,6 @@
 
     <tr id="header"><td>
 
-      <!-- =================== Top bar =================== -->
-
-
-      <span id="message" style="display:none"><img src='img/processing.gif'> Initializing...</span>
-
-
       <!-- =================== end of Top bar =================== -->
 
       <table width="100%" style="border-collapse: collapse">
@@ -297,9 +346,8 @@
               if (name == '') {
                 name = oid.replace('http://', '');
               }
-              document.write("<a href='" + oid + "'>" + name + "</a>");
+              document.write("<a href='#' onclick='toggle_user_box()'>" + name + "</a>");
             </script>
-            | <a href='login.jsp?action=logout&<%=rpxgoto%>'>Logout</a><br>
             <%
               }
             %>
@@ -313,22 +361,19 @@
     <tr id="footer"><td>
 
       <!-- PAGE FOOTER -->
-        <!-- div style="position: absolute; bottom: 10px; right: 10px; left: 10px; top: auto;" -->
-        <table>
+        <table id="statistics">
           <tr>
-            <th width="200">Distance</th>
-            <td width="150">
-              <img src='img/oneway.gif' alt='One Way' title='One Way'>
+            <th>Distance</th>
+            <td title='One Way'>
               <span id="distow"></span>
             </td>
-            <td width="150">
-              <img src='img/roundtrip.gif' alt='Round Trip' title='Round Trip'>
+            <td title='Round Trip'>
               <span id="distrt"></span>
             </td>
-            <th width="150">Altitude Max</th>
-            <td width="60" id="altmax"></td>
-            <th width="150">Climbing</th>
-            <td width="60" id="climbing"></td><!-- name="submit" value="submit" -->
+            <th>Alt. Max</th>
+            <td id="altmax"></td>
+            <th>Climbing</th>
+            <td id="climbing"></td><!-- name="submit" value="submit" -->
             <td rowspan="2"><button type="submit" onclick="wt_doGraph(); return false">2D Profile<br><img src="img/2d.gif"></button></td>
           </tr>
           <tr>
@@ -340,15 +385,13 @@
               </select>
             </th>
             </form>
-            <td>
-              <img src='img/oneway.gif' alt='One Way' title='One Way'>
+            <td title='One Way'>
               <span id="timeow"></span>
             </td>
-            <td>
-              <img src='img/roundtrip.gif' alt='Round Trip' title='Round Trip'>
+            <td title='Round Trip'>
               <span id="timert"></span>
             </td>
-            <th>Altitude Min</th>
+            <th>Alt. Min</th>
             <td id="altmin">
             </td>
             <th>Descent</th>
@@ -372,9 +415,9 @@
 
 
     <div class="graph-box" id="graph-box" onkeydown='check_for_escape(event, "graph-box")'>
-      <table>
+      <table class="box-table">
         <tr>
-          <th style="text-align:left">Track profile</th>
+          <th>Track profile</th>
           <th align="right"><a href="javascript:close_popup('graph-box')">
               <img src="img/close.gif" alt="Close" title="Close" style="border: 0px"/></a></th>
         </tr>
@@ -382,6 +425,20 @@
         <div><canvas id="graph" height="350" width="650"></canvas></div>
         </td></tr>
       </table>
+    </div>
+
+    <div class="options-box" id="info" onkeydown='check_for_escape(event, "info")'>
+      <table class="box-table">
+        <tr>
+          <th>Information Message</th>
+          <th><a href="javascript:close_popup('info')"><img src="img/close.gif" alt="Close" title="Close" style="border: 0px"/></a></th>
+        </tr>
+      </table>
+      <div id="message"></div>
+    </div>
+
+    <div id="user-box" onkeydown='check_for_escape(event, "user-box")'>
+      <div><a href='login.jsp?action=logout&<%=rpxgoto%>'>Logout</a><br></div>
     </div>
 
     <div class="options-box" id="menu" onkeydown='check_for_escape(event, "menu")'>
@@ -396,6 +453,12 @@
     </div>
 
     <div class="options-box" id="about" onkeydown='check_for_escape(event, "about")'>
+      <table class="box-table">
+        <tr>
+          <th>About WTracks</th>
+          <th><a href="javascript:close_popup('about')"><img src="img/close.gif" alt="Close" title="Close" style="border: 0px"/></a></th>
+        </tr>
+      </table>
       <div>
         <a href="http://creativecommons.org/licenses/by/2.0/fr/deed.en_US"><img src="http://i.creativecommons.org/l/by/2.0/fr/80x15.png" border=0></a>
         <a href="#" onclick="doEmail2('gmail.com','Olivier.Potonniee','?subject=WTracks'); return false">Olivier Potonni&eacute;e</a>
@@ -403,7 +466,7 @@
         - <a href="https://github.com/opoto/wtracks">Contribute</a>
       </div>
       <div>
-        Share the word:&nbsp; 
+        Share the word:&nbsp;
         <a class="share-on-link share-on-twitter" target="blank" href="https://twitter.com/intent/tweet?text=WTracks online GPX editor&amp;url=<%= appUrl %>">Twitter</a>
 
         <a class="share-on-link share-on-facebook" target="blank"  href="https://www.facebook.com/sharer/sharer.php?u=<%= appUrl %>">Facebook</a>
@@ -427,10 +490,10 @@
       </div>
     </div>
 
-    <div class="options-box" id="view-box" onkeydown='check_for_escape(event, "tools-box")' style="z-index:10;">
-      <table>
+    <div class="options-box" id="view-box" onkeydown='check_for_escape(event, "view-box")' style="z-index:10;">
+      <table class="box-table">
         <tr>
-          <th style="text-align:left">View</th>
+          <th>View</th>
           <th><a href="javascript:close_popup('view-box')"><img src="img/close.gif" alt="Close" title="Close" style="border: 0px"/></a></th>
         </tr>
         <tr>
@@ -486,9 +549,9 @@
     </div>
 
     <div class="options-box" id="tools-box" onkeydown='check_for_escape(event, "tools-box")' style="z-index:10;">
-      <table>
+      <table class="box-table">
         <tr>
-          <th style="text-align:left">Tools</th>
+          <th>Tools</th>
           <th><a href="javascript:close_popup('tools-box')"><img src="img/close.gif" alt="Cancel and Close" title="Cancel and Close" style="border: 0px"/></a></th>
         </tr>
         <tr>
@@ -529,9 +592,9 @@
     </div>
 
     <div class="options-box" id="load-box" onkeydown='check_for_escape(event, "load-box")' style="z-index:10;">
-      <table>
+      <table class="box-table">
         <tr>
-          <th style="text-align:left">Load Options</th>
+          <th>Load Options</th>
           <th><a href="javascript:close_popup('load-box')"><img src="img/close.gif" alt="Cancel and Close" title="Cancel and Close" style="border: 0px"/></a></th>
         </tr>
         <tr>
@@ -582,9 +645,9 @@
 
 
     <div class="options-box" id="save-box" onkeydown='check_for_escape(event, "save-box")'>
-      <table>
+      <table class="box-table">
         <tr>
-          <th style="text-align:left">Save Options</th>
+          <th>Save Options</th>
           <th><a href="javascript:close_popup('save-box')"><img src="img/close.gif"
                alt="Cancel and Close" title="Cancel and Close" style="border: 0px"/></a></th>
         </tr>
@@ -678,7 +741,6 @@
   var geocoder;
   var infoWindow;
 
-  var info; // info line
   var debug; // debug area
 
   var ROUNDTRIP_IMG = "<img src='img/roundtrip.png' alt='Round Trip' title='Round Trip'>";
@@ -768,12 +830,17 @@
     }
   }
 
+  function showAlt(alt) {
+    alt = Math.round(alt);
+    return alt + "m";
+  }
+
   function showDistance(dist) {
     dist = Math.round(dist);
     if (dist > 10000) {
-      return (dist/1000).toFixed(2) + " km";
+      return (dist/1000).toFixed(1) + "km";
     } else {
-      return dist + " m";
+      return dist + "m";
     }
   }
 
@@ -952,6 +1019,107 @@
     }
   }
 
+  var current_popup;
+
+  function check_for_escape(e, sPopupID){
+    //alert(String.fromCharCode(e.keyCode))
+    if (e.keyCode==27) {
+      close_current_popup();
+      close_popup(sPopupID);
+    }
+  }
+
+  function close_current_popup() {
+    if (current_popup) {
+      close_popup(current_popup);
+    }
+  }
+
+  function close_popup(sID) {
+    if(document.layers) //NN4+
+    {
+       document.layers[sID].visibility = "hide";
+    }
+    else if(document.getElementById) //gecko(NN6) + IE 5+
+    {
+        var obj = document.getElementById(sID);
+        obj.style.visibility = "hidden";
+    }
+    else if(document.all) // IE 4
+    {
+        document.all[sID].style.visibility = "hidden";
+    }
+    current_popup = false;
+  }
+
+  function show_popup(sID) {
+    if(document.layers) //NN4+
+    {
+       document.layers[sID].visibility = "show";
+    }
+    else if(document.getElementById)  //gecko(NN6) + IE 5+
+    {
+        var obj = document.getElementById(sID);
+        obj.style.visibility = "visible";
+    }
+    else if(document.all) // IE 4
+    {
+        document.all[sID].style.visibility = "visible";
+    }
+    current_popup = sID;
+  }
+
+  function toggle_menu(){
+    var shown = (current_popup == "menu");
+    close_current_popup();
+    if (!shown) show_popup("menu");
+  }
+
+
+  function show_about_box(){
+    close_current_popup();
+    show_popup("about");
+  }
+
+  function show_view_box(){
+    close_current_popup();
+    show_popup("view-box");
+  }
+
+  function toggle_user_box(){
+    var shown = (current_popup == "user-box");
+    close_current_popup();
+    if (!shown) show_popup("user-box");
+  }
+
+  function show_tools_box(){
+    close_current_popup();
+    show_popup("tools-box");
+  }
+
+  function show_save_box(){
+    document.getElementById("trackname").value = trackname
+    close_current_popup();
+    show_popup("save-box");
+    var obj = document.getElementById("trackname");
+    obj.focus();
+  }
+
+  function info(msg) {
+    if (msg) {
+      if (current_popup == "info") {
+        addElement("message", "<p>"+msg+"</p>");
+      } else {
+        show_popup("info");
+        setElement("message", "<p>"+msg+"</p>");
+      }
+    } else {
+      setElement("message","");
+      close_popup("info");
+    }
+  }
+
+
 /*------------ Wpt --------------*/
 
   function toPt(marker, i) {
@@ -997,7 +1165,7 @@
 
   google.maps.Marker.prototype.Wpt_showInfo = function(openinfo) {
      current_trkpt = undefined
-     info.set("");
+     info("");
      if (openinfo) {
        var ptinfo = "<form style='font-size:smaller' onsubmit='return false'>";
 
@@ -1589,7 +1757,7 @@
   }
 
   function wt_showInfo(marker, openinfo) {
-    info.set("");
+    info("");
 
     var duration = 0
     var duration_rt = 0
@@ -1603,14 +1771,14 @@
       tdist = trkpts[trkpts.length-1].wt_tdist
     }
 
-    setElement("distow", showDistance(tdist));
-    setElement("distrt", showDistance(2*tdist));
-    setElement("timeow", showTime(duration));
-    setElement("timert", showTime(duration_rt));
-    setElement("altmin", Math.round(minalt));
-    setElement("altmax", Math.round(maxalt));
-    setElement("climbing", Math.round(climbing));
-    setElement("descent", Math.round(descent));
+    setElement("distow", "&#8594; " + showDistance(tdist));
+    setElement("distrt", "&#8646; " + showDistance(2*tdist));
+    setElement("timeow", /*"&#8594; " +*/ showTime(duration));
+    setElement("timert", /*"&#8646; " +*/ showTime(duration_rt));
+    setElement("altmin", "&#9660; " + showAlt(minalt));
+    setElement("altmax", "&#9650; " + showAlt(maxalt));
+    setElement("climbing", "+" + showAlt(climbing));
+    setElement("descent", "-" + showAlt(descent));
 
     if (marker) marker.wt_showInfo(openinfo)
 
@@ -1711,8 +1879,8 @@
 
   function wt_loadGPX(filename, link) {
     close_popup('load-box');
-    //info.set("loading " + filename + "...<br>");
-    info.set("<img src='img/processing.gif'> Loading...");
+    //info("loading " + filename + "...<br>");
+    info("<img src='img/processing.gif'> Loading...");
     downloadUrl("httpget_proxy.jsp?" + filename, function(data, responseCode) {
       if (wt_importGPX(data) && link) {
         addTrackLink(filename);
@@ -1722,8 +1890,8 @@
 
   function wt_loadUserGPX(filename, oid) {
     close_popup('load-box');
-    //info.set("loading " + filename + "...<br>");
-    info.set("<img src='img/processing.gif'> Loading...");
+    //info("loading " + filename + "...<br>");
+    info("<img src='img/processing.gif'> Loading...");
     downloadUrl("usertracks.jsp?oid=" + oid + "&name=" + filename, function(data, responseCode) {
       wt_importGPX(data);
     });
@@ -1761,10 +1929,10 @@
   function wt_importGPX(gpxinput) {
       wt_clear();
       if (!gpxinput) {
-        info.add("Failed to read file<br>")
+        info("Failed to read file<br>")
         return
       }
-      info.add("Importing... <br>");
+      info("Importing... <br>");
       var xml
       if (gpxinput.firstChild) {
         xml = gpxinput;
@@ -1775,7 +1943,7 @@
       //debug.set("gpxinput:<textarea width='40' height='20'>" + gpxinput + "</textarea>")
       debug.add("xml:" + xml)
       if (!xml.documentElement || !gpx || (gpx.length == 0)) {
-        info.add("The file is not in gpx format<br>")
+        info("The file is not in gpx format<br>")
         return false
       }
       gpx = xml.documentElement
@@ -1831,10 +1999,10 @@
           wt_drawPolyline();
           wt_showInfo(pt, true);
         }
-        info.set("");
+        info("");
         return true;
       } else {
-        info.set("Can't read GPX input file");
+        info("Can't read GPX input file");
         return false;
       }
   }
@@ -1869,28 +2037,34 @@
     return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
   }
 
-  function mustShow(name, def) {
+  function storeVal(name, val) {
     var store = window.localStorage;
+    if (store) {
+      store.setItem(name, val);
+    }
+  }
+  function getVal(name) {
+    var store = window.localStorage;
+    if (store) {
+      return store.getItem(name);
+    }
+    return undefined;
+  }
+
+  function mustShow(name, def) {
     // default
     var doShow = def;
     var queryShow = getParameterByName(name);
     if (queryShow) {
         doShow = (queryShow == "true");
-    } else if (store) {
-      var stored = store.getItem(name);
+    } else {
+      var stored = getVal(name);
       if (stored) {
         doShow = (stored == "true");
       }
     }
     setChecked("show"+name,doShow);
     return doShow;
-  }
-
-  function storeVal(name, val) {
-    var store = window.localStorage;
-    if (store) {
-      store.setItem(name, val);
-    }
   }
 
 
@@ -1983,7 +2157,7 @@
 
   function wt_showStats(show) {
     var footer = document.getElementById("footer");
-    footer.style.display = show ? "block" : "none";
+    footer.style.display = show ? "table" : "none";
   }
 
   function wt_toggleMenu() {
@@ -2002,17 +2176,21 @@
   }
 
   function wt_load() {
-	// google refesh 2013: https://developers.google.com/maps/documentation/javascript/basics?utm_source=welovemapsdevelopers&utm_campaign=blog-visualrefresh#EnableVisualRefresh
-	google.maps.visualRefresh = true;
+    // google refesh 2013: https://developers.google.com/maps/documentation/javascript/basics?utm_source=welovemapsdevelopers&utm_campaign=blog-visualrefresh#EnableVisualRefresh
+    //google.maps.visualRefresh = true;
 
-    info = new DocElement("message");
+    info("<img src='img/processing.gif'> Initializing...");
     debug = new DocElement("debug");
 
+    var mapType = getVal("maptype");
+    if (!mapType) {
+      mapType = google.maps.MapTypeId.HYBRID;
+    }
     var mapDiv = document.getElementById("map")
     var mapOptions = {
       zoom: 3,
       center: new google.maps.LatLng(0,0),
-      mapTypeId: google.maps.MapTypeId.HYBRID,
+      mapTypeId: mapType,
       scrollwheel: true,
       disableDoubleClickZoom: isMobile // we suppose mobile=>touch, hence pinch and zoom instead, dblclick is then used to add points
     }
@@ -2070,6 +2248,11 @@
     }
     google.maps.event.addListener(map, isMobile ? "dblclick" : "rightclick", addPointHandler);
 
+    // map type listener
+    map.addListener('maptypeid_changed', function() {
+      storeVal("maptype", map.getMapTypeId());
+    });
+
     // left click: close info window
     google.maps.event.addListener(map, "click", function(event) {
       closeInfoWindow()
@@ -2078,7 +2261,7 @@
 
 <%
 if (file_name != null) {
-    out.println("info.set('Uploaded file<br>')");
+    out.println("    info('Uploaded file<br>')");
 %>
     wt_importGPX(document.getElementById('gpxarea').value, false);
 <%
@@ -2096,10 +2279,21 @@ if (file_name != null) {
         debug.add(gpxurl);
         //document.getElementById("showmarkers").checked = false;
         gpxLink = true;
+        wt_loadGPX(gpxurl, gpxLink);
       } else {
-        gpxurl = "tracks/everest.gpx";
+        // center on current position
+        clear_track();
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            var pos = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            map.setCenter(pos);
+            map.setZoom(13);
+          });
+        }
       }
-      wt_loadGPX(gpxurl, gpxLink);
     }
 <%
 }
@@ -2146,85 +2340,6 @@ if (file_name != null) {
     maphv = parseInt(maphv)
     maphv += v
     mapdiv.style.height = maphv + "px"
-  }
-
-  var current_popup;
-
-  function check_for_escape(e, sPopupID){
-    //alert(String.fromCharCode(e.keyCode))
-    if (e.keyCode==27) {
-      close_popup(sPopupID);
-    }
-  }
-
-  function close_current_popup() {
-    if (current_popup) {
-      close_popup(current_popup);
-    }
-  }
-
-  function close_popup(sID) {
-    if(document.layers) //NN4+
-    {
-       document.layers[sID].visibility = "hide";
-    }
-    else if(document.getElementById) //gecko(NN6) + IE 5+
-    {
-        var obj = document.getElementById(sID);
-        obj.style.visibility = "hidden";
-    }
-    else if(document.all) // IE 4
-    {
-        document.all[sID].style.visibility = "hidden";
-    }
-    current_popup = false;
-  }
-
-  function show_popup(sID) {
-    if(document.layers) //NN4+
-    {
-       document.layers[sID].visibility = "show";
-    }
-    else if(document.getElementById)  //gecko(NN6) + IE 5+
-    {
-        var obj = document.getElementById(sID);
-        obj.style.visibility = "visible";
-    }
-    else if(document.all) // IE 4
-    {
-        document.all[sID].style.visibility = "visible";
-    }
-    current_popup = sID;
-  }
-
-  function toggle_menu(){
-    var shown = (current_popup == "menu");
-    close_current_popup();
-    if (!shown) show_popup("menu");
-  }
-
-
-  function show_about_box(){
-    close_current_popup();
-    show_popup("about");
-  }
-
-  function show_view_box(){
-    close_current_popup();
-    show_popup("view-box");
-  }
-
-  function show_tools_box(){
-    close_current_popup();
-    show_popup("tools-box");
-  }
-
-  function show_save_box(){
-    document.getElementById("trackname").value = trackname
-    close_current_popup();
-    show_popup("save-box");
-    var obj = document.getElementById("trackname");
-    obj.focus();
   }
 
   function wt_doSave() {
@@ -2295,7 +2410,7 @@ if (file_name != null) {
   function clear_track() {
     wt_clear();
     wt_clear_trackinfo();
-    info.set('');
+    info('');
     close_popup("menu");
   }
 
