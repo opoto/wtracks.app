@@ -276,7 +276,7 @@
   </style>
 
     <!-- Google API license key -->
-    <script src="http://maps.google.com/maps/api/js?v=3&libraries=geometry" type="text/javascript"></script>
+    <script src="https://maps.google.com/maps/api/js?v=3&libraries=geometry" type="text/javascript"></script>
 
     <!-- Janrain RPX widget -->
     <script type="text/javascript">
@@ -344,7 +344,7 @@
               var name = userID.profile.displayName;
               var oid = userID.profile.identifier;
               if (name == '') {
-                name = oid.replace('http://', '');
+                name = oid.replace(/https?:\/\//, '');
               }
               document.write("<a href='#' onclick='toggle_user_box()'>" + name + "</a>");
             </script>
@@ -460,7 +460,7 @@
         </tr>
       </table>
       <div>
-        <a href="http://creativecommons.org/licenses/by/2.0/fr/deed.en_US"><img src="http://i.creativecommons.org/l/by/2.0/fr/80x15.png" border=0></a>
+        <a href="http://creativecommons.org/licenses/by/2.0/fr/deed.en_US"><img src="https://licensebuttons.net/l/by/2.0/fr/80x15.png" border=0></a>
         <a href="#" onclick="doEmail2('gmail.com','Olivier.Potonniee','?subject=WTracks'); return false">Olivier Potonni&eacute;e</a>
         - <a href="html/privacy.html">Privacy Policy</a>
         - <a href="https://github.com/opoto/wtracks">Contribute</a>
@@ -760,7 +760,7 @@
   function getAltitude(lat, lng) {
     // http://ws.geonames.org/srtm3?lat=<lat>&lng=<lng>
     //"http://ws.geonames.org/srtm3?lat="+lat+"&lng="+lng
-    var url = "http://maps.google.com/maps/api/elevation/json?sensor=false&locations="+lat+","+lng
+    var url = "https://maps.google.com/maps/api/elevation/json?sensor=false&locations="+lat+","+lng
 
     var request = Lokris.AjaxCall("httprawget_proxy.jsp?"+escape(url), null, {async: false});
     debug.add("#")
