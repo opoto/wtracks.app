@@ -16,7 +16,7 @@ To use this script, you should create a "ant.properties" file in current directo
   <condition property="proxy.enabled">
     <and>
       <isset property="proxy.host"/>
-      <isreachable host="${proxy.host}"/>
+      <!--isreachable host="${proxy.host}"/-->
     </and>
   </condition>
 
@@ -42,8 +42,10 @@ To use this script, you should create a "ant.properties" file in current directo
 
   <target name="proxy" if="proxy.enabled">
     <echo>setting proxy ${proxy.user}:${proxy.password}@${proxy.host}:${proxy.port}</echo>
-    <setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}"
-      proxyuser="${proxy.user}" proxypassword="${proxy.password}"/>
+    <setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}"/>
+    <!-- 
+      proxyuser="${proxy.user}" proxypassword="${proxy.password}"
+      -->
   </target>
 
   <target name="copyjars" depends="createlinks"
@@ -78,9 +80,17 @@ To use this script, you should create a "ant.properties" file in current directo
     <enhance_war war="war" />
   </target>
 
-  <target name="runserver" depends="datanucleusenhance"
+  <target name="runserver" depends="datanucleusenhance, proxy"
       description="Starts the development server.">
-    <dev_appserver war="war" />
+    <dev_appserver war="war">
+      <options>
+        <arg value="--jvm_flag=-Dhttp.proxyHost=${proxy.host}"/>
+        <arg value="--jvm_flag=-Dhttp.proxyPort=${proxy.port}"/>
+        <arg value="--jvm_flag=-Dhttps.proxyHost=${proxy.host}"/>
+        <arg value="--jvm_flag=-Dhttps.proxyPort=${proxy.port}"/>
+      </options>
+
+    </dev_appserver>
   </target>
 
   <target name="update" depends="datanucleusenhance, proxy"
@@ -88,6 +98,7 @@ To use this script, you should create a "ant.properties" file in current directo
     <appcfg action="update" war="war">
       <options>
         <arg value="--email=${email}"/>
+        <arg value="--proxy_https=${proxy.host}:${proxy.port}"/>
       </options>
     </appcfg>
   </target>
