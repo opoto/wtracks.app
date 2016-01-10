@@ -501,7 +501,8 @@
             <td style="text-align:right">
               <input type="submit" value="Go To Location:" />
             </td><td>
-              <input type="text" size="60" name="address" value="" />
+              <input type="text" size="30" name="address" value="" />
+              <input type="button" onclick="this.form.address.value = ''; gotoMyLocation()" value="&#8857;" title="My Location"/>
             </td>
           </form>
         </tr>
@@ -757,6 +758,49 @@
 
   /*------------ Utility functions -----------*/
 
+  var doLog = true;
+  function log(msg) {
+    if (doLog && console) {
+      console.log(msg);
+    }
+  }
+  function getMyIpLocation() {
+    log("Getting location from IP address");
+    var geoapi = "https://freegeoip.net/json/?callback=";
+    Lokris.AjaxCall(geoapi+"setMyIpLocation", function(res) {
+      var script = document.createElement("script");
+      script.type = "text/javascript";
+      script.innerHTML = res;
+      document.body.appendChild(script);
+    });
+  }
+  function setMyIpLocation(res) {
+    setLocation({
+      lat: res.latitude,
+      lng: res.longitude
+    });
+  }
+  function setLocation(pos) {
+    map.setCenter(pos);
+    map.setZoom(13);
+  }
+  function gotoMyLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        setLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        });
+      }, function(err){
+        log("Geolococation failed: [" + err.code + "] " + err.message);
+        getMyIpLocation();
+      });
+    } else {
+      getMyIpLocation();
+    }
+  }
+  
+  
   function getAltitude(lat, lng) {
     // http://ws.geonames.org/srtm3?lat=<lat>&lng=<lng>
     //"http://ws.geonames.org/srtm3?lat="+lat+"&lng="+lng
@@ -2134,8 +2178,7 @@
         if (!geo) {
           alert(address + " not found");
         } else {
-          map.setCenter(geo.location);
-          map.setZoom(13);
+          setLocation(geo.location);
           openInfoWindow(geo.location, addr);
         }
       }
@@ -2283,16 +2326,7 @@ if (file_name != null) {
       } else {
         // center on current position
         clear_track();
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(function(position) {
-            var pos = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude
-            };
-            map.setCenter(pos);
-            map.setZoom(13);
-          });
-        }
+        gotoMyLocation();
       }
     }
 <%
