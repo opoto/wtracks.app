@@ -18,7 +18,6 @@
 
   String rpxgoto = "goto=" + java.net.URLEncoder.encode(ctxPath);
   String rpxnow_token_url = "/login.jsp?" + rpxgoto;
-  boolean debugging = (request.getParameter("debug") != null);
 
   String userID = null;
 
@@ -103,7 +102,7 @@
       visibility: hidden;
       overflow:auto;
      }
-     
+
     .box-table {
       border-collapse: collapse;
       width: 100%;
@@ -310,7 +309,7 @@
     <!-- end rpx -->
 
   </head>
-  <body onload="wt_load()">
+  <body onload="wt_load()" onunload="savePosition()">
 
     <table style="width:100%; height:100%; position:fixed; top:0; left:0">
 
@@ -396,15 +395,6 @@
             </td>
             <th>Descent</th>
             <td id="descent">
-            </td>
-          </tr>
-          <tr <% if (! debugging) out.print("style='display: none'"); %> >
-            <form action="#" onsubmit="debug.set(''); return false">
-            <td>
-              <input type="submit" value="Clear debug" />
-            </td>
-            </form>
-            <td colspan="6" id="debug">
             </td>
           </tr>
         </table>
@@ -742,8 +732,6 @@
   var geocoder;
   var infoWindow;
 
-  var debug; // debug area
-
   var ROUNDTRIP_IMG = "<img src='img/roundtrip.png' alt='Round Trip' title='Round Trip'>";
   var ONEWAY_IMG = "<img src='img/oneway.png' alt='One Way' title='One Way'>";
   var WTRACKS = "WTracks - Online GPX track editor"
@@ -764,7 +752,14 @@
       console.log(msg);
     }
   }
-  function getMyIpLocation() {
+  var doDebug = getParameterByName("debug") == "true";
+  function debug(msg) {
+    if (doDebug && console && console.debug) {
+      console.debug(msg);
+    }
+  }
+
+  function getMyIpLocation(defpos) {
     log("Getting location from IP address");
     var geoapi = "https://freegeoip.net/json/?callback=";
     Lokris.AjaxCall(geoapi+"setMyIpLocation", function(res) {
@@ -772,7 +767,14 @@
       script.type = "text/javascript";
       script.innerHTML = res;
       document.body.appendChild(script);
-    });
+    }, { errorHandler : function() {
+      log("failed to locate IP, use last position");
+      if (defpos) {
+        setLocation(defpos);
+      } else {
+        log("no saved position, I give up!");
+      }
+    }});
   }
   function setMyIpLocation(res) {
     setLocation({
@@ -784,7 +786,7 @@
     map.setCenter(pos);
     map.setZoom(13);
   }
-  function gotoMyLocation() {
+  function gotoMyLocation(defpos) {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(function(position) {
         setLocation({
@@ -793,26 +795,29 @@
         });
       }, function(err){
         log("Geolococation failed: [" + err.code + "] " + err.message);
-        getMyIpLocation();
+        getMyIpLocation(defpos);
       });
     } else {
-      getMyIpLocation();
+      getMyIpLocation(defpos);
     }
   }
-  
-  
+  function savePosition() {
+    var pos = map.getCenter();
+    storeVal("poslat",pos.lat());
+    storeVal("poslng",pos.lng());
+  }
+
   function getAltitude(lat, lng) {
     // http://ws.geonames.org/srtm3?lat=<lat>&lng=<lng>
     //"http://ws.geonames.org/srtm3?lat="+lat+"&lng="+lng
     var url = "https://maps.google.com/maps/api/elevation/json?sensor=false&locations="+lat+","+lng
 
     var request = Lokris.AjaxCall("httprawget_proxy.jsp?"+escape(url), null, {async: false});
-    debug.add("#")
-    debug.add(" status:" + request.status)
+    debug(" status:" + request.status)
     var res = 0
     if ((request.status == 200) && (request.responseText)) {
-      debug.add(" text: " + request.responseText)
-      var resp = eval("(" + request.responseText + ")")
+      debug(" text: " + request.responseText)
+      var resp = (JSON && JSON.parse) ? JSON.parse(request.responseText) : MochiKit.Base.evalJSON(request.responseText);
       if (resp.status == "OK") {
         res = Math.round(resp.results[0].elevation)
       }
@@ -1265,7 +1270,7 @@
   }
 
   google.maps.Marker.prototype.wt_updateAutoalt = function(newautoalt) {
-    //debug.set("i=" + i + ", newautoalt=" + newautoalt);
+    //debug("i=" + i + ", newautoalt=" + newautoalt);
     this.wt_setAlt(newautoalt, this.wt_alt());
     wt_showInfo(this, false)
     var altv = document.getElementById("altv");
@@ -1984,8 +1989,8 @@
         xml = xmlParse(gpxinput);
       }
       var gpx = xml ? xml.getElementsByTagName("gpx") : undefined
-      //debug.set("gpxinput:<textarea width='40' height='20'>" + gpxinput + "</textarea>")
-      debug.add("xml:" + xml)
+      //debug("gpxinput:<textarea width='40' height='20'>" + gpxinput + "</textarea>")
+      debug("xml:" + xml)
       if (!xml.documentElement || !gpx || (gpx.length == 0)) {
         info("The file is not in gpx format<br>")
         return false
@@ -2015,7 +2020,7 @@
         var zoom = 10
         var mapbounds = new google.maps.LatLngBounds();
         if (bounds && bounds.length > 0) {
-          //debug.add(bounds.length)
+          //debug(bounds.length)
           var sw = new google.maps.LatLng(parseFloat(bounds[0].getAttribute("minlat")),
                                parseFloat(bounds[0].getAttribute("minlon")))
           var ne = new google.maps.LatLng(parseFloat(bounds[0].getAttribute("maxlat")),
@@ -2223,7 +2228,6 @@
     //google.maps.visualRefresh = true;
 
     info("<img src='img/processing.gif'> Initializing...");
-    debug = new DocElement("debug");
 
     var mapType = getVal("maptype");
     if (!mapType) {
@@ -2319,14 +2323,23 @@ if (file_name != null) {
     } else {
       var gpxurl="<%= ((request.getParameter("gpx") == null) ? "" : request.getParameter("gpx")) %>";
       if (gpxurl.length>1) {
-        debug.add(gpxurl);
+        debug(gpxurl);
         //document.getElementById("showmarkers").checked = false;
         gpxLink = true;
         wt_loadGPX(gpxurl, gpxLink);
       } else {
         // center on current position
         clear_track();
-        gotoMyLocation();
+        var vlat = getVal("poslat");
+        var vlng = getVal("poslng");
+        var defpos;
+        if (vlat && vlng) {
+          defpos = {
+            lat: Number.parseFloat(vlat),
+            lng: Number.parseFloat(vlng)
+          };
+        }
+        gotoMyLocation(defpos);
       }
     }
 <%
@@ -2473,7 +2486,7 @@ if (file_name != null) {
       ds.push(dspt)
       i++;
     }
-    //debug.add(repr(ds))
+    //debug(repr(ds))
 
     // display
     var ymin = minalt < 0 ? minalt * 1.1 : minalt * 0.9
