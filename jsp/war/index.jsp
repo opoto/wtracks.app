@@ -65,8 +65,7 @@
     <link rel="shortcut icon" href="img/favicon.ico" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" >
     <meta name="viewport" content="width=device-width,height=device-height, user-scalable=no" />
-    <META name="keywords"
-          content="GoogleMaps, Map, GPX, track, editor, online, GPS, upload, save, DHTML">
+    <META name="keywords" content="GoogleMaps, Map, GPX, GPS, Tracks, Trails, GIS, outdoor">
     <title>WTracks - Online GPX track editor</title>
     <style type="text/css">
     v\:* {
@@ -148,7 +147,7 @@
       min-width:150px;
     }
 
-    #menu-list a {
+    #menu-list a, #menu-list span {
       width: 95%;
       border-top: 1px solid grey;
       border-left: 1px solid transparent;
@@ -157,6 +156,7 @@
       display: block;
       text-decoration: none;
       padding: 5px;
+      color: #666;
     }
     #menu-list a:hover {
       border: 1px solid black;
@@ -439,6 +439,10 @@
         <li><a href="#" onclick="show_view_box(); return false;">View</a></li>
         <li><a href="#" onclick="show_tools_box(); return false;">Tools</a></li>
         <li><a href="#" onclick="show_about_box(); return false;">About</a></li>
+        <li><a href="html/privacy.html" target="_blank">Privacy</a></li>
+        <li id="liRemember"><span>
+          <input type="checkbox" id="remember" onclick="remember()"/><label for="remember">Remember</label>
+        </span></li>
       </ul>
     </div>
 
@@ -805,6 +809,9 @@
     var pos = map.getCenter();
     storeVal("poslat",pos.lat());
     storeVal("poslng",pos.lng());
+  }
+  function saveMapType() {
+    storeVal("maptype", map.getMapTypeId());
   }
 
   function getAltitude(lat, lng) {
@@ -2087,9 +2094,16 @@
   }
 
   function storeVal(name, val) {
-    var store = window.localStorage;
-    if (store) {
-      store.setItem(name, val);
+    //log("store " + name + "=" + val);
+    if (isChecked("remember")) {
+      var store = window.localStorage;
+      if (store) {
+        if (val === "") {
+          store.removeItem(name);
+        } else {
+          store.setItem(name, val);
+        }
+      }
     }
   }
   function getVal(name) {
@@ -2117,7 +2131,47 @@
   }
 
 
+  function remember() {
+    if (isChecked("remember")) {
+      if (confirm("For your convenience, your display settings and current location may be stored in your browser (not on server) for future visits.\nConfirm?")) {
+        storeVal("remember","true");
+        saveMapType();
+        savePosition();
+        storeVal("alts",isChecked("showalts"));
+        storeVal("labels",isChecked("showlabels"));
+        storeVal("markers",isChecked("showmarkers"));
+        storeVal("waypoints",isChecked("showwaypoints"));
+        storeVal("stats",isChecked("showstats"));
+      } else {
+        setChecked("remember", false);
+      }
+    } else {
+      if (confirm("This will delete all your WTracks preferences from this browser.\nConfirm?")) {
+        setChecked("remember", true);
+        storeVal("alts","");
+        storeVal("labels","");
+        storeVal("markers","");
+        storeVal("waypoints","");
+        storeVal("stats","");
+        storeVal("maptype","");
+        storeVal("poslat","");
+        storeVal("poslng","");
+        storeVal("remember","");
+        setChecked("remember", false);
+      } else {
+        setChecked("remember", true);
+      }
+    }
+    close_popup('menu');
+  }
+
+
   function initDisplay() {
+    if (getVal("remember") == "true") {
+      setChecked("remember", true);
+    } else if (!window.localStorage) {
+      document.getElementById("liRemember").style.display = "none";
+    }
     wt_showTrkMarkers(mustShow("markers", true));
     wt_showLabels(mustShow("labels", true));
     wt_showAlts(mustShow("alts", false));
@@ -2297,7 +2351,7 @@
 
     // map type listener
     map.addListener('maptypeid_changed', function() {
-      storeVal("maptype", map.getMapTypeId());
+      saveMapType();
     });
 
     // left click: close info window
