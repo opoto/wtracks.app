@@ -91,16 +91,24 @@
 
     .hidden {display: none}
 
-    #user-box{
+    #user-box {
       background: #eee;
       border: 1px solid black;
-      padding: 10px;
-      position: absolute;
+      position: fixed;
       right: 5px;
       top: 40px;
       visibility: hidden;
-      overflow:auto;
      }
+    #user-box a {
+      text-decoration: none;
+      color: #666;
+      line-height: 2em;
+      padding: 0.5em;
+    }
+    #user-box a:hover {
+      border: 1px solid black;
+      background: #BBB;
+    }
 
     .box-table {
       border-collapse: collapse;
@@ -113,16 +121,20 @@
     .options-box{
       background: #eee;
       border: 1px solid black;
-      padding: 10px;
-      position: absolute;
+      position: fixed;
       left: 5px;
-      top: 40px;
-      /*width: 500px;*/
-      /*height: 250px;*/
+      top: 35px;
       visibility: hidden;
-      overflow:auto;
      }
-
+    .options-box td:first-of-type {
+      padding-left:10px;
+    }
+    .options-box td:last-of-type {
+      padding-right:10px;
+    }
+    .options-box table {
+      margin-bottom:10px;
+    }
     #info {
       width: 80%;
       margin-left: 10%;
@@ -148,7 +160,7 @@
     }
 
     #menu-list a, #menu-list span {
-      width: 95%;
+      width: 90%;
       border-top: 1px solid grey;
       border-left: 1px solid transparent;
       border-right: 1px solid transparent;
@@ -170,11 +182,6 @@
 
     a:VISITED {
       color: #666;
-    }
-
-    #about div {
-      margin-top: 20px;
-      margin-bottom: 10px;
     }
 
     #map {
@@ -204,46 +211,6 @@
       width: 100%;
     }
 
-    #url-syntax {
-      border: solid 1px #666;
-      border-collapse: collapse;
-    }
-    #url-syntax th,
-    #url-syntax td {
-      text-align: left;
-      padding: 3px;
-      border: solid 1px #666;
-    }
-
-    .share-on-link {
-      padding:5px 10px;
-      color:white
-    }
-    a.share-on-link {
-      text-decoration: none;
-    }
-    .share-on-link:hover,.share-on-link:active,a.share-on-link:visited {
-      color:white
-    }
-    .share-on-twitter {
-      background:#41B7D8
-    }
-    .share-on-twitter:hover,.share-on-twitter:active {
-      background:#279ebf
-    }
-    .share-on-facebook {
-      background:#3B5997
-    }
-    .share-on-facebook:hover,.share-on-facebook:active {
-      background:#2d4372
-    }
-    .share-on-googleplus {
-      background:#D64937
-    }
-    .share-on-googleplus:hover,.share-on-googleplus:active {
-      background:#b53525
-    }
-
     table#statistics {
       border-collapse: collapse;
       width: 100%;
@@ -257,6 +224,22 @@
       text-align: center;
     }
 
+    #tools-box tr {
+      border-top: 1px solid rgb(153, 153, 153);
+    }
+
+    .box-table tr:first-of-type {
+      border-bottom: 1px solid rgb(153, 153, 153);
+    }
+
+    #usertracks-span {
+      width:100%;
+      max-width:500px;
+      max-height:300px;
+      overflow:auto;
+      display:inline-block;
+    }
+
     /* for 480px or less */
     @media screen and (max-width: 480px) {
       .title {
@@ -264,7 +247,14 @@
         line-height: 1em;
       }
       /*#statistics th, #statistics td { width: 100px; }*/
-
+      .options-box {
+        left: 0px;
+        top: 20px;
+      }
+      #user-box {
+        right: 0px;
+        top: 20px;
+       }
       #statistics th { display: none; }
       #statistics td:nth-of-type(5) { display: none; }
       .hide-on-small-screen {
@@ -428,7 +418,7 @@
     </div>
 
     <div id="user-box" onkeydown='check_for_escape(event, "user-box")'>
-      <div><a href='login.jsp?action=logout&<%=rpxgoto%>'>Logout</a><br></div>
+      <div><a href='login.jsp?action=logout&<%=rpxgoto%>'>Logout</a></div>
     </div>
 
     <div class="options-box" id="menu" onkeydown='check_for_escape(event, "menu")'>
@@ -438,50 +428,12 @@
         <li><a href="#" onclick="show_save_box(); return false;">Save</a></li>
         <li><a href="#" onclick="show_view_box(); return false;">View</a></li>
         <li><a href="#" onclick="show_tools_box(); return false;">Tools</a></li>
-        <li><a href="#" onclick="show_about_box(); return false;">About</a></li>
         <li><a href="html/privacy.html" target="_blank">Privacy</a></li>
+        <li><a href="about.jsp" target="_blank">About</a></li>
         <li id="liRemember"><span>
-          <input type="checkbox" id="remember" onclick="remember()"/><label for="remember">Remember</label>
+          <input type="checkbox" id="remember" onclick="remember()"/><label for="remember">Remember me</label>
         </span></li>
       </ul>
-    </div>
-
-    <div class="options-box" id="about" onkeydown='check_for_escape(event, "about")'>
-      <table class="box-table">
-        <tr>
-          <th>About WTracks</th>
-          <th><a href="javascript:close_popup('about')"><img src="img/close.gif" alt="Close" title="Close" style="border: 0px"/></a></th>
-        </tr>
-      </table>
-      <div>
-        <a href="http://creativecommons.org/licenses/by/2.0/fr/deed.en_US"><img src="https://licensebuttons.net/l/by/2.0/fr/80x15.png" border=0></a>
-        <a href="#" onclick="doEmail2('gmail.com','Olivier.Potonniee','?subject=WTracks'); return false">Olivier Potonni&eacute;e</a>
-        - <a href="html/privacy.html">Privacy Policy</a>
-        - <a href="https://github.com/opoto/wtracks">Contribute</a>
-      </div>
-      <div>
-        Share the word:&nbsp;
-        <a class="share-on-link share-on-twitter" target="blank" href="https://twitter.com/intent/tweet?text=WTracks online GPX editor&amp;url=<%= appUrl %>">Twitter</a>
-
-        <a class="share-on-link share-on-facebook" target="blank"  href="https://www.facebook.com/sharer/sharer.php?u=<%= appUrl %>">Facebook</a>
-
-        <a class="share-on-link share-on-googleplus" target="blank"  href="https://plus.google.com/share?url=<%= appUrl %>">Google+</a>
-
-      </div>
-      <div>
-        URL syntax: <br>
-        <%= appUrl %>[?param1=value1[&amp;param2=value2]...]<br>
-        Where parameters can be:
-        <table id="url-syntax">
-          <tr><th>Name</th><th>Value</th><th></th></tr>
-          <tr><td>gpx</td><td>URL</td><td>URL of an online GPX file</td></tr>
-          <tr><td>markers</td><td>true|false</td><td>Controls track markers display</td></tr>
-          <tr><td>labels</td><td>true|false</td><td>Controls marker labels display</td></tr>
-          <tr><td>alts</td><td>true|false</td><td>Controls label altitudes display</td></tr>
-          <tr><td>waypoints</td><td>true|false</td><td>Controls waypoints display</td></tr>
-          <tr><td>stats</td><td>true|false</td><td>Controls statistics display</td></tr>
-        </table>
-      </div>
     </div>
 
     <div class="options-box" id="view-box" onkeydown='check_for_escape(event, "view-box")' style="z-index:10;">
@@ -597,7 +549,7 @@
             <td>
               <input type="submit" value="Load GPX from URL:" />
             </td><td>
-              <input id="gpxurl" type="text" size="60" name="url" value="http://" />
+              <input id="gpxurl" type="text" size="30" name="url" value="http://" />
             </td>
           </form>
         </tr>
@@ -607,7 +559,7 @@
               <input name="gpxupload" type="submit" value="Load GPX from file:"
                      onclick="return wt_check_fileupload(document.getElementById('upform'));" />
             </td><td>
-              <input type="file" size="50" name="gpxfile" id="gpxfile" style="width:100%"
+              <input type="file" size="20" name="gpxfile" id="gpxfile" style="width:100%"
                      onchange="if (wt_check_fileupload(document.getElementById('upform'))) this.form.submit()" />
               <input type="hidden" name="markers" value="" />
               <input type="hidden" name="labels" value="" />
@@ -631,8 +583,11 @@
             </select>
 
           </td><td>
-            <input type='text' id='track-filter' size='60' onkeyup='return filterTracks(event, this.value)'>
-            <span style="width:500px; max-height:300px; overflow:auto; display:inline-block;" id="usertracks-span"><img src='img/processing.gif'></span>
+            <input type='text' id='track-filter' size='30' onkeyup='return filterTracks(event, this.value)'>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <span id="usertracks-span"><img src='img/processing.gif'></span>
           </td>
         </tr>
       </table>
@@ -1129,12 +1084,6 @@
     var shown = (current_popup == "menu");
     close_current_popup();
     if (!shown) show_popup("menu");
-  }
-
-
-  function show_about_box(){
-    close_current_popup();
-    show_popup("about");
   }
 
   function show_view_box(){
@@ -2133,7 +2082,7 @@
 
   function remember() {
     if (isChecked("remember")) {
-      if (confirm("For your convenience, your display settings and current location may be stored in your browser (not on server) for future visits.\nConfirm?")) {
+      if (confirm("For your convenience, your display settings and current location will be stored in your browser (not on server) for future visits.\nConfirm?")) {
         storeVal("remember","true");
         saveMapType();
         savePosition();
@@ -2504,8 +2453,9 @@ if (file_name != null) {
     load_tracks("");
     close_current_popup();
     show_popup("load-box");
-    var obj = document.getElementById("gpxurl");
-    obj.focus();
+    // dont't focus for mobile: it displays keyboard
+    //var obj = document.getElementById("gpxurl");
+    //obj.focus();
   }
 
   function clear_track() {
