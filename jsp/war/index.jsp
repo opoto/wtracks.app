@@ -618,6 +618,10 @@
           <td>Use GPX route instead of track?</td>
         </tr>
         <tr>
+          <form><td align="right"><input type="checkbox" id="nometadata"/></td></form>
+          <td>Don't save metadata</td>
+        </tr>
+        <tr>
           <form target="_blank" action="savegpx.jsp" method="post" onSubmit="wt_doSave()">
             <td colspan="2">
               <input type='hidden' id='savedname' name='savedname' value='' />
@@ -1790,27 +1794,29 @@
   }
 
 
-  function wt_toGPX(savealt, savetime, asroute) {
+  function wt_toGPX(savealt, savetime, asroute, nometadata) {
     var gpx = '<\?xml version="1.0" encoding="ISO-8859-1" standalone="no" \?>\n';
     gpx += '<gpx creator="WTracks" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" version="1.1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">\n';
-    gpx += "<metadata>\n"
-    gpx += "  <name>" + trackname + "</name>\n"
-    gpx += "  <desc></desc>\n"
-    gpx += "  <author><name>" + WTRACKS + "</name></author>\n"
-    gpx += '  <link href="<%=appUrl%>">\n'
-    gpx += "    <text>WTracks</text>\n"
-    gpx += "    <type>text/html</type>\n"
-    gpx += "  </link>\n"
-    var t = new Date();
-    t = new Date(Date.UTC(1900 + t.getYear(), t.getMonth(), t.getDate(),
-                          t.getHours(), t.getMinutes(), t.getSeconds()));
-    var strtime = (1900 + t.getYear()) + "-" + lead0(1+t.getMonth()) + "-" + lead0(t.getDate()) + "T"
-                  + lead0(t.getHours()) + "-" + lead0(t.getMinutes()) + "-" + lead0(t.getSeconds()) + "Z";
-    gpx += "  <time>" + strtime + "</time>\n"
-    var sw = map.getBounds().getSouthWest();
-    var ne = map.getBounds().getNorthEast();
-    gpx += '<bounds minlat="' + Math.min( sw.lat(), ne.lat()) + '" minlon="' + Math.min( sw.lng(), ne.lng()) + '" maxlat="' + Math.max( sw.lat(), ne.lat()) + '" maxlon="'+ Math.max( sw.lng(), ne.lng()) + '"/>';
-    gpx += "</metadata>\n"
+    if (!nometadata) {
+      gpx += "<metadata>\n"
+      gpx += "  <name>" + trackname + "</name>\n"
+      gpx += "  <desc></desc>\n"
+      gpx += "  <author><name>" + WTRACKS + "</name></author>\n"
+      gpx += '  <link href="<%=appUrl%>">\n'
+      gpx += "    <text>WTracks</text>\n"
+      gpx += "    <type>text/html</type>\n"
+      gpx += "  </link>\n"
+      var t = new Date();
+      t = new Date(Date.UTC(1900 + t.getYear(), t.getMonth(), t.getDate(),
+                            t.getHours(), t.getMinutes(), t.getSeconds()));
+      var strtime = (1900 + t.getYear()) + "-" + lead0(1+t.getMonth()) + "-" + lead0(t.getDate()) + "T"
+                    + lead0(t.getHours()) + "-" + lead0(t.getMinutes()) + "-" + lead0(t.getSeconds()) + "Z";
+      gpx += "  <time>" + strtime + "</time>\n"
+      var sw = map.getBounds().getSouthWest();
+      var ne = map.getBounds().getNorthEast();
+      gpx += '<bounds minlat="' + Math.min( sw.lat(), ne.lat()) + '" minlon="' + Math.min( sw.lng(), ne.lng()) + '" maxlat="' + Math.max( sw.lat(), ne.lat()) + '" maxlon="'+ Math.max( sw.lng(), ne.lng()) + '"/>';
+      gpx += "</metadata>\n"
+    }
 
     var i = 0;
     while (i < wpts.length) {
@@ -2398,8 +2404,9 @@ if (file_name != null) {
     document.getElementById("savedname").value = trackname
     var savealt = document.getElementById("savealt").checked
     var savetime = document.getElementById("savetime").checked
+    var nometadata = document.getElementById("nometadata").checked
     var asroute = document.getElementById("asroute").checked
-    document.getElementById("gpxarea").value = wt_toGPX(savealt, savetime, asroute)
+    document.getElementById("gpxarea").value = wt_toGPX(savealt, savetime, asroute, nometadata)
   }
 
   function clickOnEnter(e,toClick) {
