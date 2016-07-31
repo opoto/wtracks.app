@@ -618,7 +618,7 @@
           <td>Use GPX route instead of track?</td>
         </tr>
         <tr>
-          <form><td align="right"><input type="checkbox" id="nometadata"/></td></form>
+          <form><td align="right"><input type="checkbox" id="nometadata" onclick="isNoMetadata(this.checked)"/></td></form>
           <td>Don't save metadata</td>
         </tr>
         <tr>
@@ -632,7 +632,7 @@
 <script type="text/javascript">
               document.write("<input type='hidden' name='oid' value='" + oid + "' />");
 </script>
-              <input type='submit' name='action' value='Save on this server' />
+              <input id="serversave" type='submit' name='action' value='Save on this server' />
               Visibility :
                <select name="sharemode" size="1">
                   <option value="<%=wtracks.GPX.SHARED_PRIVATE%>">Private</option>
@@ -1112,6 +1112,8 @@
     show_popup("save-box");
     var obj = document.getElementById("trackname");
     obj.focus();
+    setChecked("nometadata", false);
+    isNoMetadata(isChecked("nometadata"))
   }
 
   function info(msg) {
@@ -2407,6 +2409,13 @@ if (file_name != null) {
     var nometadata = document.getElementById("nometadata").checked
     var asroute = document.getElementById("asroute").checked
     document.getElementById("gpxarea").value = wt_toGPX(savealt, savetime, asroute, nometadata)
+  }
+
+  function isNoMetadata(ischecked) {
+    var ssbut = document.getElementById("serversave")
+    if (ssbut) {
+      ssbut.disabled = ischecked;
+    }
   }
 
   function clickOnEnter(e,toClick) {
