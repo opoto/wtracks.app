@@ -1,3 +1,46 @@
+<%
+    Cookie[] cookies = request.getCookies();
+    int[] stepTimes = new int[] { 
+      86400, // 24h
+      604800, // 1 week
+      2419200, // 1 month
+      14515200 // 6 month
+    };
+    boolean hasDonateCookie = false;
+    int stepDonateCookie = 0;
+    if (cookies != null) {
+      try {
+        for(int i = 0; i < cookies.length; i++) {
+        Cookie c = cookies[i];
+          if (c.getName().equals("wt_t")) {
+            hasDonateCookie = true;
+          } else if (c.getName().equals("wt_s")) {
+            stepDonateCookie = Integer.parseInt(c.getValue());
+          }
+        }
+      } catch (Exception ex) {
+        hasDonateCookie = false;
+        stepDonateCookie = 0;
+      }
+    }
+
+    boolean showDonatePopup = false;
+    if (!hasDonateCookie) {
+      // Set cookies
+      Cookie ck_t = new Cookie("wt_t", "1");
+      ck_t.setMaxAge(stepTimes[stepDonateCookie]);
+      response.addCookie(ck_t);
+
+      if (stepDonateCookie+1 < stepTimes.length) {
+        stepDonateCookie++;
+      }
+      Cookie ck_s = new Cookie("wt_s", "" + stepDonateCookie);
+      ck_s.setMaxAge(29030400); // 1 year
+      response.addCookie(ck_s);
+
+      showDonatePopup = true;
+    }
+%>
 <!-- file upload imports -->
 <%@ page import="org.apache.commons.fileupload.*, org.apache.commons.fileupload.servlet.ServletFileUpload, org.apache.commons.fileupload.disk.DiskFileItemFactory, java.util.*, java.io.*, java.lang.Exception" %>
 <%
@@ -430,6 +473,7 @@
         <li><a href="#" onclick="show_tools_box(); return false;">Tools</a></li>
         <li><a href="html/privacy.html" target="_blank">Privacy</a></li>
         <li><a href="about.jsp" target="_blank">About</a></li>
+        <li><a href="#" onclick="show_donate_box(); return false;">Donate!</a></li>
         <li id="liRemember"><span>
           <input type="checkbox" id="remember" onclick="remember()"/><label for="remember">Remember me</label>
         </span></li>
@@ -651,6 +695,23 @@
 %></textarea>
             </td>
           </form>
+        </tr>
+      </table>
+    </div>
+
+    <div class="options-box" id="donate-box" onkeydown='check_for_escape(event, "donate-box")' style="z-index:10;">
+      <table class="box-table">
+        <tr>
+          <th>Donate</th>
+          <th><a href="javascript:close_popup('donate-box')"><img src="img/close.gif" alt="Cancel and Close" title="Cancel and Close" style="border: 0px"/></a></th>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <h1>Help WTracks!</h1>
+             <p>WTracks is currently overloaded, because of unexpected traffic by Pokemon GO users. These new users are welcome, but WTracks's current hosting plan has transaction quotas which are now exceeded. Please contribute to increase the quotas by giving 1 euro (or more!):</p>
+              <a href="<%=donate_link%>" target="_blank"><img src="img/donate-paypal.png" /></a>
+             <p>Thanks to all donators!</p>
+          </td>
         </tr>
       </table>
     </div>
@@ -1104,6 +1165,11 @@
   function show_tools_box(){
     close_current_popup();
     show_popup("tools-box");
+  }
+
+  function show_donate_box(){
+    close_current_popup();
+    show_popup("donate-box");
   }
 
   function show_save_box(){
@@ -2135,6 +2201,12 @@
     wt_showWaypoints(mustShow("waypoints", true));
 
     wt_showStats(mustShow("stats", true));
+<%
+    if (showDonatePopup) {
+      out.println("    show_donate_box();");
+    }
+%>
+
   }
 
   function wt_showTrkMarkers(show) {
