@@ -11,37 +11,32 @@
   }
 
   void listTracks(PersistenceManager pm, JspWriter out, String oid, boolean isUserOwner, String hostURL) throws IOException {
-    String query = "select from " + GPX.class.getName(); //  order by saveDate desc
+    String query = "select name, owner, sharedMode from " + GPX.class.getName(); 
     boolean publicList = oid.equals("*");
     if (publicList) {
-      query += " where sharedMode==" + GPX.SHARED_PUBLIC; //  order by saveDate desc
+      query += " where sharedMode==" + GPX.SHARED_PUBLIC; 
     } else {
-      query += " where owner=='" + oid + "'"; //  order by saveDate desc
+      query += " where owner=='" + oid + "'"; 
     }
     //System.out.println("list query: " + query);
-    List<GPX> tracks = (List<GPX>) pm.newQuery(query).execute();
-    /* for debug *
-    tracks = new ArrayList<GPX>();
-    tracks.add(new GPX("Sample one", "toto", "pouet", GPX.SHARED_PUBLIC, new Date()));
-    tracks.add(new GPX("This is a test", "tutu", "pouet", GPX.SHARED_PUBLIC, new Date()));
-    tracks.add(new GPX("Got it, ain't you?", "titi", "pouet", GPX.SHARED_PUBLIC, new Date()));
-    * */
-    for (GPX track : tracks) {
-      if (isUserOwner || (track.getSharedMode() == GPX.SHARED_PUBLIC)) {
-        //out.println("<option value='" + track.getName() + "'>" + track.getName() + "</option>");
-        String name = track.getName();
+    List<Object[]> tracks = (List<Object[]>) pm.newQuery(query).execute();
+    for (Object[] track : tracks) {
+      String name = (String)track[0];
+      String owner = (String)track[1];
+      int sharedMode = ((Integer)track[2]).intValue();
+      if (isUserOwner || (sharedMode == GPX.SHARED_PUBLIC)) {
         String linktxt = name.length() > 50 ? name.substring(0,47) + "..." : name;
         out.println("<div class='atrackentry' name='" + StringEscapeUtils.escapeXml(name) + "'>");
         if (!publicList) {
           out.println("<a href='#' onclick='delete_track(\"" + URLEncoder.encode(name) + "\")' title='Delete this track'><img src='img/delete.gif' title='Delete this track' alt='delete' style='border:0px'></a>&nbsp;");
         }
-        String qparam = "?name=" + URLEncoder.encode(name) + "&oid=" + URLEncoder.encode(track.getOwner());
+        String qparam = "?name=" + URLEncoder.encode(name) + "&oid=" + URLEncoder.encode(owner);
         out.print("<a href='." + qparam + "' ");
-        out.print(" onclick='wt_loadUserGPX(\"" + URLEncoder.encode(name) + "\", \"" + URLEncoder.encode(track.getOwner()) + "\"); return false; ' >");
+        out.print(" onclick='wt_loadUserGPX(\"" + URLEncoder.encode(name) + "\", \"" + URLEncoder.encode(owner) + "\"); return false; ' >");
         out.println(linktxt + "</a>");
-        if (track.getSharedMode() == GPX.SHARED_PUBLIC) {
+        if (sharedMode == GPX.SHARED_PUBLIC) {
           out.println("<img src='img/share.gif' title='Public - Anyone can see and read this track' alt='public' style='border:0px'>");
-        } else if (track.getSharedMode() == GPX.SHARED_LINK) {
+        } else if (sharedMode == GPX.SHARED_LINK) {
           out.println("<img src='img/link.png' title='Shareable - you can share this link' alt='shareable' style='border:0px'>");
         }
         out.println("<a target='_blank' href='http://chart.apis.google.com/chart?cht=qr&chs=400x400&chld=L&choe=UTF-8&chl="+URLEncoder.encode(hostURL + qparam)+"'><img src='img/qrcode.png' title='Show QRCode' alt='QRCode' style='border:0px'></a>");
@@ -54,7 +49,8 @@
   String oid = request.getParameter("oid");
   String name = request.getParameter("name");
   String delete = request.getParameter("delete");
-  String hostURL = "http://" + request.getServerName() + "/";
+  String scheme = request.isSecure() ? "https" : "http";
+  String hostURL = scheme + "://" + request.getServerName() + "/";
   boolean isUserOwner = isUser(session, oid);
 /*
   System.out.println("oid: " + oid);
