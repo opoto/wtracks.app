@@ -32,11 +32,11 @@ if ("Save".equals(action)) {
   PersistenceManager pm = PMF.get().getPersistenceManager();
 
   // search for an existing track with this name
-  String query = "select from " + GPX.class.getName() + " where name=='" + trackname.replaceAll("'", "\\\\'") + "'";
-  List<GPX> tracks = (List<GPX>) pm.newQuery(query).execute();
+  String query = "select owner from " + GPX.class.getName() + " where name=='" + trackname.replaceAll("'", "\\\\'") + "'";
+  List<String> tracks = (List<String>) pm.newQuery(query).execute();
   if (!tracks.isEmpty()) {
     // at most one should exist
-    if (!tracks.get(0).getOwner().equals(oid)) {
+    if (!tracks.get(0).equals(oid)) {
       // cannot overwrite someone else's track
       response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "This track name is already used by another user, please use a different track name");
       return;
@@ -58,5 +58,5 @@ if ("Save".equals(action)) {
 <%
 } else {
     out.println("<html><body>Invalid request</body></html>");
-} 
+}
 %>
