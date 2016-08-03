@@ -80,7 +80,12 @@ To use this script, you should create a "ant.properties" file in current directo
     <enhance_war war="war" />
   </target>
 
-  <target name="runserver" depends="datanucleusenhance, proxy"
+  <target name="runserver" depends="datanucleusenhance"
+      description="Starts the development server.">
+    <dev_appserver war="war"/>
+  </target>
+
+  <target name="runserver_wproxy" depends="datanucleusenhance, proxy"
       description="Starts the development server.">
     <dev_appserver war="war">
       <options>
@@ -89,7 +94,6 @@ To use this script, you should create a "ant.properties" file in current directo
         <arg value="--jvm_flag=-Dhttps.proxyHost=${proxy.host}"/>
         <arg value="--jvm_flag=-Dhttps.proxyPort=${proxy.port}"/>
       </options>
-
     </dev_appserver>
   </target>
 
