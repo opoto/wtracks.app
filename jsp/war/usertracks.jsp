@@ -1,9 +1,10 @@
-<%@ page import="java.util.*, java.io.*, javax.servlet.jsp.JspWriter, java.net.URLEncoder, java.net.URLDecoder, java.lang.Exception, wtracks.GPX, wtracks.PMF, javax.jdo.PersistenceManager, org.apache.commons.lang3.StringEscapeUtils" %><%@ include file="userid.jsp" %><%!
+<%@ page import="java.util.*, java.io.*, javax.servlet.jsp.JspWriter, java.net.URLEncoder, java.net.URLDecoder, java.lang.Exception, wtracks.GPX, wtracks.PMF, javax.jdo.PersistenceManager, javax.jdo.Query, org.apache.commons.lang3.StringEscapeUtils" %><%@ include file="userid.jsp" %><%!
 
   GPX getTrack(PersistenceManager pm, String name, String oid) {
-    String query = "select from " + GPX.class.getName() + " where name=='" + name.replaceAll("'", "\\\\'") + "' && owner=='" + oid + "'";
-    //System.out.println("get query: " + query);
-    List<GPX> tracks = (List<GPX>) pm.newQuery(query).execute();
+    String query = "select from " + GPX.class.getName() + " where name==qname && owner==qowner parameters String qname, String qowner";
+    Query q = pm.newQuery(query);
+    List<GPX> tracks = (List<GPX>) q.execute(name.replaceAll("'", "\\\\'"), oid);
+    
     if (tracks.isEmpty()) {
       return null;
     }
@@ -13,13 +14,16 @@
   void listTracks(PersistenceManager pm, JspWriter out, String oid, boolean isUserOwner, String hostURL) throws IOException {
     String query = "select name, owner, sharedMode from " + GPX.class.getName(); 
     boolean publicList = oid.equals("*");
+    Object param;
     if (publicList) {
-      query += " where sharedMode==" + GPX.SHARED_PUBLIC; 
+      query += " where sharedMode==qsharedmode parameters int qsharedmode";
+      param = new Integer(GPX.SHARED_PUBLIC); 
     } else {
-      query += " where owner=='" + oid + "'"; 
+      query += " where owner==qowner parameters String qowner";
+      param = oid; 
     }
     //System.out.println("list query: " + query);
-    List<Object[]> tracks = (List<Object[]>) pm.newQuery(query).execute();
+    List<Object[]> tracks = (List<Object[]>) pm.newQuery(query).execute(param);
     for (Object[] track : tracks) {
       String name = (String)track[0];
       String owner = (String)track[1];
