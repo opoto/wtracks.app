@@ -37,7 +37,7 @@ System.out.println("name: " + name);
 System.out.println("gpx: " + gpxdata);
 */
 
-if ("Save".equals(action)) {
+if ("Download".equals(action)) {
   response.setContentType("application/octet-stream");
   response.setHeader("Content-disposition", "attachment; filename=\"" + name + ".gpx\"");
   out.print(gpxdata);
