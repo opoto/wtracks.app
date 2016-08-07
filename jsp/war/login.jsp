@@ -31,13 +31,13 @@
   String action = request.getParameter("action");
   String token = request.getParameter("token");
 
-  String userID = getUserID(session);
+  String user = getUser(session);
 
   //System.out.println("token: " + token);
-  //System.out.println("userID: " + userID);
+  //System.out.println("user: " + user);
 
   if ("logout".equals(action)) {
-    clearUserID(session);
+    clearUser(session);
     response.sendRedirect(redirect);
   } else if (!"".equals(token)) {
 
@@ -45,7 +45,7 @@
     // POST token and apiKey to: https://rpxnow.com/api/v2/auth_info
     String jsonuid = get_json_userid(token, rpxnow_key);
     if (jsonuid.length() > 0) {
-      setUserID(session, jsonuid);
+      setUser(session, jsonuid);
       response.sendRedirect(redirect);
     } else  {
       out.println("Error: failed get auth info for token "+token+"<br>");
@@ -60,12 +60,12 @@
 </head>
 <body>
 <%
-    if (userID != null) {
+    if (user != null) {
 %>
 You're logged in as 
 <script>
-   userID = <%= userID %>
-   document.write(userID.profile.displayName);
+   user = <%= user %>
+   document.write(user.profile.displayName);
 </script>
 <br>
 <%

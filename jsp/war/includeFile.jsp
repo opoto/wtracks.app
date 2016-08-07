@@ -46,7 +46,7 @@
       }
       transferFile(is, o);
     } catch (Exception e) {
-      System.err.println("ERROR in includeFile: " + e);
+      System.err.println("ERROR in includeFile: " + e + "(" + url + ")");
     }
     return; 
   }

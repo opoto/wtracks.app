@@ -10,7 +10,11 @@ import javax.jdo.annotations.PrimaryKey;
 
 @PersistenceCapable
 public class GPX {
+
     @PrimaryKey
+    private String id;
+
+    @Persistent
     private String name;
 
     @Persistent
@@ -29,20 +33,33 @@ public class GPX {
     @Persistent
     private Date saveDate;
 
-    public GPX(String name, String owner, String gpx, int sharedMode, Date saveDate) {
+    public GPX(String id, String name, String owner, String gpx, int sharedMode) {
+        this.id = id;
         this.name = name;
         this.owner = owner;
         this.gpx = new Text(gpx);
         this.sharedMode = sharedMode;
-        this.saveDate = saveDate;
+        setSaveDate();
     }
 
     // Accessors for the fields.  JDO doesn't use these, but your application does.
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
     }
-
+    
+    public void setName(String name) {
+      this.name = name;
+    }
+    
     public String getOwner() {
         return owner;
     }
@@ -50,13 +67,32 @@ public class GPX {
     public String getGpx() {
         return gpx.getValue();
     }
+    
+    public void setGpx(String gpx) {
+        this.gpx = new Text(gpx);
+    }
 
     public int getSharedMode() {
         return sharedMode;
     }
 
+    public void setSharedMode(int sharedMode) {
+        this.sharedMode = sharedMode;
+    }
+
     public Date getSaveDate() {
         return saveDate;
     }
+    
+    public void setSaveDate() {
+        saveDate = new Date();
+    }
 
+    public void setSaveDate(Date date) {
+        this.saveDate = date;
+    }
+
+    public String toString() {
+        return "{ name: " + name + ", id:" + id + ", owner: " + owner + ", sharedMode: " + sharedMode + ", saveDate: " + saveDate + "}";  
+    }
 }

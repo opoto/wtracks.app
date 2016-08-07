@@ -4,5 +4,6 @@
         <dependency org="commons-io" name="commons-io" rev="1.4" conf="*->*,!sources,!javadoc" />
         <dependency org="commons-fileupload" name="commons-fileupload" rev="1.2.1" conf="*->*,!sources,!javadoc" />
         <dependency org="org.apache.commons" name="commons-lang3" rev="3.4" conf="*->*,!sources,!javadoc" />
+        <dependency org="org.json" name="json" rev="20160212" conf="*->*,!sources,!javadoc" />
     </dependencies>
 </ivy-module>

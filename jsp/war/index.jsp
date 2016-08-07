@@ -1,6 +1,6 @@
 <%
     Cookie[] cookies = request.getCookies();
-    int[] stepTimes = new int[] { 
+    int[] stepTimes = new int[] {
       86400, // 24h
       604800, // 1 week
       2419200, // 1 month
@@ -62,7 +62,6 @@
   String rpxgoto = "goto=" + java.net.URLEncoder.encode(ctxPath);
   String rpxnow_token_url = "/login.jsp?" + rpxgoto;
 
-  String userID = null;
 
   // The following config file should set gmaps_key, ganalytics_key, rpxnow_realm and rpxnow_key
 %>
@@ -73,6 +72,8 @@
 <%
   StringBuffer file = null; // uploaded file content
   String file_name = null; // uploaded file name
+  boolean isLoggedIn = getUser(session) != null;
+  String userName = getUserName(session);
 
   // File Upload detection
   if (ServletFileUpload.isMultipartContent(request)){
@@ -110,6 +111,7 @@
     <meta name="viewport" content="width=device-width,height=device-height, user-scalable=no" />
     <META name="keywords" content="GoogleMaps, Map, GPX, GPS, Tracks, Trails, GIS, outdoor">
     <title>WTracks - Online GPX track editor</title>
+    <script src="js/htmlEncode.js" type="text/javascript"></script>
     <style type="text/css">
     v\:* {
       behavior:url(#default#VML);
@@ -359,27 +361,13 @@
           <th style="text-align:right">
             <!-- login (rpxnow) -->
             <%
-              userID = getUserID(session);
-
-              if ((userID == null) || (userID.length() == 0)) {
-                userID = null;
+              if (isLoggedIn) {
             %>
-            <a class="janrainEngage" href="#">Sign-In</a>
-            <script type='text/javascript'>
-              var oid = ''
-            </script>
+              <a id='userid' href='#' onclick='toggle_user_box()'><%=userName%></a>
             <%
               } else {
             %>
-            <script type='text/javascript'>
-              var userID = <%= userID %>;
-              var name = userID.profile.displayName;
-              var oid = userID.profile.identifier;
-              if (name == '') {
-                name = oid.replace(/https?:\/\//, '');
-              }
-              document.write("<a href='#' onclick='toggle_user_box()'>" + name + "</a>");
-            </script>
+              <a class="janrainEngage" href="#">Sign-In</a>
             <%
               }
             %>
@@ -615,7 +603,7 @@
           <td style="vertical-align:top;">
             <select id="load_list" size="1" onChange="load_tracks('')">
 <%
-  if (userID != null) {
+  if (isLoggedIn) {
 %>
               <option selected>Your saved track:</option>
               <option>Public tracks:</option>
@@ -647,38 +635,38 @@
         </tr>
         <tr>
           <td>Track Name</td>
-          <form><td><input type="text" size="40" id="trackname" onkeypress="return clickOnEnter(event,'savebutton')"/></td></form>
+          <td><input type="text" size="40" id="trackname" onkeypress="return clickOnEnter(event,'savebutton')"/></td>
         </tr>
         <tr>
-          <form><td align="right"><input type="checkbox" id="savealt"/></td></form>
+          <td align="right"><input type="checkbox" id="savealt"/></td>
           <td>Save intermediate computed altitudes?</td>
         </tr>
         <tr>
-          <form><td align="right"><input type="checkbox" id="savetime"/></td></form>
+          <td align="right"><input type="checkbox" id="savetime"/></td>
           <td>Save computed timings?</td>
         </tr>
         <tr>
-          <form><td align="right"><input type="checkbox" id="asroute"/></td></form>
+          <td align="right"><input type="checkbox" id="asroute"/></td>
           <td>Use GPX route instead of track?</td>
         </tr>
         <tr>
-          <form><td align="right"><input type="checkbox" id="nometadata" onclick="isNoMetadata(this.checked)"/></td></form>
+          <td align="right"><input type="checkbox" id="nometadata" onclick="isNoMetadata(this.checked)"/></td>
           <td>Don't save metadata</td>
         </tr>
         <tr>
-          <form target="_blank" action="savegpx.jsp" method="post" onSubmit="wt_doSave()">
+          <input type='hidden' id='savetype' value="" />
+          <form target="_blank" action="savegpx.jsp" method="post" onSubmit="return wt_doSave()">
             <td colspan="2">
               <input type='hidden' id='savedname' name='savedname' value='' />
-              <input type="submit" id="savebutton" name="action" value="Save" />
+              <input type="submit" id="savebutton" name="action" value="Download" onclick="document.getElementById('savetype').value='file'"/>
+              <input type='hidden' id='id' name='id' value="" />
 <%
-  if (userID != null) {
+  if (isLoggedIn) {
 %>
-<script type="text/javascript">
-              document.write("<input type='hidden' name='oid' value='" + oid + "' />");
-</script>
-              <input id="serversave" type='submit' name='action' value='Save on this server' />
+              <input id="serversave" type='submit' name='action' value='Save' onclick="document.getElementById('savetype').value='server'"/>
+              <input id="servercopy" type='submit' name='action' value='Save a copy' onclick="document.getElementById('savetype').value='copy'"/>
               Visibility :
-               <select name="sharemode" size="1">
+               <select id="sharemode" name="sharemode" size="1">
                   <option value="<%=wtracks.GPX.SHARED_PRIVATE%>">Private</option>
                   <option value="<%=wtracks.GPX.SHARED_LINK%>">Shareable</option>
                   <option value="<%=wtracks.GPX.SHARED_PUBLIC%>">Public</option>
@@ -1174,6 +1162,14 @@
 
   function show_save_box(){
     document.getElementById("trackname").value = trackname
+<%
+  if (isLoggedIn) {
+%>
+    var servercopy = document.getElementById("servercopy")
+    servercopy.style.display = document.getElementById("id").value ? "inline" : "none";
+<%
+  }
+%>
     close_current_popup();
     show_popup("save-box");
     var obj = document.getElementById("trackname");
@@ -1191,8 +1187,10 @@
         setElement("message", "<p>"+msg+"</p>");
       }
     } else {
-      setElement("message","");
-      close_popup("info");
+      if (current_popup == "info") {
+        setElement("message","");
+        close_popup("info");
+      };
     }
   }
 
@@ -1233,7 +1231,7 @@
 
 
   google.maps.Marker.prototype.wt_infoHead = function() {
-    var ptinfo = "Name: <input type='text' size='10' value='" + this.Wt_getName()
+    var ptinfo = "Name: <input type='text' size='10' value='" + htmlEncode(this.Wt_getName())
         + "' onchange='"+ this.wt_arrayname + "[" + this.wt_i + "].wt_setName(this.value)' onkeyup='"
         + this.wt_arrayname + "[" + this.wt_i + "].wt_setName(this.value)'/><br/>";
     ptinfo += "Position: <span id='ppos'>" + this.getPosition().toUrlValue() + "</span><br/>";
@@ -1953,6 +1951,7 @@
     descent = 0
     climbing = 0
     setTrackName("New Track")
+    document.getElementById("id").value = "";
   }
 
 
@@ -1960,20 +1959,31 @@
     close_popup('load-box');
     //info("loading " + filename + "...<br>");
     info("<img src='img/processing.gif'> Loading...");
-    downloadUrl("httpget_proxy.jsp?" + filename, function(data, responseCode) {
-      if (wt_importGPX(data) && link) {
-        addTrackLink(filename);
-      }
-    });
+    Lokris.AjaxCall("httpget_proxy.jsp?" + filename, function(res) {
+        if (wt_importGPX((new XMLSerializer()).serializeToString(res)) && link) {
+          addTrackLink(filename);
+        }
+      }, { 
+        errorHandler : function(res) {
+            info("");
+            info("<img src='img/delete.gif'> FAILED: " + res.responseText);
+          }
+      });
   }
 
-  function wt_loadUserGPX(filename, oid) {
+  function wt_loadUserGPX(trackid) {
     close_popup('load-box');
     //info("loading " + filename + "...<br>");
     info("<img src='img/processing.gif'> Loading...");
-    downloadUrl("usertracks.jsp?oid=" + oid + "&name=" + filename, function(data, responseCode) {
-      wt_importGPX(data);
-    });
+    Lokris.AjaxCall("usertracks.jsp?id=" + trackid, function(res) {
+        wt_importGPX(res);
+        document.getElementById("id").value = trackid;
+      }, { 
+        errorHandler : function(res) {
+            info("");
+            info("<img src='img/delete.gif'> FAILED: " + res.responseText);
+          }
+      });
   }
 
   function wt_importPoints(xmlpts, is_trk) {
@@ -1996,9 +2006,9 @@
         name  = getText(names[0])
       }
       if (is_trk) {
-        pt = new_Trkpt(point, ele, name, false)
+        new_Trkpt(point, ele, name, false)
       } else {
-        pt = new_Wpt(point, ele, name)
+        new_Wpt(point, ele, name)
       }
     }
 
@@ -2398,11 +2408,10 @@ if (file_name != null) {
 } else {
 %>
 
-    var userid="<%= ((request.getParameter("oid") == null) ? "" : request.getParameter("oid")) %>";
-    var usertrack="<%= ((request.getParameter("name") == null) ? "" : request.getParameter("name")) %>";
+    var trackid="<%= ((request.getParameter("id") == null) ? "" : request.getParameter("id")) %>";
     var gpxLink = false;
-    if ((userid.length>1) && (usertrack.length>1)) {
-      wt_loadUserGPX(escape(usertrack), escape(userid));
+    if (trackid.length>1) {
+      wt_loadUserGPX(escape(trackid));
     } else {
       var gpxurl="<%= ((request.getParameter("gpx") == null) ? "" : request.getParameter("gpx")) %>";
       if (gpxurl.length>1) {
@@ -2472,15 +2481,52 @@ if (file_name != null) {
     mapdiv.style.height = maphv + "px"
   }
 
+  function postEncoded(str) {
+    return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
+      return '%' + c.charCodeAt(0).toString(16);
+    });
+  }
+
   function wt_doSave() {
+    var name = document.getElementById("trackname").value.trim();
+    if (name === "") {
+      alert("Track name cannot be empty");
+      document.getElementById("trackname").focus();
+      return false;
+    }
     close_current_popup();
-    setTrackName(htmlEncode(document.getElementById("trackname").value, false, 0))
-    document.getElementById("savedname").value = trackname
+    setTrackName(name);
+    document.getElementById("savedname").value = htmlEncode(name, false, 0)
     var savealt = document.getElementById("savealt").checked
     var savetime = document.getElementById("savetime").checked
     var nometadata = document.getElementById("nometadata").checked
     var asroute = document.getElementById("asroute").checked
     document.getElementById("gpxarea").value = wt_toGPX(savealt, savetime, asroute, nometadata)
+
+    var savetype = document.getElementById('savetype').value
+    var id = document.getElementById("id").value
+    if (savetype === "copy") {
+      id = ""
+      savetype = "server"
+    }
+    if (savetype === "server") {
+      info("<img src='img/processing.gif'> Saving...");
+      var postdata = "savedname=" + postEncoded(htmlEncode(name, false, 0)) + "&id=" + postEncoded(id) + "&sharemode=" + document.getElementById("sharemode").value + "&gpxarea=" + postEncoded(document.getElementById("gpxarea").value);
+      //info(postdata);
+      Lokris.AjaxCall("savegpx.jsp", function(res) {
+        info("");
+        document.getElementById("id").value = res.trim();
+      }, {
+        method: "POST",
+        postBody: postdata,
+        errorHandler : function(res) {
+          info("");
+          info("<img src='img/delete.gif'> FAILED: " + res.responseText);
+        }
+      });
+      info("Sent!");
+      return false;
+    }
   }
 
   function isNoMetadata(ischecked) {
@@ -2502,7 +2548,7 @@ if (file_name != null) {
   function filterTracks(e, filter) {
     //console.log("filter: " + filter);
     var entries = document.getElementsByClassName("atrackentry");
-    var re = new RegExp(filter.toLowerCase());
+    var re = new RegExp(htmlEncode(filter.toLowerCase()));
     for (var i = 0; i < entries.length; i++) {
       var entry = entries[i];
       var name = entry.getAttribute("name");
@@ -2525,15 +2571,16 @@ if (file_name != null) {
     document.getElementById("track-filter").value = "";
     document.getElementById("track-filter").style.display = "none"
     // "Your tracks" or "Public" ?
-    var targetoid = (document.getElementById("load_list").selectedIndex==0) ? oid : "*"
+    var scope = (document.getElementById("load_list").selectedIndex==0) ? "me" : "all"
     Lokris.AjaxCall("usertracks.jsp" + params, show_user_tracks,
-              { method: "POST", postBody: "oid="+targetoid});
+      { method: "POST", 
+        postBody: "scope="+scope
+      });
   }
 
-  function delete_track(url) {
-    var name = decodeURIComponent((url + '').replace(/\+/g, '%20'))
-    if (confirm("Delete track '" + name + "'?")) {
-      load_tracks('?delete=' + url);
+  function delete_track(name, id) {
+    if (confirm("Delete track '" + htmlDecode(name) + "'?")) {
+      load_tracks('?delete=' + encodeURIComponent(id));
     }
   }
 
@@ -2600,7 +2647,6 @@ if (file_name != null) {
     //]]>
     </script>
 
-   <script src="js/htmlEncode.js" type="text/javascript"></script>
    <script src="js/showmail.js" type="text/javascript"></script>
    <script src="js/util.js" type="text/javascript"></script>
 
