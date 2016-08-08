@@ -1,4 +1,6 @@
-<%@ page import="java.util.*, java.io.*, javax.servlet.jsp.JspWriter, java.net.URLEncoder, java.net.URLDecoder, java.lang.Exception, wtracks.GPX, wtracks.PMF, javax.jdo.PersistenceManager, javax.jdo.Query, org.apache.commons.lang3.StringEscapeUtils, javax.servlet.http.HttpSession, org.json.JSONObject" %><%!
+<%@ page import="java.util.*, java.io.*, javax.servlet.jsp.JspWriter, java.net.URLEncoder, java.net.URLDecoder, java.lang.Exception, wtracks.GPX, wtracks.PMF, javax.jdo.PersistenceManager, javax.jdo.Query, org.apache.commons.lang3.StringEscapeUtils, javax.servlet.http.HttpSession, org.json.JSONObject, java.util.logging.Logger" %><%!
+
+  static Logger ulog = Logger.getLogger("userid");
 
   String getUser(HttpSession session) {
     return (String)session.getAttribute("LoginUserID");
@@ -22,7 +24,7 @@
     try { 
       userId = jobj.getJSONObject("profile").getString("displayName");
     } catch (Exception ex) {
-      log.severe("No displayName: " + u);
+      ulog.severe("No displayName: " + u);
     }
     if ("".equals(userId)) {
       userId = "Anonymous user";
@@ -46,7 +48,7 @@
       return false;
     }
     boolean ok = currentUser.equals(identifier);
-    if (!ok) log.severe("user mismatch: " + currentUser + " != " + identifier);
+    if (!ok) ulog.severe("user mismatch: " + currentUser + " != " + identifier);
     return ok;
   }
 
