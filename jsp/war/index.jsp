@@ -1,3 +1,7 @@
+<%@ page import="org.apache.commons.fileupload.*, org.apache.commons.fileupload.servlet.ServletFileUpload, org.apache.commons.fileupload.disk.DiskFileItemFactory, java.util.*, java.io.*, java.util.logging.Logger" %>
+<%!
+    static Logger log = Logger.getLogger("index");
+%>
 <%
     Cookie[] cookies = request.getCookies();
     int[] stepTimes = new int[] {
@@ -41,9 +45,8 @@
       showDonatePopup = true;
     }
 %>
-<!-- file upload imports -->
-<%@ page import="org.apache.commons.fileupload.*, org.apache.commons.fileupload.servlet.ServletFileUpload, org.apache.commons.fileupload.disk.DiskFileItemFactory, java.util.*, java.io.*, java.lang.Exception" %>
 <%
+
   // compute application url
   String host = request.getServerName();
   int port = request.getServerPort();
@@ -653,6 +656,14 @@
           <td align="right"><input type="checkbox" id="nometadata" onclick="isNoMetadata(this.checked)"/></td>
           <td>Don't save metadata</td>
         </tr>
+<%
+  if (isLoggedIn) {
+%>
+        <tr>
+          <td align="right"><input type="checkbox" id="overwrite" /></td>
+          <td>Overwrite existing track with same name</td>
+        </tr>
+<% } %>
         <tr>
           <input type='hidden' id='savetype' value="" />
           <form target="_blank" action="savegpx.jsp" method="post" onSubmit="return wt_doSave()">
@@ -1167,6 +1178,7 @@
 %>
     var servercopy = document.getElementById("servercopy")
     servercopy.style.display = document.getElementById("id").value ? "inline" : "none";
+    document.getElementById("overwrite").checked = false
 <%
   }
 %>
@@ -1963,7 +1975,7 @@
         if (wt_importGPX((new XMLSerializer()).serializeToString(res)) && link) {
           addTrackLink(filename);
         }
-      }, { 
+      }, {
         errorHandler : function(res) {
             info("");
             info("<img src='img/delete.gif'> FAILED: " + res.responseText);
@@ -1978,7 +1990,7 @@
     Lokris.AjaxCall("usertracks.jsp?id=" + trackid, function(res) {
         wt_importGPX(res);
         document.getElementById("id").value = trackid;
-      }, { 
+      }, {
         errorHandler : function(res) {
             info("");
             info("<img src='img/delete.gif'> FAILED: " + res.responseText);
@@ -2066,6 +2078,8 @@
           var ne = new google.maps.LatLng(parseFloat(bounds[0].getAttribute("maxlat")),
                                parseFloat(bounds[0].getAttribute("maxlon")))
           mapbounds = new google.maps.LatLngBounds(sw, ne)
+          map.fitBounds(mapbounds)
+          map.setZoom(map.getZoom()+1)
         } else {
           // compute bounds to include all trackpoints and waypoints
           if (trkpts) {
@@ -2078,11 +2092,8 @@
               mapbounds.extend(wpts[i].getPosition());
             }
           }
+          map.fitBounds(mapbounds)
         }
-        //center = mapbounds.getCenter()
-        //zoom = Math.max(map.getBoundsZoomLevel(mapbounds),15)
-        zoom = map.fitBounds(mapbounds)
-        //map.setCenter(center, zoom);
         if (trkpts && trkpts.length > 0) {
           var pt = trkpts[trkpts.length - 1];
           wt_drawPolyline();
@@ -2511,7 +2522,8 @@ if (file_name != null) {
     }
     if (savetype === "server") {
       info("<img src='img/processing.gif'> Saving...");
-      var postdata = "savedname=" + postEncoded(htmlEncode(name, false, 0)) + "&id=" + postEncoded(id) + "&sharemode=" + document.getElementById("sharemode").value + "&gpxarea=" + postEncoded(document.getElementById("gpxarea").value);
+      var overwrite = document.getElementById("overwrite").checked  ? "true" : "false";
+      var postdata = "savedname=" + postEncoded(htmlEncode(name, false, 0)) + "&overwrite=" + overwrite + "&id=" + postEncoded(id) + "&sharemode=" + document.getElementById("sharemode").value + "&gpxarea=" + postEncoded(document.getElementById("gpxarea").value);
       //info(postdata);
       Lokris.AjaxCall("savegpx.jsp", function(res) {
         info("");
@@ -2573,7 +2585,7 @@ if (file_name != null) {
     // "Your tracks" or "Public" ?
     var scope = (document.getElementById("load_list").selectedIndex==0) ? "me" : "all"
     Lokris.AjaxCall("usertracks.jsp" + params, show_user_tracks,
-      { method: "POST", 
+      { method: "POST",
         postBody: "scope="+scope
       });
   }

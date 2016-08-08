@@ -1,10 +1,11 @@
-<%@ page import="java.util.*, java.io.*, java.net.*" %>
+<%@ page import="java.util.*, java.io.*, java.net.*, java.util.logging.Logger" %>
 <%
   String host = request.getServerName();
 %>
 <%@ include file="config.jsp" %>
 <%@ include file="userid.jsp" %>
 <%!
+  static Logger log = Logger.getLogger("savegpx");
   String get_json_userid(String token, String apiKey) {
     StringBuilder res = new StringBuilder();
     try {

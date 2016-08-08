@@ -18,7 +18,12 @@
     if (u == null) return null;
     // get profile.displayName
     JSONObject jobj = new JSONObject(u);
-    String userId = jobj.getJSONObject("profile").getString("displayName");
+    String userId = "";
+    try { 
+      userId = jobj.getJSONObject("profile").getString("displayName");
+    } catch (Exception ex) {
+      log.severe("No displayName: " + u);
+    }
     if ("".equals(userId)) {
       userId = "Anonymous user";
     } else {
@@ -41,7 +46,7 @@
       return false;
     }
     boolean ok = currentUser.equals(identifier);
-    if (!ok) System.err.println("user mismatch: " + currentUser + " != " + identifier);
+    if (!ok) log.severe("user mismatch: " + currentUser + " != " + identifier);
     return ok;
   }
 

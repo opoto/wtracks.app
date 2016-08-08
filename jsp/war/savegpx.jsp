@@ -1,23 +1,24 @@
-<%@ page import="java.util.*, java.io.*, java.lang.Exception, wtracks.GPX, wtracks.PMF, javax.jdo.PersistenceManager, javax.jdo.Query" %><%@ include file="userid.jsp" %><%!
+<%@ page import="java.util.*, java.io.*, java.lang.Exception, wtracks.GPX, wtracks.PMF, javax.jdo.PersistenceManager, java.util.logging.Logger" %><%@ include file="userid.jsp" %><%!
+
+  static Logger log = Logger.getLogger("savegpx");
+
   void log(Exception ex, String msg, String action, String id, String name) {
-    System.err.println("Exception: " + ex);
-    System.err.println(msg);
-    System.err.println("action: " + action);
-    System.err.println("id: " + id);
-    System.err.println("name: " + name);
+    log.severe("Exception: " + ex);
+    log.severe(msg);
+    log.severe("action: " + action);
+    log.severe("id: " + id);
+    log.severe("name: " + name);
   }
-  void saveError(HttpServletResponse response, String message) throws IOException {
-    System.err.println("save error: " + message);
-    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message);
+  void saveError(HttpServletResponse response, JspWriter out, String message1, String message2) throws IOException {
+    log.warning("save error: " + message1);
+    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+    out.println(message1);
+    out.println("<br>" + message2);
   }
-  void saveOK(JspWriter out, String id) throws IOException {
-    System.out.println("save ok: " + id);
-    out.println(id);
-  }
-  boolean isNameUsed(PersistenceManager pm, String userID, String name) {
+  String getTrackIdByName(PersistenceManager pm, String userID, String name) throws Exception {
     String query = "select id from " + GPX.class.getName() + " where owner==qowner && name==qname parameters String qowner, String qname";
     List<String> ids = (List<String>) pm.newQuery(query).execute(userID, name);
-    return (!ids.isEmpty());
+    return ids.isEmpty() ? null : ids.get(0);
   }
 %><%
 
@@ -28,13 +29,14 @@ if (!"POST".equalsIgnoreCase(request.getMethod())) {
 
 String action = request.getParameter("action");
 String gpxdata = request.getParameter("gpxarea").replaceAll("\\\"", "\"");
-String name = request.getParameter("savedname");
+String name = request.getParameter("savedname").trim();
 String id = request.getParameter("id");
+boolean overwrite = "true".equals(request.getParameter("overwrite"));
 /*
-System.out.println("action: " + action);
-System.out.println("id: " + id);
-System.out.println("name: " + name);
-System.out.println("gpx: " + gpxdata);
+log.info("action: " + action);
+log.info("id: " + id);
+log.info("name: " + name);
+log.info("gpx: " + gpxdata);
 */
 
 if ("Download".equals(action)) {
@@ -42,56 +44,81 @@ if ("Download".equals(action)) {
   response.setHeader("Content-disposition", "attachment; filename=\"" + name + ".gpx\"");
   out.print(gpxdata);
 } else {
-  
+
   String userID = getUserID(session);
   if ((userID == null) || (userID.length() == 0)) {
-    saveError(response, "You must be logged to save on server");
+    saveError(response, out, "You must be logged to save on server", "");
     return;
   }
-  
+  if ((name == null) || (name.length() == 0)) {
+    saveError(response, out, "Track name cannot be empty", "");
+    return;
+  }
+
   String query = null;
   PersistenceManager pm = null;
   try {
     int sharedMode = Integer.parseInt(request.getParameter("sharemode"));
 
-    query = "checking previous version";
     pm = PMF.get().getPersistenceManager();
+
+    GPX track = null;
+    boolean isUpdate = false;
+    boolean deletePrevious = false;
     
-    if ((id != null) && (id.length() > 0)) { 
-      GPX track = getTrack(session, pm, id);
-      if ((track != null) && (isUser(session,track.getOwner()))) {
-        if ((!name.equals(track.getName()) && isNameUsed(pm, userID, name))) {
-          saveError(response, "You already saved a track with this name, change track name or delete previous one first");
-          return;
+    query = "checking previous track version";
+    if ((id != null) && (id.length() > 0)) {
+      track = getTrack(session, pm, id);
+      if (track != null) {
+        if (!isUser(session, track.getOwner())) {
+          // no write acces to this track
+          track = null;
+          id = null;
+        } else if (track.getName().equals(name)) {
+          // user owns this track, and no name change
+          isUpdate = true;
         }
-        // update
-        track.setName(name);
-        track.setSharedMode(sharedMode);
-        track.setGpx(gpxdata);
-        track.setSaveDate();
-        saveOK(out, id);
-        return;
       }
-    } 
-    
-    query = "checking name duplicates";
-    if (isNameUsed(pm, userID, name)) {
-      saveError(response, "You already saved a track with this name, change track name or delete previous one first");
-      return;
     }
 
-    List<String> ids = null;
-    do {
-      id = newTrackId();
-      query = "select id from " + GPX.class.getName() + " where id==qid parameters String qid";
-      ids = (List<String>) pm.newQuery(query).execute(id);
-    } while (!ids.isEmpty());
-    
+    if (!isUpdate) {
+      query = "checking homonymous";
+      String homonymousid = getTrackIdByName(pm, userID, name);
+      if (homonymousid != null) {
+        if (overwrite) {
+          if (track != null) {
+            // we can remove previous track once we overwrite new one
+            deletePrevious = true;
+          }
+          id = homonymousid;
+        } else {
+          log.warning("NANE OVERLAP: " + name);
+          saveError(response, out, "You already saved a track named: "+ name, "<br>You need to either:<ul><li>use another track name, or</li><li>delete previous track with same name, or</li><li>check 'overwrite' save option</li></ul>");
+          return;
+        }
+      } else if (track == null) {
+        List<String> ids = null;
+        do {
+          // generate random UUID
+          id = newTrackId();
+          // make sure it is not already used
+          query = "select id from " + GPX.class.getName() + " where id==qid parameters String qid";
+          ids = (List<String>) pm.newQuery(query).execute(id);
+        } while (!ids.isEmpty());
+      }
+    }
+
     query = "creating GPX";
     GPX gpx = new GPX(id, name, userID, gpxdata, sharedMode);
     pm.makePersistent(gpx);
-    saveOK(out, id);
+    log.info("save ok: " + id);
+    out.println(id);
 
+    if (deletePrevious) {
+      log.info("deleting deprecated " + track.getId());
+      pm.deletePersistent(track);
+    }
+    
   } catch (Exception ex) {
     log(ex, query, action, id, name);
   } finally {
