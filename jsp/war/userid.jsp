@@ -15,22 +15,34 @@
     return userId;
   }
 
+  String getUserProfileField(JSONObject jobj, String field) {
+    try {
+      return jobj.getJSONObject("profile").getString(field);
+    } catch (Exception ex) {
+      return null;
+    }
+  }
+
   String getUserName(HttpSession session) {
     String u = getUser(session);
     if (u == null) return null;
     // get profile.displayName
     JSONObject jobj = new JSONObject(u);
     String userId = "";
-    try { 
-      userId = jobj.getJSONObject("profile").getString("displayName");
-    } catch (Exception ex) {
-      ulog.severe("No displayName: " + u);
+    userId = getUserProfileField(jobj, "displayName");
+    if (userId == null) {
+      ulog.info("User has no displayName: " + u);
+      userId = getUserProfileField(jobj, "displayName");
+      if (userId == null) {
+        userId = getUserProfileField(jobj, "providerSpecifier");
+        if (userId == null) {
+          userId = "Anonymous user";
+        } else {
+          userId += " user";
+        }
+      }
     }
-    if ("".equals(userId)) {
-      userId = "Anonymous user";
-    } else {
-      userId = StringEscapeUtils.escapeHtml4(userId);
-    }
+    userId = StringEscapeUtils.escapeHtml4(userId);
     return userId;
   }
 
