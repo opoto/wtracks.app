@@ -45,12 +45,10 @@
     // just logged in
     // POST token and apiKey to: https://rpxnow.com/api/v2/auth_info
     String jsonuid = get_json_userid(token, rpxnow_key);
-    if (jsonuid.length() > 0) {
-      setUser(session, jsonuid);
+    if ((jsonuid.length() > 0) && (setUser(session, jsonuid))) {
       response.sendRedirect(redirect);
     } else  {
       out.println("Error: failed get auth info for token "+token+"<br>");
-      //echo $php_errormsg;
     }
 
   } else {

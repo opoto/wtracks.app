@@ -11,7 +11,7 @@
     if (u == null) return null;
     // get profile.identifier
     JSONObject jobj = new JSONObject(u);
-    String userId = jobj.getJSONObject("profile").getString("identifier");
+    String userId = getUserProfileField(jobj, "identifier");
     return userId;
   }
 
@@ -28,26 +28,34 @@
     if (u == null) return null;
     // get profile.displayName
     JSONObject jobj = new JSONObject(u);
-    String userId = "";
-    userId = getUserProfileField(jobj, "displayName");
-    if (userId == null) {
-      ulog.info("User has no displayName: " + u);
-      userId = getUserProfileField(jobj, "displayName");
-      if (userId == null) {
-        userId = getUserProfileField(jobj, "providerSpecifier");
-        if (userId == null) {
-          userId = "Anonymous user";
+    String name = "";
+    name = getUserProfileField(jobj, "displayName");
+    if (name == null) {
+      name = getUserProfileField(jobj, "displayName");
+      if (name == null) {
+        name = getUserProfileField(jobj, "providerSpecifier");
+        if (name == null) {
+          ulog.info("Anonymous user? " + u);
+          name = "Anonymous user";
         } else {
-          userId += " user";
+          name += " user";
         }
       }
     }
-    userId = StringEscapeUtils.escapeHtml4(userId);
-    return userId;
+    name = StringEscapeUtils.escapeHtml4(name);
+    return name;
   }
 
-  void setUser(HttpSession session, String user) {
-    session.setAttribute("LoginUserID", user);
+  boolean setUser(HttpSession session, String user) {
+    JSONObject jobj = new JSONObject(user);
+    boolean ok = false;
+    try {
+      ok = "ok".equals(jobj.getString("stat"));
+      if (ok) {
+         session.setAttribute("LoginUserID", user);
+      }
+    } catch (Exception ex) {}
+    return ok;
   }
 
   void clearUser(HttpSession session) {

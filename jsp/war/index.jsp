@@ -75,7 +75,7 @@
 <%
   StringBuffer file = null; // uploaded file content
   String file_name = null; // uploaded file name
-  boolean isLoggedIn = getUser(session) != null;
+  boolean isLoggedIn = getUserID(session) != null;
   String userName = getUserName(session);
 
   // File Upload detection
