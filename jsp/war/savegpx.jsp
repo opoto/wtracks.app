@@ -2,13 +2,6 @@
 
   static Logger log = Logger.getLogger("savegpx");
 
-  void log(Exception ex, String msg, String action, String id, String name) {
-    log.severe("Exception: " + ex);
-    log.severe(msg);
-    log.severe("action: " + action);
-    log.severe("id: " + id);
-    log.severe("name: " + name);
-  }
   void saveError(HttpServletResponse response, JspWriter out, String message1, String message2) throws IOException {
     log.warning("save error: " + message1);
     response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -47,7 +40,8 @@ if ("Download".equals(action)) {
 
   String userID = getUserID(session);
   if ((userID == null) || (userID.length() == 0)) {
-    saveError(response, out, "You must be logged to save on server", "");
+    log.severe("Saving with no userID: " + getUser(session));
+    saveError(response, out, "You must be logged in to save on server", "");
     return;
   }
   if ((name == null) || (name.length() == 0)) {
@@ -120,7 +114,11 @@ if ("Download".equals(action)) {
     }
     
   } catch (Exception ex) {
-    log(ex, query, action, id, name);
+    log.severe("Exception: " + ex);
+    log.severe("operation" + query);
+    log.severe("action: " + action);
+    log.severe("id: " + id);
+    log.severe("name: " + name);
   } finally {
     if (pm != null) pm.close();
   }

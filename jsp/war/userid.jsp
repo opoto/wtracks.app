@@ -47,9 +47,9 @@
   }
 
   boolean setUser(HttpSession session, String user) {
-    JSONObject jobj = new JSONObject(user);
     boolean ok = false;
     try {
+      JSONObject jobj = new JSONObject(user);
       ok = "ok".equals(jobj.getString("stat"));
       if (ok) {
          session.setAttribute("LoginUserID", user);
@@ -68,7 +68,6 @@
       return false;
     }
     boolean ok = currentUser.equals(identifier);
-    if (!ok) ulog.severe("user mismatch: " + currentUser + " != " + identifier);
     return ok;
   }
 
@@ -86,11 +85,15 @@
     }
     GPX track = tracks.get(0); // only one should exist
     // check authorized
-    if ((!isUser(session,track.getOwner())) && (track.getSharedMode() == GPX.SHARED_PRIVATE)) {
-      return null;
-    } else {
-      return track;
+    if (!isUser(session,track.getOwner())) {
+      if (track.getSharedMode() == GPX.SHARED_PRIVATE) {
+        ulog.severe("User " + getUserID(session) + " accessing private track " + id + " from " + track.getOwner());
+        return null;
+      }
+      String shareMode = track.getSharedMode() == GPX.SHARED_PUBLIC ? "public" : "shared";
+      ulog.info("Accessing " + shareMode + " track " + id);
     }
+    return track;
   }
 
 %>
