@@ -838,7 +838,7 @@
     //"http://ws.geonames.org/srtm3?lat="+lat+"&lng="+lng
     var url = "https://maps.google.com/maps/api/elevation/json?sensor=false&locations="+lat+","+lng
 
-    var request = Lokris.AjaxCall("httprawget_proxy.jsp?"+escape(url), null, {async: false});
+    var request = Lokris.AjaxCall("httpget_proxy.jsp?t=p&u="+escape(url), null, {async: false});
     debug(" status:" + request.status)
     var res = 0
     if ((request.status == 200) && (request.responseText)) {
@@ -1971,7 +1971,7 @@
     close_popup('load-box');
     //info("loading " + filename + "...<br>");
     info("<img src='img/processing.gif'> Loading...");
-    Lokris.AjaxCall("httpget_proxy.jsp?" + filename, function(res) {
+    Lokris.AjaxCall("httpget_proxy.jsp?t=x&u=" + filename, function(res) {
         if (wt_importGPX((new XMLSerializer()).serializeToString(res)) && link) {
           addTrackLink(filename);
         }

@@ -1,5 +1,4 @@
-<%@ page import="javax.servlet.http.HttpServletResponse, java.io.*, java.net.URL" %>
-<%!
+<%@ page import="javax.servlet.http.HttpServletResponse, java.io.*, java.net.URL" %><%!
 
   void transferFile(InputStream is, Writer o) throws IOException {
     try {
@@ -33,21 +32,22 @@
     }
   }
 
-  void includeFile(HttpServletResponse response, String contentType, String url) {
+  boolean includeFile(HttpServletResponse response, String contentType, String url) {
     PrintWriter o = null;
     InputStream is = null;
     try {
-      response.setContentType(contentType);
-      o = response.getWriter(); // // don't use OutputStream, it causes java.lang.IllegalStateException: STREAM
       if (url.matches("^[a-z]+://.*")) {
         is = new URL(url).openStream();
       } else {
         is = new FileInputStream(url);
       }
+      response.setContentType(contentType);
+      o = response.getWriter(); // // don't use OutputStream, it causes java.lang.IllegalStateException: STREAM
       transferFile(is, o);
+      return true; 
     } catch (Exception e) {
       System.err.println("ERROR in includeFile: " + e + "(" + url + ")");
+      return false;
     }
-    return; 
   }
 %>
