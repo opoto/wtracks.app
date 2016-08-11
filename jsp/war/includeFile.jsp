@@ -1,6 +1,8 @@
 <%@ page import="javax.servlet.http.HttpServletResponse, java.io.*, java.net.URL" %><%!
 
   void transferFile(InputStream is, Writer o) throws IOException {
+    int total = 0;
+    int MAX_LEN = 1000000;
     try {
       byte[] buf = new byte[8 * 1024]; // 8k buffer
       int nRead = 0;
@@ -16,6 +18,7 @@
           }
           //System.out.println("writing from " + pos + " to " + (nRead - pos));
           o.write(new String(buf, pos, nRead - pos));
+          total += (nRead - pos);
       }
     } finally {
       if (is!=null) {
@@ -29,6 +32,9 @@
           o.close(); // *important* to ensure no more jsp output
         } catch (Exception e3) {}
       }
+      if (total > MAX_LEN) {
+        System.err.println("Loaded size was: " + total);
+      }
     }
   }
 
@@ -36,11 +42,13 @@
     PrintWriter o = null;
     InputStream is = null;
     try {
-      if (url.matches("^[a-z]+://.*")) {
+      //if (url.matches("^[a-z]+://.*")) {
         is = new URL(url).openStream();
+      /*
       } else {
         is = new FileInputStream(url);
       }
+      */
       response.setContentType(contentType);
       o = response.getWriter(); // // don't use OutputStream, it causes java.lang.IllegalStateException: STREAM
       transferFile(is, o);
