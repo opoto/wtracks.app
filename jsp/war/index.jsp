@@ -3,6 +3,34 @@
     static Logger log = Logger.getLogger("index");
 %>
 <%
+  // ===============================================================================
+  // Convert GET with parameters to POST
+  Enumeration<String> paramNames = request.getParameterNames();
+  if ("GET".equalsIgnoreCase(request.getMethod()) && paramNames.hasMoreElements()) {
+%>
+<html lang="en">
+<head>
+<meta charset='utf-8'>
+<link rel="shortcut icon" href="img/favicon.ico" />
+</head>
+<body>
+<div style="display: none"><form action="/" method="post">
+<%
+    while (paramNames.hasMoreElements()) {
+      String pname = paramNames.nextElement();
+      out.println("<input type='text' name='" + pname + "' value='" + request.getParameter(pname) + "' />");
+    }
+%>
+<input type="submit"/></form></div>
+<script type="text/javascript">document.forms[0].submit();</script>
+</body></html>
+<%
+    return;
+  }
+
+
+
+  // ===============================================================================
     Cookie[] cookies = request.getCookies();
     int[] stepTimes = new int[] {
       86400, // 24h
@@ -44,9 +72,9 @@
 
       showDonatePopup = true;
     }
-%>
-<%
 
+ 
+  // ===============================================================================
   // compute application url
   String host = request.getServerName();
   int port = request.getServerPort();
