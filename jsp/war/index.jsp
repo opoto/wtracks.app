@@ -143,202 +143,7 @@
     <META name="keywords" content="GoogleMaps, Map, GPX, GPS, Tracks, Trails, GIS, outdoor">
     <title>WTracks - Online GPX track editor</title>
     <script src="js/htmlEncode.js" type="text/javascript"></script>
-    <style type="text/css">
-    v\:* {
-      behavior:url(#default#VML);
-    }
-    .ptlabel {background-color:#ffffff}
-
-    th {
-      vertical-align: middle;
-      text-align: right;
-      background-color: #ddd;
-      padding-right:5px;
-      padding-left:5px;
-      font-family:sans-serif;
-      font-size:10pt;
-    }
-
-    .title {
-      font-size:12pt;
-      line-height: 2em;
-      margin-left: 10px;
-    }
-
-    .hidden {display: none}
-
-    #user-box {
-      background: #eee;
-      border: 1px solid black;
-      position: fixed;
-      right: 5px;
-      top: 40px;
-      visibility: hidden;
-     }
-    #user-box a {
-      text-decoration: none;
-      color: #666;
-      line-height: 2em;
-      padding: 0.5em;
-    }
-    #user-box a:hover {
-      border: 1px solid black;
-      background: #BBB;
-    }
-
-    .box-table {
-      border-collapse: collapse;
-      width: 100%;
-      border: 0;
-    }
-    .box-table th:first-of-type { text-align: left; }
-    .box-table th:last-of-type { text-align: right; }
-
-    .options-box{
-      background: #eee;
-      border: 1px solid black;
-      position: fixed;
-      left: 5px;
-      top: 35px;
-      visibility: hidden;
-     }
-    .options-box td:first-of-type {
-      padding-left:10px;
-    }
-    .options-box td:last-of-type {
-      padding-right:10px;
-    }
-    .options-box table {
-      margin-bottom:10px;
-    }
-    #info {
-      width: 80%;
-      margin-left: 10%;
-      margin-right: 10%;
-      position: relative;
-      top: 30%;
-    }
-
-    .graph-box{
-      background: #eee;
-      border: 1px solid black;
-      padding: 10px;
-      left: 5px;
-      top: 40px;
-      position: absolute;
-      visibility: hidden;
-    }
-
-    #menu-list {
-      list-style-type: none;
-      padding:0;
-      min-width:150px;
-    }
-
-    #menu-list a, #menu-list span {
-      width: 90%;
-      border-top: 1px solid grey;
-      border-left: 1px solid transparent;
-      border-right: 1px solid transparent;
-      border-bottom: 1px solid transparent;
-      display: block;
-      text-decoration: none;
-      padding: 5px;
-      color: #666;
-    }
-    #menu-list a:hover {
-      border: 1px solid black;
-      background: #BBB;
-      border-bottom-left-radius: 5px;
-    }
-
-    a {
-      color: #666;
-    }
-
-    a:VISITED {
-      color: #666;
-    }
-
-    #map {
-      width: 100%;
-      height: 100%;
-    }
-
-    body {
-      position:absolute;
-      width: 100%;
-      height: 100%;
-      top:0;
-      left:0;
-      margin:0
-    }
-
-    #header {
-      height: auto;
-      width: 100%;
-    }
-    #content {
-      height: 100%;
-      width: 100%;
-    }
-    #footer {
-      height: auto;
-      width: 100%;
-    }
-
-    table#statistics {
-      border-collapse: collapse;
-      width: 100%;
-    }
-    #statistics th, #statistics td {
-      border: 1px solid rgb(153, 153, 153);
-      min-width: 30px;
-      padding: 0 5px 0 5px;
-    }
-    #statistics td {
-      text-align: center;
-    }
-
-    #tools-box tr {
-      border-top: 1px solid rgb(153, 153, 153);
-    }
-
-    .box-table tr:first-of-type {
-      border-bottom: 1px solid rgb(153, 153, 153);
-    }
-
-    #usertracks-span {
-      width:100%;
-      max-width:500px;
-      max-height:300px;
-      overflow:auto;
-      display:inline-block;
-    }
-
-    /* for 480px or less */
-    @media screen and (max-width: 480px) {
-      .title {
-        font-size: 10pt;
-        line-height: 1em;
-      }
-      /*#statistics th, #statistics td { width: 100px; }*/
-      .options-box {
-        left: 0px;
-        top: 20px;
-      }
-      #user-box {
-        right: 0px;
-        top: 20px;
-       }
-      #statistics th { display: none; }
-      #statistics td:nth-of-type(5) { display: none; }
-      .hide-on-small-screen {
-        display: none;
-      }
-    }
-
-  </style>
+    <link rel="stylesheet" type="text/css" href="wtracks.css">
 
     <!-- Google API license key -->
     <script src="https://maps.google.com/maps/api/js?v=3&libraries=geometry" type="text/javascript"></script>
@@ -488,11 +293,11 @@
         <li><a href="#" onclick="clear_track(); return false;">New</a></li>
         <li><a href="#" onclick="show_load_box(); return false;">Load</a></li>
         <li><a href="#" onclick="show_save_box(); return false;">Save</a></li>
-        <li><a href="#" onclick="show_view_box(); return false;">View</a></li>
-        <li><a href="#" onclick="show_tools_box(); return false;">Tools</a></li>
+        <li><a href="#" onclick="show_box('view-box'); return false;">View</a></li>
+        <li><a href="#" onclick="show_box('tools-box'); return false;">Tools</a></li>
         <li><a href="html/privacy.html" target="_blank">Privacy</a></li>
-        <li><a href="about.jsp" target="_blank">About</a></li>
-        <li><a href="#" onclick="show_donate_box(); return false;">Donate!</a></li>
+        <li><a href="#" onclick="show_box('about-box'); return false;">About</a></li>
+        <li><a href="#" onclick="show_box('donate-box'); return false;">Donate!</a></li>
         <li id="liRemember"><span>
           <input type="checkbox" id="remember" onclick="remember()"/><label for="remember">Remember me</label>
         </span></li>
@@ -738,6 +543,39 @@
              <p>WTracks is currently overloaded, because of unexpected traffic by Pokemon GO users. These new users are welcome, but WTracks's current hosting plan has transaction quotas which are now exceeded. Please contribute to increase the quotas by giving 1 euro (or more!):</p>
               <a href="<%=donate_link%>" target="_blank"><img src="img/donate-paypal.png" /></a>
              <p>Thanks to all donators!</p>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="options-box" id="about-box" onkeydown='check_for_escape(event, "about-box")' style="z-index:10;">
+      <table class="box-table">
+        <tr>
+          <th>About</th>
+          <th><a href="javascript:close_popup('about-box')"><img src="img/close.gif" alt="Close" title="Close" style="border: 0px"/></a></th>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <h1>WTracks <img src="../img/favicon.ico" alt="logo"></h1>
+            <div>
+              <a href="http://creativecommons.org/licenses/by/2.0/fr/deed.en_US"><img src="https://licensebuttons.net/l/by/2.0/fr/80x15.png" border=0></a>
+              <a href="#" onclick="doEmail2('gmail.com','Olivier.Potonniee','?subject=WTracks'); return false">Olivier Potonni&eacute;e</a>
+              - <a href="html/privacy.html" target="_blank">Privacy Policy</a>
+            </div>
+            <div>
+              This service is provided as is, with no guarantee.
+            </div>
+            <div>
+              This is an open source project, you may see full code and contribute through our <a href="https://github.com/opoto/wtracks">GitHub project</a>
+            </div>
+            <div>
+              Share the word:&nbsp;
+              <a class="share-on-link share-on-twitter" target="blank" href="https://twitter.com/intent/tweet?text=WTracks online GPX editor&amp;url=<%= appUrl %>">Twitter</a>
+
+              <a class="share-on-link share-on-facebook" target="blank"  href="https://www.facebook.com/sharer/sharer.php?u=<%= appUrl %>">Facebook</a>
+
+              <a class="share-on-link share-on-googleplus" target="blank"  href="https://plus.google.com/share?url=<%= appUrl %>">Google+</a>
+            </div>
           </td>
         </tr>
       </table>
@@ -1179,25 +1017,15 @@
     if (!shown) show_popup("menu");
   }
 
-  function show_view_box(){
-    close_current_popup();
-    show_popup("view-box");
-  }
-
   function toggle_user_box(){
     var shown = (current_popup == "user-box");
     close_current_popup();
     if (!shown) show_popup("user-box");
   }
 
-  function show_tools_box(){
+  function show_box(boxname) {
     close_current_popup();
-    show_popup("tools-box");
-  }
-
-  function show_donate_box(){
-    close_current_popup();
-    show_popup("donate-box");
+    show_popup(boxname);
   }
 
   function show_save_box(){
