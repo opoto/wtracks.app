@@ -1,6 +1,7 @@
 <%@ page import="java.util.*, java.io.*, java.lang.Exception, wtracks.GPX, wtracks.PMF, javax.jdo.PersistenceManager, java.util.logging.Logger" %><%@ include file="userid.jsp" %><%!
 
   static Logger log = Logger.getLogger("savegpx");
+  static int GPX_MAX_LEN = 300000;
 
   void saveError(HttpServletResponse response, JspWriter out, String message1, String message2) throws IOException {
     log.warning("save error: " + message1);
@@ -38,6 +39,13 @@ if ("Download".equals(action)) {
   out.print(gpxdata);
 } else {
 
+  int gpxlen = gpxdata.length();
+  if (gpxlen > GPX_MAX_LEN) {
+    log.severe("Saved GPX size:" + gpxlen);
+    int ratio = Math.round((new Float(gpxlen) / GPX_MAX_LEN) * 100) - 100;
+    saveError(response, out, "File is " + ratio + "% bigger than maximum authorized size", "Try to compact it using the Tool menu item.");
+    return;
+  }
   String userID = getUserID(session);
   if ((userID == null) || (userID.length() == 0)) {
     log.severe("Saving with no userID: " + getUser(session));

@@ -375,8 +375,8 @@
               <input type="submit" value="Compact" />
             </td><td>
               Delete as many track points as possible, keeping track within a
-              <input name="prunedist" type="text" size="3" value="10"/>
-              meters wide band
+              <input name="prunedist" type="text" size="3" value="5"/>
+              meters wide band (increase value to reduce file size) 
             </td>
           </form>
         </tr>
