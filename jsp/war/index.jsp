@@ -452,7 +452,7 @@
     </div>
 
     <div id="user-box" onkeydown='check_for_escape(event, "user-box")'>
-      <div><a href='login.jsp?action=logout&<%=rpxgoto%>'>Logout</a></div>
+      <div><a href='login.jsp?action=logout&<%=rpxgoto%>' rel="nofollow">Logout</a></div>
     </div>
 
     <div class="options-box" id="menu" onkeydown='check_for_escape(event, "menu")'>
@@ -584,7 +584,7 @@
             <td>
               <input type="submit" value="Load GPX from URL:" />
             </td><td>
-              <input id="gpxurl" type="text" size="30" name="url" value="http://" />
+              <input id="gpxurl" type="text" size="30" name="url" placeholder="http://..." />
             </td>
           </form>
         </tr>
@@ -618,7 +618,7 @@
             </select>
 
           </td><td>
-            <input type='text' id='track-filter' size='30' onkeyup='return filterTracks(event, this.value)'>
+            <input type='text' id='track-filter' size='30' onkeyup='return filterTracks(event, this.value)' placeholder="Search by name">
         </tr>
         <tr>
           <td colspan="2">
@@ -638,7 +638,7 @@
         </tr>
         <tr>
           <td>Track Name</td>
-          <td><input type="text" size="40" id="trackname" onkeypress="return clickOnEnter(event,'savebutton')"/></td>
+          <td><input type="text" size="40" id="trackname" onkeypress="return clickOnEnter(event,'savebutton')" placeholder="Enter track name"/></td>
         </tr>
         <tr>
           <td align="right"><input type="checkbox" id="savealt"/></td>
@@ -666,7 +666,7 @@
 <% } %>
         <tr>
           <input type='hidden' id='savetype' value="" />
-          <form target="_blank" action="savegpx.jsp" method="post" onSubmit="return wt_doSave()">
+          <form target="_blank" action="savegpx.jsp" method="post" onSubmit="return wt_doSave()" rel="nofollow">
             <td colspan="2">
               <input type='hidden' id='savedname' name='savedname' value='' />
               <input type="submit" id="savebutton" name="action" value="Download" onclick="document.getElementById('savetype').value='file'"/>
@@ -758,7 +758,8 @@
   var ROUNDTRIP_IMG = "<img src='img/roundtrip.png' alt='Round Trip' title='Round Trip'>";
   var ONEWAY_IMG = "<img src='img/oneway.png' alt='One Way' title='One Way'>";
   var WTRACKS = "WTracks - Online GPX track editor"
-
+  var NEW_TRACK_NAME = "New Track"
+  
   //  wpt icon
   var wp_icon = new google.maps.MarkerImage("img/icon13.png") // http://maps.google.com/mapfiles/kml/pal2/
   var wp_icon_shadow = new google.maps.MarkerImage("img/icon13s.png") // http://maps.google.com/mapfiles/kml/pal2/
@@ -859,7 +860,7 @@
 
   function addTrackLink(gpxURL) {
     name = document.getElementById("trktitle").innerHTML;
-    setElement("trktitle", "<a href='?gpx=" + gpxURL + "&markers=" + areMarkersShown() + "&labels=" + areLabelsShown() + "&alts=" + areAltsShown() + "'>" + name + "</a>")
+    setElement("trktitle", "<a href='?gpx=" + gpxURL + "&markers=" + areMarkersShown() + "&labels=" + areLabelsShown() + "&alts=" + areAltsShown() + "' rel='nofollow'>" + name + "</a>")
   }
 
   function getText(element) {
@@ -1172,7 +1173,11 @@
   }
 
   function show_save_box(){
-    document.getElementById("trackname").value = trackname
+    if (trackname != NEW_TRACK_NAME) {
+      document.getElementById("trackname").value = trackname
+    } else {
+      document.getElementById("trackname").value = "";
+    }
 <%
   if (isLoggedIn) {
 %>
@@ -1962,12 +1967,13 @@
 
     descent = 0
     climbing = 0
-    setTrackName("New Track")
+    setTrackName(NEW_TRACK_NAME)
     document.getElementById("id").value = "";
   }
 
 
   function wt_loadGPX(filename, link) {
+    if (!filename || filename === "") return;
     close_popup('load-box');
     //info("loading " + filename + "...<br>");
     info("<img src='img/processing.gif'> Loading...");
