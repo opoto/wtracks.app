@@ -69,6 +69,8 @@ if ("Download".equals(action)) {
     boolean deletePrevious = false;
     
     query = "checking previous track version";
+    boolean isNew = false;
+    
     if ((id != null) && (id.length() > 0)) {
       track = getTrack(session, pm, id);
       if (track != null) {
@@ -107,17 +109,18 @@ if ("Download".equals(action)) {
           query = "select id from " + GPX.class.getName() + " where id==qid parameters String qid";
           ids = (List<String>) pm.newQuery(query).execute(id);
         } while (!ids.isEmpty());
+        isNew = true;
       }
     }
 
     query = "creating GPX";
     GPX gpx = new GPX(id, name, userID, gpxdata, sharedMode);
     pm.makePersistent(gpx);
-    log.info("save ok: " + id);
+    log.info("Saved " +  gpxlen + "B" + (isNew?" [NEW]":"") + ": " + id);
     out.println(id);
 
     if (deletePrevious) {
-      log.info("deleting deprecated " + track.getId());
+      log.info("Deleting: " + track.getId());
       pm.deletePersistent(track);
     }
     
