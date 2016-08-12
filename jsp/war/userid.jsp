@@ -87,7 +87,7 @@
     // check authorized
     if (!isUser(session,track.getOwner())) {
       if (track.getSharedMode() == GPX.SHARED_PRIVATE) {
-        ulog.severe("User " + getUserID(session) + " accessing private track " + id + " from " + track.getOwner());
+        //ulog.info("User " + getUserID(session) + " accessing private track " + id + " from " + track.getOwner());
         return null;
       }
       String shareMode = track.getSharedMode() == GPX.SHARED_PUBLIC ? "public" : "shared";

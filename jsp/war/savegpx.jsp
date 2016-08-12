@@ -43,7 +43,7 @@ if ("Download".equals(action)) {
   if (gpxlen > GPX_MAX_LEN) {
     log.severe("Saved GPX size:" + gpxlen);
     int ratio = Math.round((new Float(gpxlen) / GPX_MAX_LEN) * 100) - 100;
-    saveError(response, out, "File is " + ratio + "% bigger than maximum authorized size", "Try to compact it using the Tool menu item.");
+    saveError(response, out, "File is " + ratio + "% bigger than maximum authorized size", "Try to compact it using the Tools menu item.");
     return;
   }
   String userID = getUserID(session);

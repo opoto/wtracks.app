@@ -1,4 +1,4 @@
-<%@ page import="org.apache.commons.fileupload.*, org.apache.commons.fileupload.servlet.ServletFileUpload, org.apache.commons.fileupload.disk.DiskFileItemFactory, java.util.*, java.io.*, java.util.logging.Logger" %>
+<%@ page import="java.util.*, java.io.*, java.util.logging.Logger" %>
 <%!
     static Logger log = Logger.getLogger("index");
 %>
@@ -101,37 +101,9 @@
 <%@ include file="includeFile.jsp" %>
 
 <%
-  StringBuffer file = null; // uploaded file content
-  String file_name = null; // uploaded file name
   boolean isLoggedIn = getUserID(session) != null;
   String userName = getUserName(session);
 
-  // File Upload detection
-  if (ServletFileUpload.isMultipartContent(request)){
-    ServletFileUpload servletFileUpload = new ServletFileUpload(new DiskFileItemFactory());
-    FileItemIterator it = servletFileUpload.getItemIterator(request);
-
-    String optionalFileName = "";
-    FileItemStream fileItem = null;
-    InputStream in = null;
-
-    try {
-      while (it.hasNext()){
-          fileItem = (FileItemStream)it.next();
-          if (!fileItem.isFormField()) {
-            file_name = fileItem.getName();
-            //System.out.println("reading file: " + file_name);
-            in = fileItem.openStream();
-            StringWriter tmpWriter = new StringWriter();
-            transferFile(in, tmpWriter);
-            file = tmpWriter.getBuffer();
-            break;
-          }
-      }
-    } catch (Exception ex) {
-      System.err.println("Error while reading uploaded file: " + ex);
-    }
-  }
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -294,7 +266,7 @@
         <li><a href="#" onclick="show_load_box(); return false;">Load</a></li>
         <li><a href="#" onclick="show_save_box(); return false;">Save</a></li>
         <li><a href="#" onclick="show_box('view-box'); return false;">View</a></li>
-        <li><a href="#" onclick="show_box('tools-box'); return false;">Tools</a></li>
+        <li><a href="#" onclick="show_tools_box(); return false;">Tools</a></li>
         <li><a href="html/privacy.html" target="_blank">Privacy</a></li>
         <li><a href="#" onclick="show_box('about-box'); return false;">About</a></li>
         <li><a href="#" onclick="show_box('donate-box'); return false;">Donate!</a></li>
@@ -374,9 +346,10 @@
             <td>
               <input type="submit" value="Compact" />
             </td><td>
-              Delete as many track points as possible, keeping track within a
+              Delete track points keeping track within a
               <input name="prunedist" type="text" size="3" value="5"/>
-              meters wide band (increase value to reduce file size) 
+              meters wide band (increase value to reduce file size)<br>
+              Current track has <span id="nbpoints"></span> tracks points.
             </td>
           </form>
         </tr>
@@ -520,10 +493,7 @@
 <% } %>
               <textarea name="gpxarea" class="hidden"
                         id="gpxarea" readonly rows="20" cols="80"><%
-
-  if (file != null) {
-     out.print(file.toString()); // the uploaded file content
-  }
+   boolean isFileUploaded = includeUploadedFile(request, response, out);
 %></textarea>
             </td>
           </form>
@@ -726,7 +696,7 @@
 
   function addTrackLink(gpxURL) {
     name = document.getElementById("trktitle").innerHTML;
-    setElement("trktitle", "<a href='?gpx=" + gpxURL + "&markers=" + areMarkersShown() + "&labels=" + areLabelsShown() + "&alts=" + areAltsShown() + "' rel='nofollow'>" + name + "</a>")
+    setElement("trktitle", "<a href='?gpx=" + gpxURL + "' rel='nofollow'>" + name + "</a>")
   }
 
   function getText(element) {
@@ -1026,6 +996,11 @@
   function show_box(boxname) {
     close_current_popup();
     show_popup(boxname);
+  }
+
+  function show_tools_box(boxname) {
+    document.getElementById("nbpoints").innerHTML = trkpts ? trkpts.length : 0;
+    show_box("tools-box");
   }
 
   function show_save_box(){
@@ -1593,7 +1568,8 @@
         newpoints.push(points[trkpts.length - 1])
 
         if (mindeleted < initlen) { // we deleted something ?
-          alert("Removed " + (initlen - newtrkpts.length) + " points out of " + initlen)
+          var removedpts = (initlen - newtrkpts.length);
+          alert("Removed " + removedpts + " points out of " + initlen + " (" + Math.round((removedpts / initlen) * 100) + "%)")
           // switch to new values
           points = newpoints
           trkpts = newtrkpts
@@ -2273,7 +2249,7 @@
     })
 
 <%
-if (file_name != null) {
+if (isFileUploaded) {
     out.println("    info('Uploaded file<br>')");
 %>
     wt_importGPX(document.getElementById('gpxarea').value, false);
