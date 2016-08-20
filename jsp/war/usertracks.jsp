@@ -24,7 +24,7 @@
         String id = track.getId();
         int sharedMode = track.getSharedMode();
         String linktxt = name.length() > 50 ? name.substring(0,47) + "..." : name;
-        out.println("<div class='atrackentry' name='" + StringEscapeUtils.escapeXml10(name) + "'>");
+        out.println("<div class='atrackentry' id='div-" + id + "' name='" + StringEscapeUtils.escapeXml10(name) + "'>");
         if (!publicList) {
           out.println("<a href='#' onclick='delete_track(\"" + StringEscapeUtils.escapeXml10(name) + "\", \"" + URLEncoder.encode(id) + "\")' title='Delete this track'><img src='img/delete.gif' title='Delete this track' alt='delete' style='border:0px'></a>&nbsp;");
         }
@@ -61,43 +61,30 @@
   log.info("id: " + id);
   log.info("delete: " + delete);
 /**/
-  if (delete != null) {
+PersistenceManager pm = null;
+try {
+  if (id == null) {
 
-    // get track
-    PersistenceManager pm = PMF.get().getPersistenceManager();
-    GPX track = getTrack(session, pm, delete);
-    if (track == null) {
-      response.sendError(HttpServletResponse.SC_NOT_FOUND, "This track does not exist");
-      return;
-    }
-    // check logged user is owner
-    if (!isUser(session, track.getOwner())) {
-      // not authorized
-      response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not authorized to delete this track");
-      return;
-    }
+      // list
+      pm = PMF.get().getPersistenceManager();
+      listTracks(session, pm, out, scope, hostURL);
+      
+  } else if (id != null) {
 
-    pm.deletePersistent(track);
+      pm = PMF.get().getPersistenceManager();
+      GPX track = getTrack(session, pm, id);
+      if (track == null) {
+        response.sendError(HttpServletResponse.SC_NOT_FOUND, "This track does not exist");
+        return;
+      }
 
-    listTracks(session, pm, out, scope, hostURL);
+      response.setContentType("text/xml");
+      out.println(track.getGpx());
 
-} else if (id == null) {
-
-    // list
-    PersistenceManager pm = PMF.get().getPersistenceManager();
-    listTracks(session, pm, out, scope, hostURL);
-    
-} else if (id != null) {
-
-    PersistenceManager pm = PMF.get().getPersistenceManager();
-    GPX track = getTrack(session, pm, id);
-    if (track == null) {
-      response.sendError(HttpServletResponse.SC_NOT_FOUND, "This track does not exist");
-      return;
-    }
-
-    response.setContentType("text/xml");
-    out.println(track.getGpx());
-
+  }
+} catch (Exception ex) {
+  response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+} finally {
+  if (pm != null) pm.close();
 }
 %>

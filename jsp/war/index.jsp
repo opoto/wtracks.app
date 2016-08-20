@@ -410,7 +410,7 @@
         </tr>
         <tr>
           <td style="vertical-align:top;">
-            <select id="load_list" size="1" onChange="load_tracks('')">
+            <select id="load_list" size="1" onChange="load_tracks()">
 <%
   if (isLoggedIn) {
 %>
@@ -1897,10 +1897,10 @@
         var bounds = gpx.getElementsByTagName("bounds");
         var pts = gpx.getElementsByTagName("trkpt");
         if (pts && pts.length > 0) {
-	  // there are track points
+          // there are track points
           wt_importPoints(pts, true);
-	} else {
-	  // no track point, look for route points
+        } else {
+          // no track point, look for route points
           pts = gpx.getElementsByTagName("rtept");
           if (pts) wt_importPoints(pts, true);
         }
@@ -1908,18 +1908,18 @@
         if (pts) wt_importPoints(pts, false);
         var center = new google.maps.LatLng(0,0)
         var zoom = 10
-        var mapbounds = new google.maps.LatLngBounds();
         if (bounds && bounds.length > 0) {
           //debug(bounds.length)
           var sw = new google.maps.LatLng(parseFloat(bounds[0].getAttribute("minlat")),
                                parseFloat(bounds[0].getAttribute("minlon")))
           var ne = new google.maps.LatLng(parseFloat(bounds[0].getAttribute("maxlat")),
                                parseFloat(bounds[0].getAttribute("maxlon")))
-          mapbounds = new google.maps.LatLngBounds(sw, ne)
+          var mapbounds = new google.maps.LatLngBounds(sw, ne)
           map.fitBounds(mapbounds)
           map.setZoom(map.getZoom()+1)
         } else {
           // compute bounds to include all trackpoints and waypoints
+          var mapbounds = new google.maps.LatLngBounds();
           if (trkpts) {
             for(var i = 0; i < trkpts.length; i++) {
               mapbounds.extend(trkpts[i].getPosition());
@@ -2416,13 +2416,13 @@ if (isFileUploaded) {
     document.getElementById("track-filter").style.display = "block"
   }
 
-  function load_tracks(params) {
+  function load_tracks() {
     document.getElementById("usertracks-span").innerHTML = "<img src='img/processing.gif'>";
     document.getElementById("track-filter").value = "";
     document.getElementById("track-filter").style.display = "none"
     // "Your tracks" or "Public" ?
     var scope = (document.getElementById("load_list").selectedIndex==0) ? "me" : "all"
-    Lokris.AjaxCall("usertracks.jsp" + params, show_user_tracks,
+    Lokris.AjaxCall("usertracks.jsp", show_user_tracks,
       { method: "POST",
         postBody: "scope="+scope
       });
@@ -2430,12 +2430,24 @@ if (isFileUploaded) {
 
   function delete_track(name, id) {
     if (confirm("Delete track '" + htmlDecode(name) + "'?")) {
-      load_tracks('?delete=' + encodeURIComponent(id));
+      Lokris.AjaxCall("savegpx.jsp",  function(res) {
+          var div = document.getElementById('div-'+id);
+          if (div) {
+              div.parentNode.removeChild(div);
+          }
+        },
+        { method: "POST",
+          postBody: "action=Delete&id="+id,
+          errorHandler : function(res) {
+            alert("FAILED!");
+          }
+        }
+      );
     }
   }
 
   function show_load_box(){
-    load_tracks("");
+    load_tracks();
     close_current_popup();
     show_popup("load-box");
     // dont't focus for mobile: it displays keyboard
