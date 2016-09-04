@@ -54,7 +54,9 @@
       if (ok) {
          session.setAttribute("LoginUserID", user);
       }
-    } catch (Exception ex) {}
+    } catch (Exception ex) {
+      ulog.warning(ex.toString());
+    }
     return ok;
   }
 
