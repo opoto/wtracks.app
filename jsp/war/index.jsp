@@ -73,7 +73,7 @@
       showDonatePopup = true;
     }
 
- 
+
   // ===============================================================================
   // compute application url
   String host = request.getServerName();
@@ -262,6 +262,7 @@
 
     <div class="options-box" id="menu" onkeydown='check_for_escape(event, "menu")'>
       <ul id="menu-list">
+        <li><a href="https://opoto.github.io/wtracks" class="blink_me">Try new version</a></li>
         <li><a href="#" onclick="clear_track(); return false;">New</a></li>
         <li><a href="#" onclick="show_load_box(); return false;">Load</a></li>
         <li><a href="#" onclick="show_save_box(); return false;">Save</a></li>
@@ -510,7 +511,7 @@
         <tr>
           <td colspan="2">
             <h1>Help WTracks!</h1>
-             <p>WTracks is currently overloaded, because of unexpected traffic by Pokemon GO users. These new users are welcome, but WTracks's current hosting plan has transaction quotas which are now exceeded. Please contribute to increase the quotas by giving 1 euro (or more!):</p>
+             <p>Please support WTracks by contributing to development and hosting costs:</p>
               <a href="<%=donate_link%>" target="_blank"><img src="img/donate-paypal.png" /></a>
              <p>Thanks to all donators!</p>
           </td>
@@ -536,7 +537,7 @@
               This service is provided as is, with no guarantee.
             </div>
             <div>
-              This is an open source project, you may see full code and contribute through our <a href="https://github.com/opoto/wtracks">GitHub project</a>
+              This is an open source project, you may see full code and contribute through our <a href="https://github.com/opoto/wtracks.app">GitHub project</a>
             </div>
             <div>
               Share the word:&nbsp;
@@ -595,7 +596,7 @@
   var ONEWAY_IMG = "<img src='img/oneway.png' alt='One Way' title='One Way'>";
   var WTRACKS = "WTracks - Online GPX track editor"
   var NEW_TRACK_NAME = "New Track"
-  
+
   //  wpt icon
   var wp_icon = new google.maps.MarkerImage("img/icon13.png") // http://maps.google.com/mapfiles/kml/pal2/
   var wp_icon_shadow = new google.maps.MarkerImage("img/icon13s.png") // http://maps.google.com/mapfiles/kml/pal2/
@@ -2524,4 +2525,3 @@ if (isFileUploaded) {
    <!-- script src="js/markerclusterer.js" type="text/javascript"></script -->
 
 </html>
-
