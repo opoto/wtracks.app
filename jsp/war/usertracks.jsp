@@ -1,20 +1,20 @@
 <%@ page import="java.util.*, java.io.*, javax.servlet.jsp.JspWriter, java.net.URLEncoder, java.net.URLDecoder, java.lang.Exception, wtracks.GPX, wtracks.PMF, javax.jdo.PersistenceManager, javax.jdo.Query, org.apache.commons.lang3.StringEscapeUtils, java.util.logging.Logger" %><%@ include file="userid.jsp" %><%!
 
   static Logger log = Logger.getLogger("usertracks");
-  
-  void listTracks(HttpSession session, PersistenceManager pm, JspWriter out, String scope, String hostURL) {
+
+  void listTracks(HttpSession session, PersistenceManager pm, JspWriter out, String scope, String appUrl) {
     GPX thetrack = null;
     String query = null;
     Object param = null;
     try {
-      query = "select from " + GPX.class.getName(); 
+      query = "select from " + GPX.class.getName();
       boolean publicList = scope.equals("all");
       if (publicList) {
         query += " where sharedMode==qsharedmode parameters int qsharedmode";
-        param = new Integer(GPX.SHARED_PUBLIC); 
+        param = new Integer(GPX.SHARED_PUBLIC);
       } else {
         query += " where owner==qowner parameters String qowner";
-        param = getUserID(session); 
+        param = getUserID(session);
       }
       query += " order by name asc";
       List<GPX> tracks = (List<GPX>) pm.newQuery(query).execute(param);
@@ -32,12 +32,19 @@
         out.print("<a href='." + qparam + "' ");
         out.print(" onclick='wt_loadUserGPX(\"" + URLEncoder.encode(id) + "\"); return false; ' >");
         out.println(linktxt + "</a>");
+
+        if ((sharedMode == GPX.SHARED_PUBLIC) || (sharedMode == GPX.SHARED_LINK)) {
+          String gpxurl = appUrl + "usertracks.jsp?id=" + URLEncoder.encode(id);
+          out.print("<a href='https://opoto.github.io/wtracks/?ext=gpx&url=" + URLEncoder.encode(gpxurl) + "' target='_blank'>");
+          out.println("<img src='img/wtracks2.gif' title='Open in new WTracks' alt='Open in new WTracks' style='border:0px'></a>");
+        }
+
         if (sharedMode == GPX.SHARED_PUBLIC) {
           out.println("<img src='img/share.gif' title='Public - Anyone can see and read this track' alt='public' style='border:0px'>");
         } else if (sharedMode == GPX.SHARED_LINK) {
           out.println("<img src='img/link.png' title='Shareable - you can share this link' alt='shareable' style='border:0px'>");
         }
-        out.println("<a target='_blank' href='http://chart.apis.google.com/chart?cht=qr&chs=400x400&chld=L&choe=UTF-8&chl="+URLEncoder.encode(hostURL + qparam)+"'><img src='img/qrcode.png' title='Show QRCode' alt='QRCode' style='border:0px'></a>");
+        out.println("<a target='_blank' href='http://chart.apis.google.com/chart?cht=qr&chs=400x400&chld=L&choe=UTF-8&chl=" + URLEncoder.encode(appUrl + qparam) + "'><img src='img/qrcode.png' title='Show QRCode' alt='QRCode' style='border:0px'></a>");
         out.println("</div>");
       }
     } catch (Exception ex) {
@@ -48,13 +55,11 @@
       log.severe("track: " + thetrack);
     }
   }
-  
+
 %><%
   String scope = request.getParameter("scope");
   String id = request.getParameter("id");
   String delete = request.getParameter("delete");
-  String scheme = request.isSecure() ? "https" : "http";
-  String hostURL = scheme + "://" + request.getServerName() + "/";
 /**
   log.info("scope: " + scope);
   log.info("Logged UserID: " + getUserID(session));
@@ -67,8 +72,8 @@ try {
 
       // list
       pm = PMF.get().getPersistenceManager();
-      listTracks(session, pm, out, scope, hostURL);
-      
+      listTracks(session, pm, out, scope, getAppUrl(request));
+
   } else if (id != null) {
 
       pm = PMF.get().getPersistenceManager();

@@ -69,6 +69,8 @@ To use this script, you should create a "ant.properties" file in current directo
       </fileset>
     </copy>
     <javac
+        source="1.7"
+        target="1.7"
         srcdir="src"
         destdir="war/WEB-INF/classes"
         classpathref="project.classpath"
@@ -125,7 +127,7 @@ To use this script, you should create a "ant.properties" file in current directo
     </appcfg>
   </target>
 
-  <target name="request_logs, proxy"
+  <target name="request_logs" depends="proxy"
       description="Downloads log data from App Engine for the application.">
     <appcfg action="request_logs" email="${email}" war="war">
       <options>

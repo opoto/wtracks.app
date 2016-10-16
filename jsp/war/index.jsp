@@ -75,22 +75,9 @@
 
 
   // ===============================================================================
-  // compute application url
-  String host = request.getServerName();
-  int port = request.getServerPort();
-  String scheme = request.getScheme();
-  boolean isDefaultPort = (request.isSecure() && (port == 443)) || (port == 80);
-  String appUrl = scheme + "://" + host;
-  if (!isDefaultPort) {
-    appUrl += (":" + port);
-  }
-  String ctxPath = request.getContextPath();
-  if (ctxPath.length() == 0) {
-    ctxPath = "/";
-  }
-  appUrl += ctxPath;
-
-  String rpxgoto = "goto=" + java.net.URLEncoder.encode(ctxPath);
+  String appUrl = getAppUrl(request);
+  
+  String rpxgoto = "goto=" + java.net.URLEncoder.encode(getContextPath(request));
   String rpxnow_token_url = "/login.jsp?" + rpxgoto;
 
 

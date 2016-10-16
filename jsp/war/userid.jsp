@@ -1,4 +1,4 @@
-<%@ page import="java.util.*, java.io.*, javax.servlet.jsp.JspWriter, java.net.URLEncoder, java.net.URLDecoder, java.lang.Exception, wtracks.GPX, wtracks.PMF, javax.jdo.PersistenceManager, javax.jdo.Query, org.apache.commons.lang3.StringEscapeUtils, javax.servlet.http.HttpSession, org.json.JSONObject, java.util.logging.Logger" %><%!
+<%@ page import="java.util.*, java.io.*, javax.servlet.jsp.JspWriter, java.net.URLEncoder, java.net.URLDecoder, java.lang.Exception, wtracks.GPX, wtracks.PMF, javax.jdo.PersistenceManager, javax.jdo.Query, org.apache.commons.lang3.StringEscapeUtils, javax.servlet.http.*, org.json.JSONObject, java.util.logging.Logger" %><%!
 
   static Logger ulog = Logger.getLogger("userid");
 
@@ -98,4 +98,24 @@
     return track;
   }
 
+  String getContextPath(HttpServletRequest request) {
+    String ctxPath = request.getContextPath();
+    if (ctxPath.length() == 0) {
+      ctxPath = "/";
+    }
+    return ctxPath;
+  }
+
+  String getAppUrl(HttpServletRequest request) {
+    String host = request.getServerName();
+    int port = request.getServerPort();
+    String scheme = request.getScheme();
+    boolean isDefaultPort = (request.isSecure() && (port == 443)) || (port == 80);
+    String appUrl = scheme + "://" + host;
+    if (!isDefaultPort) {
+      appUrl += (":" + port);
+    }
+    appUrl += getContextPath(request);
+    return appUrl;
+  }
 %>
