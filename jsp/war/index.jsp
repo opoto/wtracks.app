@@ -76,7 +76,7 @@
 
   // ===============================================================================
   String appUrl = getAppUrl(request);
-  
+
   String rpxgoto = "goto=" + java.net.URLEncoder.encode(getContextPath(request));
   String rpxnow_token_url = "/login.jsp?" + rpxgoto;
 
@@ -754,16 +754,6 @@
     return strTime
   }
 
-  function showDateTime(time) {
-    var strTime = "P";
-    if (time >= 3600) strTime += Math.floor(time/3600) + "H";
-    time %= 3600;
-    if (time >= 60) strTime += Math.floor(time/60) + "M";
-    time %= 60;
-    strTime += Math.round(time) + "S";
-    return strTime
-  }
-
   function isChecked(eltId) {
     return document.getElementById(eltId).checked;
   }
@@ -1202,7 +1192,8 @@
       gpx += "<ele>" + this.wt_manalt + "</ele>";
     }
     if (savetime && (this.wt_mantime != undefined)) {
-      gpx += "<time>" + showDateTime(this.wt_mantime) + "</time>";
+      var time = new Date(new Date().getTime() + (this.wt_mantime*1000))
+      gpx += "<time>" + time.toISOString() + "</time>";
     }
     gpx += "</" + this.wt_gpxelt(asroute) + ">\n";
     return gpx;
@@ -1709,12 +1700,8 @@
       gpx += "    <text>WTracks</text>\n"
       gpx += "    <type>text/html</type>\n"
       gpx += "  </link>\n"
-      var t = new Date();
-      t = new Date(Date.UTC(1900 + t.getYear(), t.getMonth(), t.getDate(),
-                            t.getHours(), t.getMinutes(), t.getSeconds()));
-      var strtime = (1900 + t.getYear()) + "-" + lead0(1+t.getMonth()) + "-" + lead0(t.getDate()) + "T"
-                    + lead0(t.getHours()) + "-" + lead0(t.getMinutes()) + "-" + lead0(t.getSeconds()) + "Z";
-      gpx += "  <time>" + strtime + "</time>\n"
+      var now = new Date();
+      gpx += "  <time>" + now.toISOString() + "</time>\n";
       var sw = map.getBounds().getSouthWest();
       var ne = map.getBounds().getNorthEast();
       gpx += '<bounds minlat="' + Math.min( sw.lat(), ne.lat()) + '" minlon="' + Math.min( sw.lng(), ne.lng()) + '" maxlat="' + Math.max( sw.lat(), ne.lat()) + '" maxlon="'+ Math.max( sw.lng(), ne.lng()) + '"/>';
