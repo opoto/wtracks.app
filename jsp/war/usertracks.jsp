@@ -36,7 +36,7 @@
         if ((sharedMode == GPX.SHARED_PUBLIC) || (sharedMode == GPX.SHARED_LINK)) {
           String gpxurl = appUrl + "usertracks.jsp?id=" + URLEncoder.encode(id);
           out.print("<a href='https://opoto.github.io/wtracks/?ext=gpx&url=" + URLEncoder.encode(gpxurl) + "' target='_blank'>");
-          out.println("<img src='img/wtracks2.gif' title='Open in new WTracks' alt='Open in new WTracks' style='border:0px'></a>");
+          out.println("<img src='img/wtracks2.png' title='Open in new WTracks' alt='Open in new WTracks' style='border:0px'></a>");
         }
 
         if (sharedMode == GPX.SHARED_PUBLIC) {
