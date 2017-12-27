@@ -83,7 +83,6 @@
 
   // The following config file should set gmaps_key, ganalytics_key, rpxnow_realm and rpxnow_key
 %>
-<%@ include file="config.jsp" %>
 <%@ include file="userid.jsp" %>
 <%@ include file="includeFile.jsp" %>
 

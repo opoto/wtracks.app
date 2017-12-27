@@ -43,7 +43,7 @@ To use this script, you should create a "ant.properties" file in current directo
   <target name="proxy" if="proxy.enabled">
     <echo>setting proxy ${proxy.user}:${proxy.password}@${proxy.host}:${proxy.port}</echo>
     <setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}"/>
-    <!-- 
+    <!--
       proxyuser="${proxy.user}" proxypassword="${proxy.password}"
       -->
   </target>
@@ -69,8 +69,6 @@ To use this script, you should create a "ant.properties" file in current directo
       </fileset>
     </copy>
     <javac
-        source="1.7"
-        target="1.7"
         srcdir="src"
         destdir="war/WEB-INF/classes"
         classpathref="project.classpath"

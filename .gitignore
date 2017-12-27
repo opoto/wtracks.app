@@ -7,3 +7,9 @@ jsp/war/img
 jsp/war/js
 jsp/war/tracks
 /common/mytracks
+jsp/.appcfg_*
+jsp/.classpath
+jsp/.project
+jsp/.settings
+jsp/admin
+jsp/war/config.jsp

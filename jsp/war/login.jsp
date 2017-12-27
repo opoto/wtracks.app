@@ -2,7 +2,6 @@
 <%
   String host = request.getServerName();
 %>
-<%@ include file="config.jsp" %>
 <%@ include file="userid.jsp" %>
 <%!
   static Logger log = Logger.getLogger("savegpx");
@@ -61,7 +60,7 @@
 <%
     if (user != null) {
 %>
-You're logged in as 
+You're logged in as
 <script>
    user = <%= user %>
    document.write(user.profile.displayName);

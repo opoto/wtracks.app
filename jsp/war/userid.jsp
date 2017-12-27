@@ -1,4 +1,4 @@
-<%@ page import="java.util.*, java.io.*, javax.servlet.jsp.JspWriter, java.net.URLEncoder, java.net.URLDecoder, java.lang.Exception, wtracks.GPX, wtracks.PMF, javax.jdo.PersistenceManager, javax.jdo.Query, org.apache.commons.lang3.StringEscapeUtils, javax.servlet.http.*, org.json.JSONObject, java.util.logging.Logger" %><%!
+<%@ page import="java.util.*, java.io.*, javax.servlet.jsp.JspWriter, java.net.URLEncoder, java.net.URLDecoder, java.lang.Exception, wtracks.GPX, wtracks.PMF, javax.jdo.PersistenceManager, javax.jdo.Query, org.apache.commons.lang3.StringEscapeUtils, javax.servlet.http.*, org.json.JSONObject, java.util.logging.Logger" %><%@ include file="config.jsp" %><%!
 
   static Logger ulog = Logger.getLogger("userid");
 
@@ -43,6 +43,9 @@
       }
     }
     name = StringEscapeUtils.escapeHtml4(name);
+    if (isAdmin(session)) {
+      name += "*";
+    }
     return name;
   }
 
@@ -53,6 +56,7 @@
       ok = "ok".equals(jobj.getString("stat"));
       if (ok) {
          session.setAttribute("LoginUserID", user);
+         session.setAttribute("isAdmin", new Boolean(getUserID(session).equals(adminId)));
       }
     } catch (Exception ex) {
       ulog.warning(ex.toString());
@@ -62,6 +66,7 @@
 
   void clearUser(HttpSession session) {
     session.removeAttribute("LoginUserID");
+    session.removeAttribute("isAdmin");
   }
 
   boolean isUser(HttpSession session, String identifier) {
@@ -71,6 +76,10 @@
     }
     boolean ok = currentUser.equals(identifier);
     return ok;
+  }
+
+  boolean isAdmin(HttpSession session) {
+    return (Boolean)session.getAttribute("isAdmin");
   }
 
   String newTrackId() {
