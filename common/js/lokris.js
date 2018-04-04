@@ -7,7 +7,7 @@
 
    It's named after "Ajax the Lesser", son of the King of Locris
    (http://en.wikipedia.org/wiki/Ajax_the_Lesser).
-   The spelling (with k) follows the transcription of the 
+   The spelling (with k) follows the transcription of the
    ancient greek name of the region of Locris.
 
    (c) 2006 Linkwerk.com, Christoph Leisegang, Stefan Mintert
@@ -70,13 +70,13 @@ Lokris.AjaxCall = function (uri, callbackFunction, options) {
 		break;
 	    } catch (e) { }
 	}
-    } 
+    }
     if ( req === null) { // Sorry, no Ajax
         alert("Ajax not available");
         return null;
     }
 
-    lwAjax.request = req; 
+    lwAjax.request = req;
     if (timeoutHandler != undefined) {
         lwAjax.timeoutHandler = timeoutHandler;
         lwAjax.timeoutId = window.setTimeout(function() { lwAjax.request.abort(); lwAjax.timeoutHandler(lwAjax.request) }, timeout);
@@ -114,8 +114,8 @@ Lokris.AjaxCall = function (uri, callbackFunction, options) {
   if (responseHandler == null || responseHandler === undefined) {
     return function() {};  // Dummy function
     // Background: When async==false, MSIE calls getreadystatechange.
-    // Mozilla doesn't! 
-    // Therefore: Call Lokris.AjaxCall with "null" as 
+    // Mozilla doesn't!
+    // Therefore: Call Lokris.AjaxCall with "null" as
     // 2nd argument (responseHandler).
     // This if-clause returns a dummy function to be called
     // from MSIE (and Opera, mybe other browsers).
@@ -123,7 +123,7 @@ Lokris.AjaxCall = function (uri, callbackFunction, options) {
   }
 
 
-  // Return an anonymous function that listens to the 
+  // Return an anonymous function that listens to the
   // XMLHttpRequest instance
   return function () {
 
@@ -132,7 +132,7 @@ Lokris.AjaxCall = function (uri, callbackFunction, options) {
       if (lwAjax.timeoutId != undefined) {
 	window.clearTimeout(lwAjax.timeoutId);
       }
-      
+
       // Check that a successful server response was received
       if (lwAjax.request.status == 200) {
 
@@ -142,15 +142,30 @@ Lokris.AjaxCall = function (uri, callbackFunction, options) {
 	  var mimeType = String("" + lwAjax.request.getResponseHeader("Content-Type")).split(';')[0];
 
 	  if ( mimeType == "text/xml" ) {
-	    // Pass the XML payload of the response to the 
-            // handler function
-            responseHandler(lwAjax.request.responseXML);
-	  } else {
-            // Pass the text payload of the response to the
-            // handler function
-	    responseHandler(lwAjax.request.responseText);
-	  }
-	}
+      var xml = lwAjax.request.responseXML;
+      if (!xml) {
+        var txt = lwAjax.request.responseText.trim();
+        if (window.DOMParser)
+        {
+            parser = new DOMParser();
+            xml = parser.parseFromString(txt, "text/xml");
+        }
+        else // Internet Explorer
+        {
+            xml = new ActiveXObject("Microsoft.XMLDOM");
+            xmlDoc.async = false;
+            xmlDoc.loadXML(txt);
+        }
+      }
+	    // Pass the XML payload of the response to the
+      // handler function
+      responseHandler(xml);
+    } else {
+      // Pass the text payload of the response to the
+        // handler function
+      responseHandler(lwAjax.request.responseText);
+    }
+  }
       } else {
 	  // An HTTP problem has occurred
 	  errorHandler(lwAjax.request);
@@ -161,8 +176,8 @@ Lokris.AjaxCall = function (uri, callbackFunction, options) {
 
 
 
-/* ==== Backward Compatibility ==== 
-   For pages using the old name of the Ajax function 
+/* ==== Backward Compatibility ====
+   For pages using the old name of the Ajax function
 */
 
 lwAjaxCall = Lokris.AjaxCall;
