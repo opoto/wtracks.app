@@ -33,11 +33,10 @@
         out.print(" onclick='wt_loadUserGPX(\"" + URLEncoder.encode(id) + "\"); return false; ' >");
         out.println(linktxt + "</a>");
 
-        if ((sharedMode == GPX.SHARED_PUBLIC) || (sharedMode == GPX.SHARED_LINK)) {
-          String gpxurl = appUrl + "usertracks.jsp?id=" + URLEncoder.encode(id);
-          out.print("<a href='https://opoto.github.io/wtracks/?ext=gpx&url=" + URLEncoder.encode(gpxurl) + "' target='_blank'>");
-          out.println("<img src='img/wtracks2.png' title='Open in new WTracks' alt='Open in new WTracks' style='border:0px'></a>");
-        }
+        // open in new WTracks
+        String gpxurl = appUrl + "usertracks.jsp?id=" + URLEncoder.encode(id);
+        out.print("<a href='https://opoto.github.io/wtracks/?ext=gpx&noproxy=true&url=" + URLEncoder.encode(gpxurl) + "' target='_blank'>");
+        out.println("<img src='img/wtracks2.png' title='Open in new WTracks' alt='Open in new WTracks' style='border:0px'></a>");
 
         if (sharedMode == GPX.SHARED_PUBLIC) {
           out.println("<img src='img/share.gif' title='Public - Anyone can see and read this track' alt='public' style='border:0px'>");
@@ -66,6 +65,16 @@
   log.info("id: " + id);
   log.info("delete: " + delete);
 /**/
+
+String reqOrigin = request.getHeader("Origin");
+if ((reqOrigin != null)
+  && (reqOrigin.startsWith("https://opoto.github.io") || reqOrigin.startsWith("https://w.dev.local:8443")) ) {
+  response.addHeader("Access-Control-Request-Method", "OPTIONS, GET, POST");
+  response.addHeader("Access-Control-Allow-Origin", reqOrigin);
+  response.addHeader("Access-Control-Allow-Credentials", "true");
+  response.addHeader("Vary", "Origin");
+}
+
 PersistenceManager pm = null;
 try {
   if (id == null) {
