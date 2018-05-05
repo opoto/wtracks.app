@@ -137,4 +137,11 @@ To use this script, you should create a "ant.properties" file in current directo
     </appcfg>
   </target>
 
+  <target name="clean" description="Deletes build artefacts">
+    <delete>
+      <fileset dir="war/WEB-INF/classes" includes="**/*"/>
+      <fileset dir="war/WEB-INF/lib" includes="**/*.jar"/>
+    </delete>
+  </target>
+
 </project>
