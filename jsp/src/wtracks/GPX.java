@@ -64,6 +64,10 @@ public class GPX {
         return owner;
     }
 
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
     public String getGpx() {
         return gpx.getValue();
     }

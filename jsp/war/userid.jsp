@@ -52,9 +52,11 @@
   boolean setUser(HttpSession session, String user) {
     boolean ok = false;
     try {
+      //ulog.info("JSON " + user);
       JSONObject jobj = new JSONObject(user);
       ok = "ok".equals(jobj.getString("stat"));
       if (ok) {
+         //ulog.info("User " + getUserID(session));
          session.setAttribute("LoginUserID", user);
          session.setAttribute("isAdmin", new Boolean(getUserID(session).equals(adminId)));
       }
