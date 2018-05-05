@@ -104,7 +104,7 @@
     <link rel="stylesheet" type="text/css" href="wtracks.css">
 
     <!-- Google API license key -->
-    <script src="https://maps.google.com/maps/api/js?v=3&libraries=geometry" type="text/javascript"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3&key=<%=gmaps_key%>&libraries=geometry"></script>
 
     <!-- Janrain RPX widget -->
     <script type="text/javascript">
