@@ -516,7 +516,7 @@
             <h1>WTracks <img src="/img/favicon.ico" alt="logo"></h1>
             <div>
               <a href="http://creativecommons.org/licenses/by/2.0/fr/deed.en_US"><img src="https://licensebuttons.net/l/by/2.0/fr/80x15.png" border=0></a>
-              <a href="#" onclick="doEmail2('gmail.com','Olivier.Potonniee','?subject=WTracks'); return false">Olivier Potonni&eacute;e</a>
+              <a href="#" onclick="doEmail2('gmail.com','Olivier.Potonniee','?subject=WTracks app'); return false">Olivier Potonni&eacute;e</a>
               - <a href="html/privacy.html" target="_blank">Privacy Policy</a>
             </div>
             <div>
